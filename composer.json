@@ -1,0 +1,34 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "^5.6",
+        "mailjet/mailjet-apiv3-php": "^1.6",
+        "phpoffice/phpspreadsheet": "^5.4",
+        "phpmailer/phpmailer": "^7.0",
+      "ext-pdo": "*"
+        "tijsverkoyen/css-to-inline-styles": "^2.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "10.5",
+        "phpstan/phpstan": "1.10",
+        "squizlabs/php_codesniffer": "^4.0",
+        "phpmd/phpmd": "2.13"
+    },
+    "scripts": { 
+        "lint": "phpcs --standard=PSR12 src",
+        "analyse": "phpstan analyse src",
+        "test": "phpunit"
+    },
+    "autoload": {
+        "psr-4": {
+            "Controllers\\": "src/Controllers/",
+            "Service\\": "src/Service/",
+            "Model\\": "src/Model/",
+            "Core\\": "src/Core/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "Tests/"
+        }
+    }
+}

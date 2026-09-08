@@ -1,0 +1,27 @@
+# Activer le moteur de réécriture d'URL
+
+RewriteEngine On
+RewriteBase /
+
+
+# Rediriger toutes les requêtes vers index.php
+# sauf si le fichier ou dossier existe
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]
+
+# Interdire l'accès aux fichiers cachés (.env, .htaccess, etc.)
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Bloquer l'accès au dossier .git et au dossier vendor
+
+RedirectMatch 404 ^/\.git
+RedirectMatch 404 ^/vendor/
+
+# Définir les fichiers index par défaut
+
+DirectoryIndex index.php index.html index.htm

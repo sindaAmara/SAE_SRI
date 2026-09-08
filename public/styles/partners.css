@@ -1,0 +1,293 @@
+
+
+/* Conteneur du bouton */
+.partners-actions {
+    margin: 20px 0;
+    display: flex;
+    justify-content: flex-end;
+    font-size: var(--button-size);
+}
+
+/* Bouton Ajouter */
+.btn-add-partner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background-color: var(--primary-color);
+    color: #ffffff;
+
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+
+    font-weight: bold;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease, transform 0.1s ease;
+
+}
+
+/* Effet clic */
+.btn-add-partner:active {
+    transform: translateY(0);
+}
+
+/* Icône + */
+.btn-plus {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 26px;
+    height: 26px;
+
+    background-color: #ffffff;
+    color: var(--primary-color);
+
+    border-radius: 50%;
+    font-size: var(--button-small-size);
+    font-weight: bold;
+
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2em;
+    background: #f9f9f9;
+}
+
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 0.8em;
+    text-align: left;
+}
+
+th {
+    background: #0056b3;
+    color: #fff;
+}
+
+tr:nth-child(even) {
+    background: #f0f4ff;
+}
+
+.sub-menu {
+    margin: 1em 0;
+    text-align: center;
+}
+
+.sub-menu a {
+    margin: 0 5px;
+    padding: 8px 12px;
+    background: #2B91BB;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.sub-menu a:hover {
+    background: #0056b3;
+}
+
+.sub-menu a.active {
+    background: #0056b3;
+}
+
+#logo_amu{
+    height:100px;
+}
+
+h2 {
+    margin-bottom: 25px;
+    color: #222;
+
+}
+
+p.lien {
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+a {
+    color: #006694;
+    text-decoration: none;
+}
+
+#Université_partenaires {
+    max-width: 600px;
+    width: 100%;
+    display: block;
+    margin-top: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.partner-form {
+    width: 100%;
+    max-width: none;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.partner-form.hidden {
+    display: none;
+}
+
+.partner-form input:focus{
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 86, 179, 0.5);
+}
+
+
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    text-align: right;
+}
+
+.success-message {
+    padding: 10px;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    padding: 10px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+
+@media (max-width: 1024px) {
+    main {
+        width: 95%;
+        margin: 1em auto;
+        padding: 1.5em;
+    }
+
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        overflow-x: auto;
+        display: block;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    th, td {
+        padding: 0.6em;
+        font-size: 0.9em;
+        word-wrap: break-word;
+    }
+
+    .sub-menu {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .sub-menu a {
+        flex: 1 1 auto;
+        padding: 6px 10px;
+        font-size: 0.9em;
+    }
+
+    .menu-toggle {
+        display: block;
+        font-size: 28px;
+        color: var(--primary-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+
+@media (max-width: 480px) {
+    main {
+        width: 95%;
+        margin: 0.5em auto;
+        padding: 1em;
+    }
+
+    table {
+        width: 100%;
+        table-layout: fixed;
+        display: block;
+    }
+
+    th, td {
+        padding: 0.5em;
+        font-size: 0.85em;
+        word-wrap: break-word;
+    }
+
+
+    .sub-menu a {
+        flex: 1 1 100%;
+        padding: 5px 8px;
+        font-size: 0.85em;
+    }
+
+    .menu-toggle {
+        display: block;
+        font-size: 28px;
+        color: var(--primary-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-add-partner {
+        font-size: 0.8rem;
+        display: block;
+        margin: 0 auto;
+
+    }
+
+    .partners{
+        font-size: 1rem;
+    }
+
+    footer{
+        width: 95%;
+    }
+
+}
+

@@ -1,0 +1,358 @@
+/* Reset et base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #cbccd1 0%, #cccacf 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Container principal */
+.container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Décoration avec hexagones (style AMU) */
+.container::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #00bcd4, #2196f3);
+    opacity: 0.1;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.container::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    opacity: 0.1;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Titre */
+h2 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Messages */
+.message {
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: var(--text-size);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.message::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+    flex-shrink: 0;
+}
+
+.message.success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.message.info {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+/* Formulaire */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Groupes de champs */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+
+.field-group label {
+    font-size: var(--text-size);
+    color: #555;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.field-group label u {
+    text-decoration: underline;
+    color: #00bcd4;
+}
+
+/* Icônes dans les labels */
+.field-group.email label::before {
+    content: '👤';
+    font-size: 18px;
+}
+
+.field-group.password label::before {
+    content: '🔑';
+    font-size: 18px;
+}
+
+.field-group.text label::before {
+    content: '📝';
+    font-size: 18px;
+}
+
+/* Inputs */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: var(--text-size);
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #00bcd4;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+}
+
+input::placeholder {
+    color: #999;
+}
+
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+/* Bouton de soumission */
+button[type="submit"] {
+    background: linear-gradient(135deg, #00bcd4, #2196f3);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 6px;
+    font-size: var(--button-size);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 188, 212, 0.3);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+button[type="submit"]:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Sections d'information */
+.info-section {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 6px;
+    font-size: var(--text-size);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.info-section::before {
+    font-size: var(--text-size);
+    flex-shrink: 0;
+}
+
+.info-section.warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+}
+
+.info-section.warning::before {
+    content: '⚠️';
+}
+
+.info-section.help {
+    background-color: #e8f5e9;
+    border: 1px solid #4caf50;
+    color: #2e7d32;
+}
+
+.info-section.help::before {
+    content: '💡';
+}
+
+.info-section p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.info-section strong {
+    font-weight: 600;
+}
+
+.info-section a {
+    color: inherit;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.info-section a:hover {
+    text-decoration: none;
+}
+
+/* Toggle (liens de changement de page) */
+.toggle {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.toggle p {
+    color: #666;
+}
+
+.toggle a {
+    color: #00bcd4;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.toggle a:hover {
+    color: #0097a7;
+    text-decoration: underline;
+}
+
+/* Logo AMU (optionnel) */
+.logo-amu {
+    width: 200px;
+    margin: 30px auto 0;
+    display: block;
+    opacity: 0.5;
+}
+
+/* Responsive */
+
+@media (max-width: 1024px) {
+
+    .container {
+        padding: 40px 20px;
+
+    }
+
+    h2 {
+        font-size: 30px;
+    }
+
+
+    button[type="submit"] {
+        padding: 12px 16px;
+        font-size: 20px;
+    }
+
+    form{
+        font-size: 25px;
+    }
+
+    .info-section {
+        font-size: 18px;
+    }
+}
+
+
+@media (max-width: 480px) {
+    .container {
+        padding: 40px 20px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    button[type="submit"] {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Animation de chargement */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+button[type="submit"]:disabled::after {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}

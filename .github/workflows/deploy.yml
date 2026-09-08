@@ -1,0 +1,30 @@
+name: Deploy RI site
+
+on:
+  push:
+    branches: 
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Production Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 91.160.65.250
+          username: deploy
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            cd /var/www/ri/SAE_GROUPE14_RI
+            git config --global --add safe.directory /var/www/ri/SAE_GROUPE14_RI
+            git fetch origin
+            git reset --hard origin/main
+            git pull origin main
+            composer install --no-dev --optimize-autoloader --no-interaction
+            echo "✅ Deployment to 91.160.65.250:2222 completed successfully!"

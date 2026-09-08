@@ -1,0 +1,216 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f6f6f6;
+    margin: 0;
+    padding: 20px;
+}
+
+.email-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Header --- */
+.email-header {
+    padding: 20px;
+    text-align: center;
+}
+
+.email-header--blue  { background: #1d7ac6; }
+.email-header--green { background: #28a745; }
+
+.email-header img {
+    height: 50px;
+}
+
+.email-header h2 {
+    color: #fff;
+    margin: 10px 0 0;
+}
+
+/* --- Body --- */
+.email-body {
+    padding: 30px;
+}
+
+.email-body p {
+    margin: 0 0 12px;
+}
+
+/* --- Highlight box --- */
+.email-highlight {
+    padding: 15px;
+    border-left: 4px solid;
+    margin: 16px 0;
+}
+
+.email-highlight--blue {
+    background: #e3f2fd;
+    border-color: #1d7ac6;
+}
+
+.email-highlight--blue strong {
+    color: #1d7ac6;
+    font-size: 16px;
+}
+
+.email-highlight--green {
+    background: #d4edda;
+    border-color: #28a745;
+}
+
+.email-highlight--green strong {
+    color: #28a745;
+    font-size: 16px;
+}
+
+.email-highlight--grey {
+    background: #f8f9fa;
+    border-color: #1d7ac6;
+    border-radius: 4px;
+}
+
+.email-highlight--grey .highlight-sender {
+    font-weight: 600;
+    color: #1d7ac6;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.email-highlight--grey .highlight-preview {
+    color: #555;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* --- Summary box (dossier update) --- */
+.email-summary {
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    padding: 18px 20px;
+    margin: 16px 0;
+}
+
+.email-summary .summary-title--green {
+    margin: 0 0 6px;
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+.email-summary .summary-title--red {
+    margin: 0 0 6px;
+    font-weight: bold;
+    color: #c62828;
+}
+
+.email-summary ul {
+    margin: 0 0 16px 20px;
+    line-height: 1.8;
+    color: #333;
+}
+
+.email-summary .summary-line {
+    margin: 4px 0;
+}
+
+/* --- Status badge --- */
+.email-status {
+    margin-top: 20px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    background: #f5f5f5;
+    border-left: 4px solid;
+}
+
+.email-status .status-label {
+    font-weight: bold;
+    color: #333;
+}
+
+.email-status .status-value {
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+/* Dynamic status colors set inline (PHP variable) */
+.email-status--depot        { border-color: #607d8b; }
+.email-status--depot .status-value        { color: #607d8b; }
+
+.email-status--instruction  { border-color: #f57c00; }
+.email-status--instruction .status-value  { color: #f57c00; }
+
+.email-status--accepte      { border-color: #2e7d32; }
+.email-status--accepte .status-value      { color: #2e7d32; }
+
+.email-status--refuse       { border-color: #c62828; }
+.email-status--refuse .status-value       { color: #c62828; }
+
+/* --- Date limite --- */
+.email-deadline {
+    margin-top: 12px;
+    color: #555;
+}
+
+/* --- CTA Button --- */
+.email-cta {
+    text-align: center;
+    margin: 18px 0;
+}
+
+.email-cta--wide {
+    margin: 28px 0 16px;
+}
+
+.btn-primary {
+    background-color: #1d7ac6;
+    color: #fff;
+    padding: 10px 18px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.btn-primary--lg {
+    padding: 12px 24px;
+    font-weight: bold;
+}
+
+/* --- Lists --- */
+.email-body ul {
+    margin: 0 0 16px 20px;
+}
+
+.list--green li {
+    color: #28a745;
+}
+
+/* --- Footer notes --- */
+.email-note {
+    font-size: 14px;
+    color: #666;
+}
+
+.email-note--small {
+    font-size: 13px;
+    color: #666;
+    margin: 12px 0 0;
+}
+
+.email-footer {
+    color: #bbb;
+    font-size: 12px;
+    margin: 8px 0 0;
+}
+
+/* --- Validated status line --- */
+.text-green-bold {
+    color: #28a745;
+    font-weight: bold;
+}

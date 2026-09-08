@@ -1,0 +1,697 @@
+/* Masquer le bouton menu hamburger sur la page contact */
+.menu-toggle {
+    display: none;
+}
+
+.contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.contact-container h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.contact-intro {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    color: #666;
+    font-size: var(--text-size);
+}
+
+.contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 2rem;
+}
+
+.contact-form-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.contact-form-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: var(--text-size);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: var(--text-size);
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn-submit {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-size: var(--button-small-size);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-submit:hover {
+    background: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+.success-message,
+.error-message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.contact-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-info-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.contact-info-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.contact-info-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+.contact-icon {
+    font-size: var(--h1-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+}
+
+.contact-details {
+    flex: 1;
+}
+
+.contact-details h3 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+    font-size: var(--text-size);
+}
+
+.contact-details p,
+.contact-details a {
+    color: #666;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.contact-details a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.contact-details a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+/* ============================================================
+   HISTORIQUE DES MESSAGES
+   ============================================================ */
+
+.contact-history {
+    margin-bottom: 2.5rem;
+    animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Carte de conversation */
+.history-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.history-card-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.history-card-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.1em;
+}
+
+.history-date {
+    color: #888;
+    font-size: 0.85rem;
+}
+
+/* Fil de discussion */
+.chat-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Bulles de messages */
+.chat-message {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 8px;
+    line-height: 1.5;
+}
+
+/* Message envoyé par l'étudiant (Aligné à droite) */
+.chat-message--student {
+    align-self: flex-end;
+    background: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    color: #2e7d32;
+}
+
+/* Message envoyé par l'admin (Aligné à gauche) */
+.chat-message--admin {
+    align-self: flex-start;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.chat-message-meta {
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+/* Formulaire de réponse dans l'historique */
+.history-reply-form {
+    background: #fafafa;
+    padding: 15px;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+.reply-textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.reply-submit {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+/* Utilitaires */
+.is-hidden {
+    display: none !important;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1024px) {
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .contact-container h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .contact-container {
+        padding: 1rem;
+    }
+
+    .contact-form-section {
+        padding: 1.5rem;
+    }
+
+    .contact-info-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .contact-icon {
+        min-width: auto;
+    }
+
+    .history-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* ============================================================
+   TRITANOPIE
+   ============================================================ */
+
+body.tritanopie .btn-submit {
+    background: #00b4d8;
+}
+
+body.tritanopie .btn-submit:hover {
+    background: #0077b6;
+}
+
+body.tritanopie .history-card--answered {
+    border-left-color: var(--primary-color);
+}
+
+body.tritanopie .history-card--pending {
+    border-left-color: var(--accent-color);
+}
+
+body.tritanopie .history-text {
+    border-left-color: var(--accent-color);
+}
+
+body.tritanopie .history-response-block {
+    background: #e8f5e9;
+}
+
+body.tritanopie .history-label--response {
+    color: var(--primary-color);
+}
+
+body.tritanopie .history-response-text {
+    border-left-color: var(--primary-color);
+}
+
+/* ============================================================
+   BOUTON MES MESSAGES
+   ============================================================ */
+
+.btn-my-messages {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.65rem 1.4rem;
+    background: white;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-my-messages:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.msg-count-badge {
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 1px 8px;
+    border-radius: 20px;
+    transition: background 0.2s;
+}
+
+.btn-my-messages:hover .msg-count-badge {
+    background: white;
+    color: var(--primary-color);
+}
+
+.msg-unread-badge {
+    background: #e63946;
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.btn-arrow {
+    font-size: 0.75rem;
+    transition: transform 0.2s;
+}
+
+/* ============================================================
+   HISTORIQUE DES MESSAGES
+   ============================================================ */
+
+.contact-history {
+    margin-bottom: 2.5rem;
+    animation: slideDown 0.25s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.history-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s ease;
+}
+
+.history-card:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.10);
+}
+
+.history-card--answered { border-left: 4px solid #107c10; }
+.history-card--pending  { border-left: 4px solid var(--accent-color); }
+
+.history-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.2rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e8e8e8;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.history-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.history-subject {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.history-date {
+    color: #888;
+    font-size: 0.82rem;
+}
+
+.history-status {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.history-status--answered {
+    background: #e6f4ea;
+    color: #107c10;
+    border: 1px solid #a8d5a8;
+}
+
+.history-status--pending {
+    background: #fff4e0;
+    color: #8a5a00;
+    border: 1px solid #f0c060;
+}
+
+.history-message-block {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.history-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.history-label--response {
+    color: #107c10;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.history-response-date {
+    font-weight: 400;
+    color: #5a8a5a;
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.75rem;
+}
+
+.history-text {
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    background: #f8f9fa;
+    border-left: 3px solid var(--accent-color);
+    padding: 0.7rem 1rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.history-response-block {
+    padding: 1rem 1.2rem;
+    background: #f0faf0;
+}
+
+.history-response-text {
+    color: #1a3a1a;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    background: #fff;
+    border-left: 3px solid #107c10;
+    padding: 0.7rem 1rem;
+    border-radius: 0 8px 8px 0;
+}
+
+/* Tritanopie */
+body.tritanopie .btn-my-messages          { color: var(--primary-color); border-color: var(--primary-color); }
+body.tritanopie .btn-my-messages:hover    { background: var(--primary-color); }
+body.tritanopie .msg-count-badge          { background: var(--primary-color); }
+body.tritanopie .history-card--answered   { border-left-color: var(--primary-color); }
+body.tritanopie .history-card--pending    { border-left-color: var(--accent-color); }
+body.tritanopie .history-text             { border-left-color: var(--accent-color); }
+body.tritanopie .history-response-block   { background: #e8f5e9; }
+body.tritanopie .history-label--response  { color: var(--primary-color); }
+body.tritanopie .history-response-text    { border-left-color: var(--primary-color); }
+
+/* ── Réponse étudiant déjà envoyée ── */
+.history-student-reply-block {
+    padding: 1rem 1.2rem;
+    background: #eef4ff;
+    border-top: 1px solid #e0e0e0;
+}
+
+.history-label--student-reply {
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.history-student-reply-text {
+    color: #1a2a3a;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    background: #fff;
+    border-left: 3px solid var(--primary-color);
+    padding: 0.7rem 1rem;
+    border-radius: 0 8px 8px 0;
+}
+
+/* ── Formulaire de réponse étudiant ── */
+.history-reply-form {
+    padding: 0.8rem 1.2rem;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.btn-toggle-reply {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-toggle-reply:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.reply-form-inner {
+    margin-top: 0.8rem;
+    animation: slideDown 0.2s ease;
+}
+
+.reply-form-inner textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 90px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.reply-form-inner textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 85, 139, 0.08);
+}
+
+.reply-form-actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+}
+
+.btn-send-reply {
+    padding: 0.5rem 1.2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-send-reply:hover {
+    background: var(--accent-color);
+}
+
+.btn-cancel-reply {
+    padding: 0.5rem 1rem;
+    background: none;
+    color: #888;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel-reply:hover {
+    border-color: #aaa;
+    color: #555;
+}
+
+/* Tritanopie */
+body.tritanopie .history-student-reply-block   { background: #e8f5e9; }
+body.tritanopie .history-label--student-reply  { color: var(--primary-color); }
+body.tritanopie .history-student-reply-text    { border-left-color: var(--primary-color); }
+body.tritanopie .btn-toggle-reply              { border-color: var(--primary-color); color: var(--primary-color); }
+body.tritanopie .btn-toggle-reply:hover        { background: var(--primary-color); }
+body.tritanopie .btn-send-reply                { background: var(--primary-color); }
+body.tritanopie .btn-send-reply:hover          { background: var(--accent-color); }

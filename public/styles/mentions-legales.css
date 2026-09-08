@@ -1,0 +1,20 @@
+.legal-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.legal-section {
+    margin-bottom: 25px;
+}
+
+.legal-list {
+    background: #f9f9f9;
+    padding: 15px 40px;
+    border-radius: 8px;
+}
+
+body.tritanopie .legal-list {
+    background: #f0f4eb;
+}

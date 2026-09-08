@@ -1,0 +1,22 @@
+name: Test SSH Connection
+
+on: 
+  workflow_dispatch: 
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test SSH Connection with Debug
+        uses:  appleboy/ssh-action@v1.0.3
+        with:
+          host: 91.160.65.250
+          username: deploy
+          key: ${{ secrets. SSH_PRIVATE_KEY }}
+          port: 2222
+          debug: true
+          script: |
+            echo "✅ SSH connection successful!"
+            whoami
+            pwd
+            ls -la /var/www/ri/SAE_GROUPE14_RI

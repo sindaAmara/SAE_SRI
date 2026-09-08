@@ -1,0 +1,549 @@
+:root {
+    --primary-color: #006694;
+    --secondary-color: #EBC55E;
+    --text-color: #ffffff;
+    --background-color: #EBC55E;
+    --accent-color: #2B91BB;
+    --hero-bg-color: #00558B;
+}
+
+body.tritanopie {
+    --primary-color: #005C45;
+    --secondary-color: #FF9100;
+    --text-color: #ffffff;
+    --background-color: #FF9100;
+    --accent-color: #009b73;
+    --hero-bg-color: #005C45;
+}
+
+.progress-container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 100px auto;
+}
+.dashboard-title {
+    text-align: center;
+    margin-top: 40px;
+}
+
+
+.progress-container::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: calc(100% / 6);
+    width: calc(100% * 4 / 6);
+    height: 3px;
+    background-color: #dcdcdc;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    z-index: 0;
+}
+
+/* ─── Ligne bleue de progression ───
+   Même point de départ. La largeur est contrôlée via JS (progressStyle).
+   Pour que "100%" = de la 1ère à la dernière boule, le max est 4/6 du container.
+   On utilise une variable CSS pour plafonner proprement. */
+.progress-line {
+    position: absolute;
+    top: 50%;
+    left: calc(100% / 6);
+    height: 4px;
+    background-color: #006694;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    z-index: 1;
+    /* La largeur envoyée depuis PHP est un % du container global.
+       On la reçoit en style inline : width: X%.
+       Mais on veut que 100% = espace entre boule 1 et boule 3 = 4/6 du container.
+       Solution : on surcharge via calc dans les cas extrêmes ci-dessous. */
+}
+
+/* Quand décision (100% logique) : forcer l'arrêt exact à la dernière boule */
+.progress-container .progress-line {
+    max-width: calc(100% * 4 / 6);
+}
+
+/* Pour depot (8%), on laisse le width inline s'appliquer librement.
+   Le max-width ne pose pas de problème car 8% < 66%. */
+
+
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+}
+
+.progress-circle {
+    width: 14px;
+    height: 14px;
+    background-color: #dcdcdc;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    transition: background-color 0.4s ease;
+}
+
+/* Boule active */
+.progress-step.active .progress-circle {
+    background-color: #006694;
+}
+
+/* ─── Icônes ─── */
+.progress-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    margin-bottom: 35px;
+}
+
+.progress-icon img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    display: block;
+    transition: filter 0.3s ease, transform 0.25s ease;
+}
+
+/* Icônes actives : néon bleu */
+.progress-step.active .progress-icon img {
+    filter:
+            brightness(1.1)
+            saturate(1.15)
+            drop-shadow(0 0 4px rgba(43, 145, 187, 0.6));
+    transform: scale(1.03);
+}
+.progress-step .progress-icon {
+    margin-bottom: 40px;
+    z-index: 3;
+}
+/* ─── DÉCISION ACCEPTÉE → tout en vert ─── */
+.progress-container.decision-accepted .progress-line {
+    background-color: #00701a !important;
+    width: calc(100% * 4 / 6) !important;
+}
+
+.progress-container.decision-accepted .progress-step.active .progress-circle {
+    background-color: #00701a;
+}
+
+.progress-container.decision-accepted .progress-step.active .progress-icon img {
+    filter:
+            brightness(1.15)
+            saturate(1.3)
+            drop-shadow(0 0 8px rgba(0, 112, 26, 0.85));
+    transform: scale(1.05);
+}
+
+/* ─── DÉCISION REFUSÉE → tout en rouge ─── */
+.progress-container.decision-refused .progress-line {
+    background-color: #8f0a19 !important;
+    width: calc(100% * 4 / 6) !important;
+}
+
+.progress-container.decision-refused .progress-step.active .progress-circle {
+    background-color: #8f0a19;
+}
+
+.progress-container.decision-refused .progress-step.active .progress-icon img {
+    filter:
+            brightness(1.1)
+            saturate(1.3)
+            drop-shadow(0 0 8px rgba(143, 10, 25, 0.85));
+    transform: scale(1.05);
+}
+
+/* ─── Daltonisme tritanopie ─── */
+
+/* En cours (depot / instruction) : gris foncé + néon gris */
+body.tritanopie .progress-line {
+    background-color: #555555;
+}
+
+body.tritanopie .progress-step.active .progress-circle {
+    background-color: #555555;
+}
+
+body.tritanopie .progress-step.active .progress-icon img {
+    filter:
+            brightness(0.85)
+            saturate(0)
+            drop-shadow(0 0 6px rgba(80, 80, 80, 0.75));
+}
+
+/* Accepté : vert */
+body.tritanopie .progress-container.decision-accepted .progress-line {
+    background-color: #009b73 !important;
+}
+
+body.tritanopie .progress-container.decision-accepted .progress-step.active .progress-circle {
+    background-color: #009b73;
+}
+
+body.tritanopie .progress-container.decision-accepted .progress-step.active .progress-icon img {
+    filter:
+            brightness(1.15)
+            saturate(1.2)
+            drop-shadow(0 0 6px rgba(0, 155, 115, 0.8));
+}
+
+/* Refusé : rouge */
+body.tritanopie .progress-container.decision-refused .progress-line {
+    background-color: #8f0a19 !important;
+}
+
+body.tritanopie .progress-container.decision-refused .progress-step.active .progress-circle {
+    background-color: #8f0a19;
+}
+
+body.tritanopie .progress-container.decision-refused .progress-step.active .progress-icon img {
+    filter:
+            brightness(1.1)
+            saturate(1.3)
+            drop-shadow(0 0 8px rgba(143, 10, 25, 0.85));
+}
+
+/* Texte */
+.progress-step span {
+    font-size: var(--button-small-size);
+    color: #555;
+}
+
+.progress-step.active span {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+/* Texte vert si accepté */
+.progress-container.decision-accepted .progress-step.active span {
+    color: #00701a;
+}
+
+/* Texte rouge si refusé */
+.progress-container.decision-refused .progress-step.active span {
+    color: #8f0a19;
+}
+
+.contact-info-box {
+    background-color: #f2f2f2;
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin: 40px auto 0;
+    max-width: 700px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.contact-info-box p {
+    margin: 10px 0;
+    color: #333;
+}
+
+.contact-title {
+    font-weight: bold;
+    font-size: var(--h2-size);
+    color: var(--primary-color);
+}
+
+.contact-email a {
+    font-weight: bold;
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+.contact-email a:hover {
+    text-decoration: underline;
+}
+
+.dashboard-container {
+    max-width: 1000px;
+    margin: -50px auto 50px;
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+}
+
+.filters-container {
+    background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px;
+    border: 1px solid #e9ecef;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+.filters-container input, .filters-container select {
+    width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+    font-size: var(--button-size);
+}
+.btn-filter {
+    grid-column: 1 / -1; margin-top: 10px; padding: 10px 20px;
+    background-color: #003366; color: white; border: none; border-radius: 4px; cursor: pointer;
+    width: 100%;
+}
+body.tritanopie .btn-filter {
+    background-color: #004e25;
+    color: white;
+}
+
+.btn-filter:hover { background-color: #002244; }
+
+.status-badge {
+    padding: 5px 10px; border-radius: 15px; color: white; font-weight: bold; font-size: 0.85em;
+    text-align: center; display:inline-block; min-width: 70px;
+}
+
+.bg-success { background-color: #00701a !important; }
+.bg-warning { background-color: #f1ae00 !important; color: #ffffff !important; }
+.bg-danger  { background-color: #8f0a19 !important; }
+.suivi-global {
+    color: white;
+}
+.message {
+    background: #e7f3fe;
+    border-left: 6px solid #2196F3;
+    margin-bottom: 15px;
+    padding: 10px;
+    clear: both;
+    color: #333;
+    font-size: 0.95rem;
+}
+.filters-container {
+    clear: both;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+.no-files {
+    text-align: center;
+    color: #666;
+}
+
+h2 { color: #003366; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin-top: 40px; }
+.clickable-row { cursor: pointer; transition: background 0.2s; }
+.clickable-row:hover { background-color: #e9ecef; }
+
+.btn-relance {
+    text-decoration: none; font-size: 1.2em; margin-left: 10px; cursor: pointer;
+    display: inline-block; transition: transform 0.2s; border: none; background: none;
+}
+.btn-relance:hover { transform: scale(1.3); }
+
+.menu-toggle {
+    display: none;
+}
+
+.framework-group {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+    align-items: center;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.framework-label {
+    margin-right: 10px;
+}
+
+.table-responsive {
+    padding: 15px;
+}
+
+.separator {
+    border: 0;
+    height: 1px;
+    background: #eee;
+    margin: 20px 0;
+}
+
+/* ======= RESPONSIVE  ======= */
+@media (max-width: 1024px) {
+    main {
+        width: 90%;
+        padding: 40px 30px;
+        margin: 30px auto;
+    }
+
+    .progress-container {
+        margin: 60px auto;
+    }
+
+    .progress-icon {
+        height: 60px;
+        margin-bottom: 10px;
+    }
+
+    .progress-icon img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .progress-step span {
+        font-size: 12px;
+    }
+
+    /* Tables responsive */
+    table {
+        font-size: 0.9em;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th, td {
+        padding: 10px 8px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .menu-toggle {
+        display: block;
+        font-size: 28px;
+        color: var(--primary-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+/* ======= RESPONSIVE 500px ======= */
+@media (max-width: 480px) {
+    main {
+        width: 95%;
+        padding: 20px 15px;
+        margin: 20px auto;
+    }
+
+    h1 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    /* Progress bar en vertical pour mobile */
+    .progress-container {
+        flex-direction: column;
+        margin: 40px auto;
+        align-items: stretch;
+    }
+
+    /* Ligne verticale au lieu d'horizontale */
+    .progress-container::before {
+
+        width: 3px;
+        height: 100%;
+        left: 25px;
+        transform: none;
+    }
+
+    .progress-line {
+        width: 4px;
+        height: 0;
+        left: 25px;
+        transform: none;
+        transition: height 0.4s ease;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        margin-bottom: 30px;
+        flex: none;
+    }
+
+    .progress-icon {
+        height: 50px;
+        width: 50px;
+        margin-bottom: 0;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+
+    .progress-icon img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .progress-step span {
+        font-size: 13px;
+        flex: 1;
+    }
+
+    /* Tables très petits écrans - s'adapte sans scroll */
+    table {
+        font-size: 0.65em;
+        width: 100%;
+        display: table;
+        overflow-x: visible;
+        white-space: normal;
+    }
+
+    th, td {
+        padding: 5px 2px;
+        word-wrap: break-word;
+        vertical-align: middle;
+    }
+
+    /* Réduire la largeur de la colonne NumEtu */
+    table th:nth-child(1),
+    table td:nth-child(1) {
+        font-size: 0.9em;
+        max-width: 50px;
+    }
+
+    /* Colonne Nom/Prénom */
+    table th:nth-child(2),
+    table td:nth-child(2),
+    table th:nth-child(3),
+    table td:nth-child(3) {
+        max-width: 70px;
+    }
+
+    /* Réduire la colonne Avancement */
+    .progress-bar {
+        min-width: 50px;
+        height: 12px;
+    }
+
+    .progress {
+        font-size: 0.75em;
+        line-height: 12px;
+    }
+
+    /* Colonne Pièces fournies */
+    table th:nth-child(5),
+    table td:nth-child(5) {
+        font-size: 0.85em;
+        white-space: nowrap;
+    }
+
+    .menu-toggle {
+        display: block;
+        font-size: 28px;
+        color: var(--primary-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}

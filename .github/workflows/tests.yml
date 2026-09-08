@@ -1,0 +1,39 @@
+name: CI - Dev Tests
+
+# Déclenchement automatique
+on:
+  push:
+    branches:
+      - dev        # Tout push sur dev déclenche le workflow
+  pull_request:
+    branches:
+      - main       # Toute PR vers main déclenche le workflow
+
+jobs:
+  quality-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Récupérer le code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Installer PHP et Composer
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      # 3️⃣ Vérifier le style de code (PHP CodeSniffer)
+      - name: Run PHP Linter
+        run: composer lint
+
+      # 4️⃣ Analyse statique avec PHPStan
+      - name: Run PHPStan
+        run: composer analyse
+
+      # 5️⃣ Exécuter les tests unitaires
+      - name: Run PHPUnit
+        run: composer test

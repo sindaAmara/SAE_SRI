@@ -1,0 +1,526 @@
+:root {
+    --primary-color: #00558B;
+    --secondary-color: #F9F1D7;
+    --text-color: #ffffff;
+    --background-color: #F9F1D7;
+    --accent-color: #2B91BB;
+    --hero-bg-color: #00558B;
+
+    --h1-size: 3rem;
+    --h2-size: 2.5rem;
+    --text-size: 1.5rem;
+    --text-small-size: 1.4rem;
+    --button-size: 1.5rem;
+    --button-small-size: 1.3rem;
+}
+
+body.tritanopie {
+    --primary-color: #005C45;
+    --secondary-color: #FFC099;
+    --text-color: #ffffff;
+    --background-color: #FFC099;
+    --accent-color: #009b73;
+    --hero-bg-color: #005C45;
+    --hover-color: #008764;
+}
+
+header {
+    background-color: var(--background-color);
+    border-bottom: 1px solid #ddd;
+    padding: 10px 20px;
+    position: relative;
+}
+
+button{
+    border-radius: 20px;
+    border-color: white;
+    font-size: var(--button-size);
+}
+
+.logo_amu {
+    height: 100px;
+}
+
+
+.top-bar {
+    position : relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+}
+
+
+body {
+    background-color: var(--background-color);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-size: var(--text-size);
+    font-family: inherit;
+}
+
+h2{
+    font-size: var(--h2-size);
+}
+
+.right-buttons {
+    display: flex;
+    gap: 0px;
+    align-items: center;
+    margin-left :auto;
+
+}
+
+
+
+.lang-dropdown {
+    position : relative;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: var(--primary-color);
+    padding: 10px 12px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #eee;
+}
+
+.lang-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+nav.menu {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 15px;
+}
+
+nav.menu button,nav .dropdown button {
+    flex: 1;
+    width: 100%;
+    border: solid #ffffff;
+    border-radius: 20px;
+    padding: 10px 15px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: var(--button-size);
+}
+
+nav.menu button:hover {
+    width: 95%;
+    transition: all 0.5s ease-in-out;
+    background-color: var(--primary-color);
+}
+
+nav.menu button.active {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+}
+
+nav.menu .dropdown {
+    position: relative;
+    display: flex;
+    flex: 1;
+}
+
+nav.menu .dropdown > button {
+    flex: 1;
+}
+
+nav.menu .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+nav.menu .dropdown .dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 100;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+nav.menu .dropdown .dropdown-content a {
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+nav.menu .dropdown .dropdown-content a:hover {
+    background-color: #f0f0f0;
+}
+
+nav.menu .dropdown > button {
+    flex: 1;
+}
+
+button {
+    padding: 10px 15px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+body.tritanopie button:hover {
+    background-color: var(--hover-color);
+    color: #fff;
+}
+
+
+main {
+    flex: 1;
+    width: 1200px;
+    margin: 2em auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2em;
+}
+
+
+
+h1 {
+    font-size: var(--h1-size);
+    text-align: center;
+    color: #222;
+}
+
+ul {
+    list-style: disc inside;
+    margin: 2em 0 1em 1em;
+    padding: 0;
+    color: #333;
+}
+
+ul li {
+    margin-bottom: 0.7em;
+}
+
+p {
+    color: #444;
+    font-size: var(--text-size);
+    margin-bottom: 1em;
+}
+
+
+footer {
+    background: var(--primary-color);
+    color: var(--text-color);
+    text-align: center;
+    padding: 2rem 1rem;
+    position: relative;
+}
+
+footer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
+}
+
+
+
+footer p {
+    margin: 0;
+    color: #f0f4ff;
+    font-size: var(--text-small-size);
+}
+
+
+li a {
+    display: block;
+    padding: 1em;
+    background: #f0f4ff;
+    color:var(--accent-color);
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: var(--text-size);
+}
+
+li a:hover {
+    background:var(--primary-color);
+    color: #fff;
+}
+
+
+/* Bouton Plan du site dans le footer */
+.footer-sitemap-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color);
+    border: 2px solid var(--accent-color);
+    border-radius: 50px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--button-small-size);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet de brillance au survol */
+.footer-sitemap-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.footer-sitemap-btn:hover::before {
+    left: 100%;
+}
+
+/* État hover */
+.footer-sitemap-btn:hover {
+    background: var(--accent-color);
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* État actif (clic) */
+.footer-sitemap-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Séparateur entre les liens */
+.footer-separator {
+    color: var(--primary-color);
+    font-weight: 300;
+    margin: 0 0.5rem;
+}
+
+/* Container pour les liens du footer */
+.footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+
+header .menu-toggle {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+
+    header {
+        padding: 10px;
+    }
+
+    .logo_amu {
+        width: 150px;
+        height: auto;
+    }
+
+    .top-bar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    nav.menu button {
+        border: none;
+        padding: 12px;
+        text-align: center;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+
+
+
+    main {
+        margin: 1em;
+        padding: 1.5em;
+        width: 90%;
+    }
+
+    table {
+        font-size: 0.85em;
+    }
+
+    th, td {
+        padding: 8px 6px;
+    }
+
+    .progress-bar {
+        height: 14px;
+    }
+
+    .progress {
+        font-size: 0.7em;
+    }
+
+
+    .card h2 {
+        margin-top: 60px;
+    }
+
+    footer {
+        width: 100%;
+    }
+
+}
+
+
+
+@media (max-width: 700px) {
+    header {
+        padding: 5px;
+    }
+
+    .logo_amu {
+        width: 100px;
+        height: auto;
+    }
+
+    .top-bar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+
+    }
+
+    .right-buttons button {
+        padding : 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    header .menu-toggle {
+        display: flex;
+        font-size: 1.8rem;
+        background: none;
+        border: none;
+        color: var(--primary-color);
+    }
+
+    nav.menu {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin-top: 10px;
+        border-radius: 6px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    nav.menu.active {
+        display: flex;
+    }
+
+    nav.menu button {
+        border: none;
+        padding: 12px;
+        text-align: center;
+        width: 100%;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+
+    nav.menu button:last-child {
+        border-bottom: none;
+    }
+
+
+    .right-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .menu-right-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    main {
+        margin: 0.5em;
+        padding: 1em;
+        width: 90%;
+    }
+
+    h1{
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    h2{
+        font-size: 1.2rem;
+    }
+
+    p, ul li, li a{
+        font-size: 0.9rem;
+    }
+
+    table {
+        font-size: 0.72rem;
+        display: block;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    th, td {
+        padding: 8px 6px;
+    }
+
+    .progress-bar {
+        height: 14px;
+    }
+
+    .progress {
+        font-size: 0.7em;
+    }
+
+
+    .card h2 {
+        margin-top: 60px;
+    }
+
+    footer {
+        width: 100%;
+    }
+}

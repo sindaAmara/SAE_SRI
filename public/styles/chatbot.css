@@ -1,0 +1,327 @@
+/* =========================================
+   CHATBOT STYLES
+   Main stylesheet for the floating chatbot
+   ========================================= */
+
+
+.chat-messages .message {
+    animation: none;
+    opacity: 1 ;
+    border: none ;
+    overflow: visible ;
+    height: auto ;
+    margin-bottom: 0 ;
+    box-shadow: none ;
+}
+
+#help-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #003366;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--h2-size);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: transform 0.2s ease-in-out;
+}
+
+#help-bubble:hover {
+    transform: scale(1.1);
+}
+
+#help-popup {
+    display: none;
+    position: fixed;
+    bottom: 60px;
+    right: 20px;
+    width: 300px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0px 10px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 1001;
+    padding:10px;
+}
+
+#help-popup ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+
+/* --- Main Chat Window Container --- */
+.chat-popup {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: min(90vw, 400px);
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* --- Chat Header --- */
+.help-popup-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: var(--h2-size);
+    flex-shrink: 0;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+
+.help-popup-header button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.help-popup-body {
+    padding: 15px;
+}
+
+.help-popup-body ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.help-popup-body li {
+    margin-bottom: 10px;
+}
+
+/* --- Message Scroll Area --- */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f5f7fa;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* --- Individual Message Bubbles --- */
+.message {
+    max-width: 85%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: var(--text-size);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* === COULEURS STANDARD (Force l'écrasement de folders.css) === */
+
+/* Bot : Gris clair / Texte foncé */
+.chat-messages .bot-message {
+    background-color: #e9ecef ;
+    color: #333 ;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+
+/* Utilisateur : Bleu / Texte blanc */
+.chat-messages .user-message {
+    background-color: #003366 ;
+    color: white ;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+/* --- Quick Action Buttons --- */
+.quick-actions {
+    padding: 10px;
+    background: white;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.quick-actions button {
+    background-color: #eef2f5;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: var(--button-small-size);
+    color: #003366;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+}
+
+.quick-actions button:hover {
+    background-color: #003366;
+    color: white;
+}
+
+/* --- Text Input Area --- */
+.chat-input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background: white;
+    flex-shrink: 0;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    font-size: var(--text-small-size);
+}
+
+.chat-input-area button {
+    background: none;
+    border: none;
+    color: #003366;
+    font-size: var(--button-small-size);
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+/* =========================================
+   ACCESSIBILITY: TRITANOPIA THEME
+   Overrides colors for Tritanopia (Blue-Yellow color blindness)
+   ========================================= */
+
+body.tritanopie #help-bubble {
+    background-color: #01351b;
+    color: #ffffff;
+}
+
+body.tritanopie .help-popup-header {
+    background-color: #ed967f;
+    color: #ffffff;
+}
+
+body.tritanopie .chat-popup {
+    background-color: #004e25;
+    border-color: #ed967f;
+}
+
+body.tritanopie .chat-messages {
+    background-color: #ffffff;
+}
+
+/* --- COULEURS TRITANOPIE SPÉCIFIQUES --- */
+
+/* Bot Tritanopie : Gris moyen */
+body.tritanopie .chat-messages .bot-message {
+    background-color: #cccccc ;
+    color: #000000 ;
+}
+
+/* Utilisateur Tritanopie : Orange */
+body.tritanopie .chat-messages .user-message {
+    background-color: #ed967f ;
+    color: #ffffff;
+}
+
+body.tritanopie .quick-actions button {
+    background-color: #ed967f;
+    color: #ffffff;
+}
+
+body.tritanopie .quick-actions button:hover {
+    background-color: #ffbfa6;
+    color: #000;
+}
+
+body.tritanopie .chat-input-area {
+    background-color: #ffffff;
+}
+
+body.tritanopie .chat-input-area input {
+    background-color: #111;
+    color: #ffffff;
+    border-color: #ed967f;
+}
+
+body.tritanopie .chat-input-area button {
+    color: #ed967f;
+}
+
+/* =========================================
+   RESPONSIVE DESIGN (Mobile)
+   ========================================= */
+@media (max-width: 1024px) {
+    /*a changer */
+    #help-bubble {
+        width: 65px;
+        height: 65px;
+        font-size: 30px;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .chat-popup {
+        bottom: 95px;
+        right: 10px;
+        width: 95vw;
+        height: 75vh;
+        border-radius: 18px;
+    }
+
+    .help-popup-header {
+        font-size: 1.15em;
+        padding: 16px;
+    }
+
+    .chat-input-area input {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    #help-bubble {
+        width: 55px;
+        height: 55px;
+        font-size: 26px;
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .chat-popup {
+        bottom: 80px;
+        right: 10px;
+        width: 95vw;
+        height: 70vh;
+        border-radius: 16px;
+    }
+
+    .help-popup-header {
+        font-size: 1em;
+        padding: 12px;
+    }
+
+    .chat-input-area input {
+        font-size: 1em;
+    }
+}
