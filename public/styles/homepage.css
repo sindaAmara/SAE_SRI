@@ -1,41 +1,3 @@
-.hero-section {
-    width: 100%;
-    background: var(--hero-bg-color);
-    padding: 60px 30px;
-    text-align: center;
-    color: white;
-    position: relative;
-    box-sizing: border-box;
-}
-
-.hero-section::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 20px;
-    background: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
-}
-
-.hero-section h1 {
-    margin: 0;
-}
-
-.hero_logo {
-    height: 80px;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-}
-
-#hero-img {
-    height: 80px;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-}
-
 .card h2 {
     color: #333;
     margin-bottom: 30px;
@@ -124,33 +86,8 @@
     margin-top: 5px;
 }
 
-.pub-section {
-    position: relative;
-    width: 100%;
-    text-align: center;
-}
 
-.pub-section img {
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
 
-.pub-text {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    transform: none;
-    color: #002439;
-    font-size: var(--h1-size);
-    font-weight: bold;
-}
-
-/* === PUB TEXT TRITANOPIE === */
-body.tritanopie .pub-text {
-    color: #002c15;
-}
 
 /* === BOUTON TRITANOPIE === */
 #theme-toggle {
@@ -896,24 +833,6 @@ body.tritanopie .mobilite-filter__badge::before {
     .carousel-btn.prev { left: 0.5rem; }
     .carousel-btn.next { right: 0.5rem; }
 
-    .pub-section {
-        width: 100vw;
-        height: 175px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .pub-section img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .pub-text {
-        font-size: 22px;
-        bottom: 5px;
-        left: 15px;
-    }
 }
 
 @media (max-width: 480px) {
@@ -934,24 +853,5 @@ body.tritanopie .mobilite-filter__badge::before {
     .mobilite-btn        { padding: 0.5rem 1rem; font-size: 0.85rem; }
     .mobilite-filter__label { font-size: 0.85rem; }
 
-    .pub-section {
-        width: 100vw;
-        height: 175px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .pub-section img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .pub-text {
-        font-size: 15px;
-        bottom: 5px;
-        left: 15px;
-        color: white;
-    }
 }
 

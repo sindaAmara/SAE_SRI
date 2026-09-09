@@ -79,22 +79,6 @@ $maxDept = !empty($departments)
 ob_start();
 ?>
 
-    <section class="hero-section">
-        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
-    </section>
-
-    <section class="pub-section">
-        <img id="pub_amu"
-             src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
-             alt="AMU Promotion">
-        <div class="pub-text">
-            <?= $t([
-                'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
-                'en' => 'Aix-Marseille University, a university open to the world',
-            ]) ?>
-        </div>
-    </section>
-
     <!-- Filtre Mobilité + Département -->
     <section class="mobilite-filter">
         <div class="mobilite-filter__inner">
