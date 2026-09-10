@@ -4,7 +4,7 @@
         "mailjet/mailjet-apiv3-php": "^1.6",
         "phpoffice/phpspreadsheet": "^5.4",
         "phpmailer/phpmailer": "^7.0",
-      "ext-pdo": "*"
+        "ext-pdo": "*",
         "tijsverkoyen/css-to-inline-styles": "^2.4"
     },
     "require-dev": {

@@ -4,6 +4,7 @@ namespace Service\Email;
 
 use Mailjet\Client;
 use Mailjet\Resources;
+use PHPMailer\PHPMailer\PHPMailer;
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 
 /**
@@ -26,11 +27,19 @@ class EmailReminderService
      * * @return Client
      * @throws \RuntimeException if credentials (API Key or Secret) are missing in environment variables.
      */
-    private static function createMailjetClient(): Client
+    private static function createMailjetClient(): PHPMailer
     {
-        $apiKey    = $_ENV['MAILJET_API_KEY']    ?? getenv('MAILJET_API_KEY')    ?: '';
-        $apiSecret = $_ENV['MAILJET_SECRET_KEY'] ?? getenv('MAILJET_SECRET_KEY') ?: '';
-
+        $mail = new PHPMailer();
+        $mail->SMTPDebug = 0;
+        $mail->isSMTP();
+        $mail->Host = $_ENV['SMTP_HOST'];
+        $mail->SMTPAuth = true;
+        $mail->Username = $_ENV['SMTP_USER'];
+        $mail->Password = $_ENV['SMTP_PASS'];
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $_ENV['SMTP_PORT'] ?? 465;
+        $mail->CharSet = 'UTF-8';
+        /*
         if (empty($apiKey) || empty($apiSecret)) {
             error_log("❌ Mailjet credentials are not configured. Check your .env file for MAILJET_API_KEY and MAILJET_SECRET_KEY.");
             throw new \RuntimeException('Mailjet API credentials are not configured.');
@@ -40,8 +49,8 @@ class EmailReminderService
         $mj->addRequestOption('verify', false);
         $mj->addRequestOption('timeout', 10);
         $mj->addRequestOption('connect_timeout', 10);
-
-        return $mj;
+        */
+        return $mail;
     }
 
     /**
@@ -158,7 +167,7 @@ class EmailReminderService
         }
 
         try {
-            $mj = self::createMailjetClient();
+            $mail = self::createMailjetClient();
 
             $subject = "Mise à jour de votre dossier RI (ID {$numEtu})";
 
@@ -192,34 +201,21 @@ class EmailReminderService
                 'autresLignes'     => $autresLignes
             ]);
 
-            $body = [
-                'Messages' => [
-                    [
-                        'From' => [
-                            'Email' => self::$fromEmail,
-                            'Name'  => self::$fromName
-                        ],
-                        'To' => [
-                            [
-                                'Email' => $toEmail,
-                                'Name'  => $studentName
-                            ]
-                        ],
-                        'Subject'  => $subject,
-                        'HTMLPart' => $htmlMessage,
-                        'TextPart' => strip_tags($htmlMessage)
-                    ]
-                ]
-            ];
+            $mail->setFrom(self::$fromEmail, self::$fromName);
+            $mail->addAddress($toEmail, $studentName);
+            $mail->Subject = $subject;
+            $mail->msgHTML($htmlMessage);
+            $mail->isHTML(true);
+            $mail->AltBody = strip_tags($htmlMessage);
 
-            $response = $mj->post(Resources::$Email, ['body' => $body]);
+            $response = $mail->send();
 
-            if ($response->success()) {
+            if ($response) {
                 error_log("✅ Folder update notification sent to {$toEmail} via Mailjet");
                 return true;
             }
 
-            error_log("❌ Mailjet error: " . json_encode($response->getData()));
+            error_log("❌ Mail error: " . json_encode($mail->ErrorInfo));
             return false;
 
         } catch (\Exception $e) {
