@@ -2,6 +2,8 @@
 
 namespace Service;
 
+use Mailjet\Client;
+use Mailjet\Resources;
 use Model\Persistence\UserRepositoryPDO;
 
 /**
@@ -119,19 +121,69 @@ class SuperAdminService
         ?string $site,
         ?string $nom = null,
         ?string $prenom = null
-    ): void {
-        $fullName = trim(($prenom ?? '') . ' ' . ($nom ?? ''));
-        $greeting = $fullName !== '' ? "Bonjour $fullName," : "Bonjour,";
+    ): bool {
+        try {
+            $apiKey    = $_ENV['MAILJET_API_KEY']    ?? getenv('MAILJET_API_KEY')    ?: '';
+            $apiSecret = $_ENV['MAILJET_SECRET_KEY'] ?? getenv('MAILJET_SECRET_KEY') ?: '';
 
-        $extra = '';
-        if ($departement) $extra .= " (Département : $departement)";
-        if ($site)        $extra .= " (Site : $site)";
+            if (empty($apiKey) || empty($apiSecret)) {
+                error_log("❌ Mailjet credentials are not configured. Check your .env file for MAILJET_API_KEY and MAILJET_SECRET_KEY.");
+                throw new \RuntimeException('Mailjet API credentials are not configured.');
+            }
 
-        $subject = "Votre accès à la plateforme AMU Relations Internationales";
-        $body    = "$greeting\n\nVotre compte a été créé.\n"
-            . "Login : $email\nMot de passe : $password\nRôle : $role$extra\n\n"
-            . "Connectez-vous sur : https://votre-site.fr\n\nCordialement,\nL'équipe AMU";
+            $mj = new Client($apiKey, $apiSecret, true, ['version' => 'v3.1']);
+            $mj->addRequestOption('verify', false);
+            $mj->addRequestOption('timeout', 10);
+            $mj->addRequestOption('connect_timeout', 10);
 
-        mail($email, $subject, $body, "From: noreply@univ-amu.fr");
+            $fullName = trim(($prenom ?? '') . ' ' . ($nom ?? ''));
+            $greeting = $fullName !== '' ? "Bonjour $fullName," : "Bonjour,";
+
+            $extra = '';
+            if ($departement) {
+                $extra .= " (Département : $departement)";
+            }
+            if ($site) {
+                $extra .= " (Site : $site)";
+            }
+
+            $subject = "Votre accès à la plateforme AMU Relations Internationales";
+            $body    = "$greeting\n\nVotre compte a été créé.\n"
+                . "Login : $email\nMot de passe : $password\nRôle : $role$extra\n\n"
+                . "Connectez-vous sur : https://votre-site.fr\n\nCordialement,\nL'équipe AMU";
+
+            $body = [
+                'Messages' => [
+                    [
+                        'From' => [
+                            'Email' => 'relance-iut-amu@ri-amu.app',
+                            'Name'  => 'IUT Aix - Gestion Dossiers'
+                        ],
+                        'To' => [
+                            [
+                                'Email' => $email,
+                                'Name'  => $fullName ?: ''
+                            ]
+                        ],
+                        'Subject'  => $subject,
+                        'HTMLPart' => $body,
+                        'TextPart' => strip_tags($body)
+                    ]
+                ]
+            ];
+
+            $response = $mj->post(Resources::$Email, ['body' => $body]);
+
+            if ($response->success()) {
+                error_log("✅ Email successfully sent to {$email} via Mailjet");
+                return true;
+            } else {
+                error_log("❌ Mailjet error: " . json_encode($response->getData()));
+                return false;
+            }
+        } catch (\Exception $e) {
+            error_log("❌ Mailjet exception for {$email}: " . $e->getMessage());
+            return false;
+        }
     }
 }
