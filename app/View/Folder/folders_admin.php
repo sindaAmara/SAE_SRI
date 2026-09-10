@@ -128,6 +128,13 @@ ob_start();
             </button>
         </div>
 
+        <div class="export-csv-container">
+            <a href="<?= $buildUrl('index.php', ['page' => 'export_student_csv', 'numetu' => $numEtu]) ?>"
+               class="btn-export-csv" target="_blank" rel="noopener">
+                <?= $t(['fr' => '📄 Exporter en CSV', 'en' => '📄 Export as CSV']) ?>
+            </a>
+        </div>
+
         <?php if (!empty($message)) : ?>
             <div class="message"><?= htmlspecialchars($message) ?></div>
         <?php endif; ?>

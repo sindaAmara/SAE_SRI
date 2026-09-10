@@ -29,7 +29,7 @@ class FoldersControllerAdmin
         return in_array($page, [
             'folders', 'save_student', 'folders-admin', 'toggle_complete',
             'update_student', 'import_folders', 'update_document_status',
-            'update_global_status', 'valider_documents'
+            'update_global_status', 'valider_documents', 'export_student_csv'
         ]);
     }
 
@@ -152,6 +152,14 @@ class FoldersControllerAdmin
                     : (($lang === 'fr') ? "Erreur lors de la mise à jour." : "Error updating status.");
                 $this->redirect('index.php?page=folders-admin&action=view&numetu=' . urlencode($numetu) . '&lang=' . $lang);
             }
+        }
+
+        if ($page === 'export_student_csv') {
+            $numetu = $_GET['numetu'] ?? '';
+            if (empty($numetu)) {
+                $this->redirect('index.php?page=folders-admin&lang=' . $lang);
+            }
+            $this->exportStudentCsv(urldecode($numetu), $lang);
         }
 
         // Dispatch POST actions
@@ -537,6 +545,83 @@ class FoldersControllerAdmin
         }
 
         $this->redirect('index.php?page=folders-admin&lang=' . $lang);
+    }
+
+    /**
+     * Exports student data in a CSV file.
+     */
+    private function exportStudentCsv(string $numetu, string $lang): never
+    {
+        $studentData = $this->folderUseCase->getStudentDetails($numetu);
+
+        if (!$studentData) {
+            $_SESSION['message'] = ($lang === 'fr') ? 'Étudiant non trouvé' : 'Student not found';
+            $this->redirect('index.php?page=folders-admin&lang=' . $lang);
+        }
+
+        $fields = [
+            'NumEtu'               => 'Numéro étudiant',
+            'Nom'                  => 'Nom',
+            'Prenom'               => 'Prénom',
+            'DateNaissance'        => 'Date de naissance',
+            'Sexe'                 => 'Sexe',
+            'Adresse'              => 'Adresse',
+            'CodePostal'           => 'Code postal',
+            'Ville'                => 'Ville',
+            'EmailPersonnel'       => 'Email personnel',
+            'EmailAMU'             => 'Email AMU',
+            'Telephone'            => 'Téléphone',
+            'Composante'           => 'Composante',
+            'CodeDepartement'      => 'Département',
+            'Campus'               => 'Campus',
+            'Discipline'           => 'Discipline',
+            'NiveauEtude'          => 'Niveau d\'étude',
+            'Formation'            => 'Formation',
+            'MoyenneBac'           => 'Moyenne Bac',
+            'MoyenneSansBac'       => 'Moyenne sans Bac',
+            'AvisDRI'              => 'Avis DRI',
+            'DateDebut'            => 'Date de début',
+            'MobiliteAnterieure'   => 'Mobilité antérieure',
+            'Pays'                 => 'Pays',
+            'Type'                 => 'Type (entrant/sortant)',
+            'Zone'                 => 'Zone',
+            'Mobilite'             => 'Type de mobilité',
+            'DateLimite'           => 'Date limite',
+            'status'               => 'Statut global',
+            'avis_chef_departement'=> 'Avis chef de département',
+            'ModifiePar'           => 'Modifié par',
+            'ModifieLe'            => 'Modifié le',
+        ];
+
+        // Adds the status of each document
+        $statuts = is_array($studentData['statuts'] ?? null) ? $studentData['statuts'] : [];
+
+        if (ob_get_length()) ob_clean();
+
+        $safeNumEtu = preg_replace('/[^a-zA-Z0-9_-]/', '_', $numetu) ?? 'dossier';
+        $filename   = 'dossier_' . $safeNumEtu . '_' . date('Ymd_His') . '.csv';
+
+        header('Content-Type: text/csv; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $output = fopen('php://output', 'w');
+        fwrite($output, "\xEF\xBB\xBF");
+
+        fputcsv($output, ['Champ', 'Valeur'], ';');
+
+        foreach ($fields as $key => $label) {
+            $value = $studentData[$key] ?? '';
+            fputcsv($output, [$label, is_scalar($value) ? (string)$value : ''], ';');
+        }
+
+        foreach ($statuts as $docKey => $docStatus) {
+            fputcsv($output, ['Statut document: ' . $docKey, (string)$docStatus], ';');
+        }
+
+        fclose($output);
+        exit;
     }
 
     /**
