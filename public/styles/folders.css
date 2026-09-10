@@ -377,6 +377,39 @@ tr:nth-child(even) {
     margin-bottom: 20px;
 }
 
+.export-csv-container {
+    margin: 12px 0 20px;
+}
+
+.btn-export-csv {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background-color: #2e7d32;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-export-csv:hover {
+    background-color: #256428;
+}
+
+.btn-export-csv:active {
+    transform: scale(0.97);
+}
+
+.btn-export-csv:focus-visible {
+    outline: 2px solid #1b5e20;
+    outline-offset: 2px;
+}
+
 .fichier-obligatoire {
     margin-top: 20px;
     padding: 15px;
