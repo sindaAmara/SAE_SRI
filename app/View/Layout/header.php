@@ -99,7 +99,6 @@ $userRole === 'admin'        ? 'home-admin'        :
             $isHomePage = in_array($activeMenu, ['home', 'home-coordinateur'], true);
             ?>
 
-            <?php if ($isHomePage): ?>
                 <?php if (isset($_SESSION['role'])): ?>
                     <button onclick="window.location.href='index.php?page=logout&lang=<?= urlencode($lang) ?>'">
                         <?= $t(['fr' => 'Se déconnecter', 'en' => 'Log out']) ?>
@@ -110,6 +109,7 @@ $userRole === 'admin'        ? 'home-admin'        :
                     </button>
                 <?php endif; ?>
 
+            <?php if ($isHomePage): ?>
                 <button id="theme-toggle" title="Enable tritanopia accessibility mode">
                     <span class="toggle-switch"></span>
                 </button>
