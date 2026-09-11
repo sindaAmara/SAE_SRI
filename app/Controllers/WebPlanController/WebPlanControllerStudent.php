@@ -81,7 +81,8 @@ class WebPlanControllerStudent implements ControllerInterface
         View::render('WebPlan/web_plan_student', [
             'lang'           => $lang,
             't'              => $t,
-            'buildUrl'       => $buildUrl,
+            'buildUrl' => $buildUrl,
+            'userRole' => 'student',
             'links'          => $links,
             'translateLabel' => $translateLabel,
         ]);

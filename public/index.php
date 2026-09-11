@@ -88,6 +88,8 @@ use Controllers\ContactController\ContactControllerStudent;
 use Controllers\CoordinatorController\InternershipCoordinatorController;
 use Controllers\CoordinatorController\StudyCoordinatorController;
 use Controllers\CoordinatorController\DepartmentHeadController;
+//bob controller
+use Controllers\BobController\BobController;
 // --- 5. Initialize Controllers ---
 
 /**
@@ -117,6 +119,7 @@ $controllers = [
     InternershipCoordinatorController::class,
     StudyCoordinatorController::class,
     DepartmentHeadController::class,
+    BobController::class,
 ];
 
 // --- 6. Routing Logic ---

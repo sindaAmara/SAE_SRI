@@ -19,7 +19,6 @@
  *
  * All dynamic content (messages, quick actions) is injected at runtime by
  * js/chatbot.js via the Anthropic API. The markup here is purely structural.
- *
  * @var Closure(array<string, string>): string $t Translation callable — used for the "Assistant" header label
  */
 ?>
@@ -32,4 +31,10 @@
     </div>
     <div id="chat-messages" class="chat-messages"></div>
     <div id="quick-actions" class="quick-actions"></div>
+    <?php if ($userRole === 'student'): ?>
+        <div class="chat-input-area">
+            <input type="text" placeholder="<?= $t(['fr' => 'Pose ta question...', 'en' => 'Ask a question...']) ?>">
+            <button>➤</button>
+        </div>
+    <?php endif; ?>
 </div>

@@ -108,6 +108,7 @@ class PartnersControllerStudent implements ControllerInterface
             'partner'  => $partner,
             't'        => $t,
             'buildUrl' => $buildUrl,
+            'userRole' => 'student',
         ]);
     }
 }

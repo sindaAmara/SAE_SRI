@@ -76,7 +76,8 @@ class WebPlanControllerAdmin implements ControllerInterface
         View::render('WebPlan/web_plan_admin', [
             'lang'           => $lang,
             't'              => $t,
-            'buildUrl'       => $buildUrl,
+            'buildUrl' => $buildUrl,
+            'userRole' => 'admin',
             'links'          => $links,
             'translateLabel' => $translateLabel,
         ]);

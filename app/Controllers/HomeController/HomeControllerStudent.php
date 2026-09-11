@@ -93,6 +93,7 @@ class HomeControllerStudent implements ControllerInterface
         // Render the student homepage
         $this->renderView('HomePage/home_student', [
             'isLoggedIn' => $isStudentLoggedIn,
+            'userRole'   => 'student',
             'lang'       => $lang,
             't'          => $t,
             'buildUrl'   => $buildUrl,

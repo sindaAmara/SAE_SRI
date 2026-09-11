@@ -107,8 +107,11 @@ $noMain       = $noMain ?? false;
 <?php include __DIR__ . '/footer.php'; ?>
 
 <script src="js/main.js"></script>
-<script src="js/chatbot.js"></script>
-
+<?php if ($userRole === 'admin'): ?>
+    <script src="js/chatbot-admin.js"></script>
+<?php elseif ($userRole === 'student'): ?>
+    <script src="js/chatbot-student.js"></script>
+<?php endif; ?>
 <?php foreach ($scripts as $script): ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>
 <?php endforeach; ?>
