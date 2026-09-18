@@ -73,6 +73,14 @@ elseif ($status === 'refuse') $decisionClass = 'decision-refused';
         </div>
     </div>
 
+    <?php if (in_array($status, ['accepte'], true)):?>
+        <div class="form-link">
+            <a href="index.php?page=stage-form">
+                <?= $t(['fr' => 'Formulaire de fin de stage', 'en' => 'End-of-internship form']) ?>
+            </a>
+        </div>
+    <?php endif; ?>
+
     <div class="contact-info-box">
         <p class="contact-title"><?= $t(['fr' => 'Une question ou besoin d\'assistance ?', 'en' => 'A question or need assistance?']) ?></p>
         <p><?= $t(['fr' => 'Pour toute information complémentaire...', 'en' => 'For any additional information...']) ?></p>

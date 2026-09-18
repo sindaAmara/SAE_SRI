@@ -62,6 +62,11 @@
 ob_start();
 ?>
 
+    <!-- EMPLACEMENT TEMPORAIRE À CHANGER   -->EMPLACEMENT TEMPORAIRE À CHANGER
+    <a href="<?= $buildUrl('index.php?page=stage-form-admin') ?>">
+        <?= $t(['fr' => 'Formulaires de fin de stage', 'en' => 'End-of-internship forms']) ?>
+    </a>
+
     <h1 class="suivi-global"><?= $t(['fr' => 'Suivi Global des Mobilités', 'en' => 'Global Mobility Tracking']) ?></h1>
 
     <form class="filters-container" method="GET" action="index.php">
