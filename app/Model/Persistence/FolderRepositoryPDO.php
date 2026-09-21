@@ -6,6 +6,7 @@ use PDO;
 use Database;
 use Model\Entity\FolderStats;
 use Model\Entity\GenderStats;
+use Model\Entity\WorkflowStats;
 
 /**
  * Class FolderRepositoryPDO
@@ -128,6 +129,103 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             return new FolderStats(0, 0);
         }
     }
+
+    
+
+        /**
+     * Calculates the 5-stage validation workflow statistics.
+     * * @param string|null $mobilite
+     * @param string|null $departement
+     * @return WorkflowStats
+     */
+    public function getWorkflowStats(?string $mobilite = null, ?string $departement = null): WorkflowStats
+    {
+        try {
+            ['clause' => $where,  'bindings' => $bindings]  = $this->mobiliteWhere($mobilite);
+            ['clause' => $where2, 'bindings' => $bindings2] = $this->departementWhere($departement, !empty($where));
+            $where    .= $where2;
+            $bindings  = array_merge($bindings, $bindings2);
+
+            $stmt = $this->run("
+                SELECT
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN IsComplete = 0 THEN 1 ELSE 0 END) AS incomplete,
+                    SUM(CASE WHEN IsComplete = 1 AND valide_admin = 0 THEN 1 ELSE 0 END) AS awaiting_admin,
+                    SUM(CASE WHEN valide_admin = 1 AND valide_coordinateur = 0 THEN 1 ELSE 0 END) AS validated_admin,
+                    SUM(CASE WHEN valide_admin = 1 AND valide_coordinateur = 1 THEN 1 ELSE 0 END) AS validated_admin_coord,
+                    SUM(CASE WHEN avis_chef_departement = 'accepte' THEN 1 ELSE 0 END) AS validated_chef
+                FROM dossiers
+                $where
+            ", $bindings);
+
+            $r = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
+            $g = fn(string $k) => (is_array($r) && isset($r[$k]) && is_numeric($r[$k])) ? (int) $r[$k] : 0;
+
+            return new WorkflowStats(
+                total:                         $g('total'),
+                incomplete:                    $g('incomplete'),
+                awaitingAdmin:                 $g('awaiting_admin'),
+                validatedAdmin:                $g('validated_admin'),
+                validatedAdminAndCoordinateur: $g('validated_admin_coord'),
+                validatedChefDepartement:      $g('validated_chef'),
+            );
+        } catch (\PDOException $e) {
+            error_log("getWorkflowStats Error: " . $e->getMessage());
+            return new WorkflowStats(0, 0, 0, 0, 0, 0);
+        }
+    }
+
+    /**
+     * Records or resets the admin/secretariat validation of a folder.
+     * * @param string $numEtu
+     * @param bool $value
+     * @return bool
+     */
+    public function setValideAdmin(string $numEtu, bool $value): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE dossiers
+                SET valide_admin = :val, date_validation_admin = :date
+                WHERE NumEtu = :numetu
+            ");
+            return $stmt->execute([
+                ':val'    => $value ? 1 : 0,
+                ':date'   => $value ? date('Y-m-d H:i:s') : null,
+                ':numetu' => $numEtu,
+            ]);
+        } catch (\PDOException $e) {
+            error_log("setValideAdmin Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Records or resets the coordinator validation of a folder.
+     * * @param string $numEtu
+     * @param bool $value
+     * @return bool
+     */
+    public function setValideCoordinateur(string $numEtu, bool $value): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE dossiers
+                SET valide_coordinateur = :val, date_validation_coordinateur = :date
+                WHERE NumEtu = :numetu
+            ");
+            return $stmt->execute([
+                ':val'    => $value ? 1 : 0,
+                ':date'   => $value ? date('Y-m-d H:i:s') : null,
+                ':numetu' => $numEtu,
+            ]);
+        } catch (\PDOException $e) {
+            error_log("setValideCoordinateur Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
 
     /**
      * Calculates gender-based statistics.

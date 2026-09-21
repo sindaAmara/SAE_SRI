@@ -52,6 +52,7 @@ $incoming       = $stats?->getIncomingStudents() ?? 0;
 $outgoing       = $stats?->getOutgoingStudents() ?? 0;
 $europeCount    = $stats?->getEuropeCountriesCount()    ?? 0;
 $nonEuropeCount = $stats?->getNonEuropeCountriesCount() ?? 0;
+$workflowStats = $stats?->getWorkflowStats() ?? new \Model\Entity\WorkflowStats(0, 0, 0, 0, 0, 0);
 
 $totalFolders   = max($dossierStats?->getTotal() ?? 0, 1);
 $completed      = $dossierStats?->getCompleted() ?? 0;
@@ -272,6 +273,42 @@ ob_start();
                     </div>
                 </div>
 
+                <!-- Slide 8 : Workflow de validation -->
+                <div class="stat-slide">
+                    <h2><?= $t(['fr' => 'Workflow de validation', 'en' => 'Validation Workflow']) ?></h2>
+                    <div class="stat-content workflow-grid">
+                        <a href="<?= $buildUrl('index.php', array_filter([
+                            'page' => 'folders-admin', 'mobilite' => $mobiliteFilter, 'departement' => $departementFilter,
+                        ]) + ['complet' => '0']) ?>" class="stat-item incomplete stat-item--link">
+                            <div class="stat-number"><?= $workflowStats->getIncomplete() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Incomplets', 'en' => 'Incomplete']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getIncompletePercentage() ?>%</div>
+                        </a>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getAwaitingAdmin() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'À valider (secrétariat)', 'en' => 'Awaiting admin']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getAwaitingAdminPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getValidatedAdmin() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Validé secrétariat', 'en' => 'Validated by admin']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getValidatedAdminAndCoordinateur() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => '+ Coordinateur', 'en' => '+ Coordinator']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminAndCoordinateurPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item complete">
+                            <div class="stat-number"><?= $workflowStats->getValidatedChefDepartement() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Validé chef de département', 'en' => 'Validated by dept. head']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedChefDepartementPercentage() ?>%</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
             </div>
 
             <div class="carousel-dots">
@@ -282,6 +319,7 @@ ob_start();
                 <span class="dot"        onclick="window.carousel.goToSlide(4)"></span>
                 <span class="dot"        onclick="window.carousel.goToSlide(5)"></span>
                 <span class="dot"        onclick="window.carousel.goToSlide(6)"></span>
+                <span class="dot"        onclick="window.carousel.goToSlide(7)"></span>
             </div>
         </div>
     </section>

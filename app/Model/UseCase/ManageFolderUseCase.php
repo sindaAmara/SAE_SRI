@@ -144,6 +144,34 @@ class ManageFolderUseCase
         return $result;
     }
 
+
+    /**
+     * Records or resets the admin/secretariat validation of a folder.
+     *
+     * @param string $numEtu Student number identifying the folder
+     * @param bool   $value  True to validate, false to reset
+     * @return bool True on success, false on failure
+     */
+    public function setValideAdmin(string $numEtu, bool $value): bool
+    {
+        return $this->dossierRepo->setValideAdmin($numEtu, $value);
+    }
+
+    /**
+     * Records or resets the coordinator validation of a folder.
+     *
+     * @param string $numEtu Student number identifying the folder
+     * @param bool   $value  True to validate, false to reset
+     * @return bool True on success, false on failure
+     */
+    public function setValideCoordinateur(string $numEtu, bool $value): bool
+    {
+        return $this->dossierRepo->setValideCoordinateur($numEtu, $value);
+    }
+
+
+
+
     /**
      * Searches folders using the given filters and returns a paginated result set.
      *

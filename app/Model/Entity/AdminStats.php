@@ -38,6 +38,9 @@ class AdminStats
     /** @var int Number of distinct non-European countries represented */
     private int $nonEuropeCountriesCount;
 
+        /** @var WorkflowStats Validation workflow statistics */
+    private WorkflowStats $workflowStats;
+
     /**
      * @param FolderStats                                    $dossierStats            Folder completion statistics
      * @param array<int, CountryStats>                       $topCountries            Top countries by student count
@@ -59,6 +62,7 @@ class AdminStats
         array       $zoneStats = [],
         int         $europeCountriesCount = 0,
         int         $nonEuropeCountriesCount = 0,
+        WorkflowStats $workflowStats = new WorkflowStats(0, 0, 0, 0, 0, 0),
     ) {
         $this->dossierStats            = $dossierStats;
         $this->topCountries            = $topCountries;
@@ -69,6 +73,7 @@ class AdminStats
         $this->zoneStats               = $zoneStats;
         $this->europeCountriesCount    = $europeCountriesCount;
         $this->nonEuropeCountriesCount = $nonEuropeCountriesCount;
+        $this->workflowStats = $workflowStats;
     }
 
     /**
@@ -80,6 +85,19 @@ class AdminStats
     {
         return $this->dossierStats;
     }
+
+
+    /**
+     * Returns the validation workflow statistics.
+     *
+     * @return WorkflowStats
+     */
+    public function getWorkflowStats(): WorkflowStats
+    {
+        return $this->workflowStats;
+    }
+
+
 
     /**
      * Returns the top countries ranked by student count.
