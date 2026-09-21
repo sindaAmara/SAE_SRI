@@ -30,11 +30,13 @@ class ManageStageFormUseCase
     }
 
     /**
-     * Returns whether the given student already submitted a response.
+     * Returns the existing student response
+     *
+     * @return array<string, mixed>|null
      */
-    public function hasSubmitted(string $numetu): bool
+    public function getExistingResponse(string $numetu): ?array
     {
-        return $this->repository->hasSubmitted($numetu);
+        return $this->repository->findByNumEtu($numetu);
     }
 
     /**

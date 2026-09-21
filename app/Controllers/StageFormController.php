@@ -91,7 +91,6 @@ class StageFormController implements ControllerInterface
             $folder = [];
         }
 
-        // Le formulaire n'est accessible que si le dossier a été accepté
         $status = strval($folder['status'] ?? 'depot');
         if ($status !== 'accepte') {
             header('Location: index.php?page=dashboard-student');
@@ -104,18 +103,14 @@ class StageFormController implements ControllerInterface
             return ($lang === 'en') ? $frEn['en'] : $frEn['fr'];
         };
 
-
-        if ($this->formUseCase->hasSubmitted($numetu)) {
-            header('Location: index.php?page=dashboard-student&already_submitted=1');
-            exit;
-        }
+        $existing = $this->formUseCase->getExistingResponse($numetu);
 
         View::render('Dashboard/form_student', [
             'lang'      => $lang,
             't'         => $t,
             'folder'    => $folder,
             'errors'    => [],
-            'old'       => []
+            'old'       => $existing ?? [],
         ]);
     }
 

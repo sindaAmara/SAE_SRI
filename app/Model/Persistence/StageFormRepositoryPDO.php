@@ -20,7 +20,7 @@ class StageFormRepositoryPDO
     }
 
     /**
-     * Inserts a new form response for a given student.
+     * Inserts a new form response or update the existing for a given student.
      *
      * @param string $numetu Student number (foreign key to the student/folder)
      * @param array<string, string> $data Validated form data
@@ -31,7 +31,13 @@ class StageFormRepositoryPDO
             'INSERT INTO stage_form_responses
                 (numetu, host_institution, start_date, end_date, evaluation, submitted_at)
              VALUES
-                (:numetu, :host_institution, :start_date, :end_date, :evaluation, NOW())'
+                (:numetu, :host_institution, :start_date, :end_date, :evaluation, NOW())
+                        ON DUPLICATE KEY UPDATE
+                host_institution = VALUES(host_institution),
+                start_date       = VALUES(start_date),
+                end_date         = VALUES(end_date),
+                evaluation       = VALUES(evaluation),
+                submitted_at     = VALUES(submitted_at)'
         );
 
         $stmt->execute([
@@ -44,16 +50,22 @@ class StageFormRepositoryPDO
     }
 
     /**
-     * Returns whether a student has already submitted a response.
+     * Returns the existing response for a student, or null if none.
+     *
+     * @return array<string, mixed>|null
      */
-    public function hasSubmitted(string $numetu): bool
+    public function findByNumEtu(string $numetu): ?array
     {
         $stmt = $this->conn->prepare(
-            'SELECT COUNT(*) FROM stage_form_responses WHERE numetu = :numetu'
+            'SELECT numetu, host_institution, start_date, end_date, evaluation, submitted_at
+             FROM stage_form_responses
+             WHERE numetu = :numetu'
         );
         $stmt->execute(['numetu' => $numetu]);
 
-        return (int) $stmt->fetchColumn() > 0;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row !== false ? $row : null;
     }
 
     /**

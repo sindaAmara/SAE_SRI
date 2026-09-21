@@ -35,7 +35,11 @@ ob_start();
         </label>
         <textarea id="evaluation" name="evaluation" rows="6"><?= htmlspecialchars($old['evaluation'] ?? '') ?></textarea>
 
-        <button type="submit"><?= $t(['fr' => 'Envoyer', 'en' => 'Submit']) ?></button>
+        <button type="submit">
+            <?= !empty($old)
+                    ? $t(['fr' => 'Mettre à jour', 'en' => 'Update'])
+                    : $t(['fr' => 'Envoyer', 'en' => 'Submit']) ?>
+        </button>
     </form>
 
 <?php
