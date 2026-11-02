@@ -67,7 +67,7 @@ class WebPlanControllerAdmin implements ControllerInterface
         // Admin navigation links shown on the site map
         $links = [
             ['url' => 'home-admin',      'label' => 'Accueil'],
-            ['url' => 'dashboard-admin', 'label' => 'Tableau de bord'],
+            ['url' => 'stage-form-admin', 'label' => 'Formulaires'],
             ['url' => 'partners-admin',  'label' => 'Partenaires'],
             ['url' => 'folders-admin',   'label' => 'Dossiers'],
             ['url' => 'messages-admin',  'label' => 'Messages'],
