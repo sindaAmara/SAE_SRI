@@ -185,12 +185,69 @@ class StageFormController implements ControllerInterface
             return ($lang === 'en') ? $frEn['en'] : $frEn['fr'];
         };
 
+        $buildUrl = function (string $path) use ($lang): string {
+            $separator = (strpos($path, '?') !== false) ? '&' : '?';
+            return $path . $separator . 'lang=' . urlencode($lang);
+        };
+
+        // Same search system than dashboard
+        $studentFilter = strtolower(trim(is_string($_GET['student'] ?? null) ? $_GET['student'] : ''));
+
+        $folders = $this->folderUseCase->getAllFolders();
+        if (!is_array($folders)) {
+            $folders = [];
+        }
+
         $responses = $this->formUseCase->getAllResponses();
+        if (!is_array($responses)) {
+            $responses = [];
+        }
+        $responsesByNumEtu = [];
+        foreach ($responses as $r) {
+            $key = strval($r['numetu'] ?? '');
+            if ($key !== '') {
+                $responsesByNumEtu[$key] = $r;
+            }
+        }
+
+        $outgoing = [];
+        $incoming = [];
+
+        foreach ($folders as $d) {
+            $nom    = strval($d['Nom']    ?? '');
+            $prenom = strval($d['Prenom'] ?? '');
+            $numEtu = strval($d['NumEtu'] ?? '');
+            $type   = strval($d['Type']   ?? '');
+
+            if ($studentFilter !== '') {
+                $fullName = strtolower("$nom $prenom $numEtu");
+                if (strpos($fullName, $studentFilter) === false) {
+                    continue;
+                }
+            }
+
+            $status = strval($d['status'] ?? $d['Status'] ?? '');
+            if ($status !== 'accepte') {
+                continue;
+            }
+
+            $d['form_response']    = $responsesByNumEtu[$numEtu] ?? null;
+            $d['form_submitted']   = isset($responsesByNumEtu[$numEtu]);
+
+            if (stripos($type, 'incoming') !== false || stripos($type, 'entrant') !== false) {
+                $incoming[] = $d;
+            } else {
+                $outgoing[] = $d;
+            }
+        }
 
         View::render('Dashboard/form_admin', [
             'lang'      => $lang,
             't'         => $t,
-            'responses' => is_array($responses) ? $responses : [],
+            'buildUrl'      => $buildUrl,
+            'studentFilter' => $studentFilter,
+            'incoming'      => $incoming,
+            'outgoing'      => $outgoing,
         ]);
     }
 }

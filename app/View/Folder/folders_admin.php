@@ -61,6 +61,7 @@
  * @var string                           $lang          Current language code (e.g. 'fr' or 'en')
  * @var string                           $action        View mode: 'view' for the detail form, any other value for the list
  * @var array<string, mixed>|null        $studentData   Full folder data array from the repository (including 'pieces', 'statuts', and metadata); null when the student was not found
+ * @var array<string, mixed>|null        $stageFormResponse Existing end-of-internship form response for this student, or null
  * @var array<string, mixed>             $filters       Current active filter values keyed by filter name (type, zone, complet, composante, accord, date_debut, date_fin, search)
  * @var int                              $totalCount    Total number of folders matching the active filters (used by the student table partial)
  * @var array<int, array<string, mixed>> $paginatedData Current page of folder records for the student table partial
@@ -178,6 +179,25 @@ ob_start();
                 $allFilesEditable = true;
                 include __DIR__ . '/../Partials/_doc_review.php';
                 ?>
+            </div>
+
+            <h2><?= $t(['fr' => 'Formulaire de fin de stage', 'en' => 'End-of-internship form']) ?></h2>
+            <div class="form-section full-width">
+                <?php if (!$stageFormResponse) : ?>
+                    <p><?= $t(['fr' => 'Aucune réponse soumise pour le moment.', 'en' => 'No response submitted yet.']) ?></p>
+                <?php else : ?>
+                    <p><strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?> :</strong>
+                        <?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></p>
+                    <p><strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?> :</strong>
+                        <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
+                        <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?></p>
+                    <p><strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?> :</strong></p>
+                    <div class="stage-form-evaluation">
+                        <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                    </div>
+                    <p><small><?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
+                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?></small></p>
+                <?php endif; ?>
             </div>
 
             <?php include __DIR__ . '/../Partials/_global_status.php'; ?>
