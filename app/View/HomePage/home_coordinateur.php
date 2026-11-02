@@ -80,14 +80,13 @@ $maxDept = !empty($departments)
 ob_start();
 ?>
 
-    <section class="hero-section">
-        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
-    </section>
+    <div class="home-intro">
 
     <section class="pub-section">
         <img id="pub_amu"
              src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
              alt="AMU Promotion">
+        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
         <div class="pub-text">
             <?= $t([
                 'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
@@ -160,7 +159,7 @@ ob_start();
             </div>
         </div>
     </section>
-
+    </div>
     <!-- Carrousel -->
     <section class="stats-section">
         <button class="carousel-btn prev" onclick="window.carousel.changeSlide(-1)">←</button>

@@ -80,6 +80,16 @@ $maxDept = !empty($departments)
 ob_start();
 ?>
 
+
+    <div class="home-intro">
+
+    <section class="pub-section">
+        <img id="pub_amu"
+             src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
+             alt="AMU Promotion">
+        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
+    </section>
+
     <!-- Filtre Mobilité + Département -->
     <section class="mobilite-filter">
         <div class="mobilite-filter__inner">
@@ -144,6 +154,7 @@ ob_start();
             </div>
         </div>
     </section>
+    </div>
 
     <!-- Carrousel -->
     <section class="stats-section">
@@ -153,8 +164,44 @@ ob_start();
         <div class="stats-carousel">
             <div class="carousel-container">
 
-                <!-- Slide 1 : État des dossiers -->
+
+
+                <!-- Slide 8 : Workflow de validation -->
                 <div class="stat-slide active">
+                    <h2><?= $t(['fr' => 'Workflow de validation', 'en' => 'Validation Workflow']) ?></h2>
+                    <div class="stat-content workflow-grid">
+                        <a href="<?= $buildUrl('index.php', array_filter([
+                                        'page' => 'folders-admin', 'mobilite' => $mobiliteFilter, 'departement' => $departementFilter,
+                                ]) + ['complet' => '0']) ?>" class="stat-item incomplete stat-item--link">
+                            <div class="stat-number"><?= $workflowStats->getIncomplete() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Incomplets', 'en' => 'Incomplete']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getIncompletePercentage() ?>%</div>
+                        </a>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getAwaitingAdmin() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'À valider (secrétariat)', 'en' => 'Awaiting admin']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getAwaitingAdminPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getValidatedAdmin() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Validé secrétariat', 'en' => 'Validated by admin']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number"><?= $workflowStats->getValidatedAdminAndCoordinateur() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => '+ Coordinateur', 'en' => '+ Coordinator']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminAndCoordinateurPercentage() ?>%</div>
+                        </div>
+                        <div class="stat-item complete">
+                            <div class="stat-number"><?= $workflowStats->getValidatedChefDepartement() ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Validé chef de département', 'en' => 'Validated by dept. head']) ?></div>
+                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedChefDepartementPercentage() ?>%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 1 : État des dossiers -->
+                <div class="stat-slide">
                     <h2><?= $t(['fr' => 'État des dossiers', 'en' => 'Folder Status']) ?></h2>
                     <div class="stat-content">
                     <a href="<?= $buildUrl('index.php', array_filter([
@@ -273,39 +320,7 @@ ob_start();
                     </div>
                 </div>
 
-                <!-- Slide 8 : Workflow de validation -->
-                <div class="stat-slide">
-                    <h2><?= $t(['fr' => 'Workflow de validation', 'en' => 'Validation Workflow']) ?></h2>
-                    <div class="stat-content workflow-grid">
-                        <a href="<?= $buildUrl('index.php', array_filter([
-                            'page' => 'folders-admin', 'mobilite' => $mobiliteFilter, 'departement' => $departementFilter,
-                        ]) + ['complet' => '0']) ?>" class="stat-item incomplete stat-item--link">
-                            <div class="stat-number"><?= $workflowStats->getIncomplete() ?></div>
-                            <div class="stat-label"><?= $t(['fr' => 'Incomplets', 'en' => 'Incomplete']) ?></div>
-                            <div class="stat-percentage-small"><?= $workflowStats->getIncompletePercentage() ?>%</div>
-                        </a>
-                        <div class="stat-item">
-                            <div class="stat-number"><?= $workflowStats->getAwaitingAdmin() ?></div>
-                            <div class="stat-label"><?= $t(['fr' => 'À valider (secrétariat)', 'en' => 'Awaiting admin']) ?></div>
-                            <div class="stat-percentage-small"><?= $workflowStats->getAwaitingAdminPercentage() ?>%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?= $workflowStats->getValidatedAdmin() ?></div>
-                            <div class="stat-label"><?= $t(['fr' => 'Validé secrétariat', 'en' => 'Validated by admin']) ?></div>
-                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminPercentage() ?>%</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-number"><?= $workflowStats->getValidatedAdminAndCoordinateur() ?></div>
-                            <div class="stat-label"><?= $t(['fr' => '+ Coordinateur', 'en' => '+ Coordinator']) ?></div>
-                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedAdminAndCoordinateurPercentage() ?>%</div>
-                        </div>
-                        <div class="stat-item complete">
-                            <div class="stat-number"><?= $workflowStats->getValidatedChefDepartement() ?></div>
-                            <div class="stat-label"><?= $t(['fr' => 'Validé chef de département', 'en' => 'Validated by dept. head']) ?></div>
-                            <div class="stat-percentage-small"><?= $workflowStats->getValidatedChefDepartementPercentage() ?>%</div>
-                        </div>
-                    </div>
-                </div>
+
 
 
 
