@@ -105,7 +105,6 @@ $controllers = [
     FoldersControllerStudent::class,
     PartnersControllerAdmin::class,
     PartnersControllerStudent::class,
-    PartnersMapDataController::class,
     WebPlanController::class,
     WebPlanControllerAdmin::class,
     WebPlanControllerStudent::class,
