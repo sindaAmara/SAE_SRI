@@ -12,15 +12,7 @@
 
 ob_start();
 
-$truncate = function (?string $text, int $maxLength = 70): string {
-    $text = $text ?? '';
-    if (mb_strlen($text) <= $maxLength) {
-        return $text;
-    }
-    return mb_substr($text, 0, $maxLength) . '…';
-};
-
-$renderTable = function (array $folders) use ($t, $truncate, $lang): void {
+$renderTable = function (array $folders) use ($t, $lang): void {
     if (empty($folders)) {
         echo '<p>' . $t(['fr' => 'Aucun étudiant.', 'en' => 'No students.']) . '</p>';
         return;
@@ -33,8 +25,8 @@ $renderTable = function (array $folders) use ($t, $truncate, $lang): void {
             <th><?= $t(['fr' => 'Statut formulaire', 'en' => 'Form status']) ?></th>
             <th><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?></th>
             <th><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?></th>
-            <th><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></th>
             <th><?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?></th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -60,8 +52,25 @@ $renderTable = function (array $folders) use ($t, $truncate, $lang): void {
                             ? htmlspecialchars($response['start_date']) . ' → ' . htmlspecialchars($response['end_date'])
                             : '—' ?>
                 </td>
-                <td><?= $response ? nl2br(htmlspecialchars($truncate($response['evaluation'] ?? ''))) : '—' ?></td>
                 <td><?= htmlspecialchars($response['submitted_at'] ?? '—') ?></td>
+                <td class="eval-toggle-cell">
+                    <button type="button" class="eval-toggle"
+                        onclick="event.stopPropagation(); toggleEval(this);"
+                        aria-expanded="false"
+                        title="<?= $t(['fr' => "Voir l'évaluation", 'en' => 'Show evaluation']) ?>">▼</button>
+                </td>
+            <tr class="eval-detail-row" style="display:none;">
+                <td colspan="6">
+                    <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
+                    <div class="eval-full">
+                        <?php if ($response && !empty($response['evaluation'])): ?>
+                            <?= nl2br(htmlspecialchars($response['evaluation'])) ?>
+                        <?php else: ?>
+                            <?= $t(['fr' => 'Aucune évaluation disponible.', 'en' => 'No evaluation available.']) ?>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -85,6 +94,16 @@ $renderTable = function (array $folders) use ($t, $truncate, $lang): void {
 
     <h2><?= $t(['fr' => 'Étudiants entrants', 'en' => 'Incoming students']) ?></h2>
 <?php $renderTable($incoming); ?>
+
+    <script>
+        function toggleEval(btn) {
+            const detailRow = btn.closest('tr').nextElementSibling;
+            const open = detailRow.style.display === 'none';
+            detailRow.style.display = open ? 'table-row' : 'none';
+            btn.textContent = open ? '▲' : '▼';
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+    </script>
 
 <?php
 $content = ob_get_clean();

@@ -186,17 +186,32 @@ ob_start();
                 <?php if (!$stageFormResponse) : ?>
                     <p><?= $t(['fr' => 'Aucune réponse soumise pour le moment.', 'en' => 'No response submitted yet.']) ?></p>
                 <?php else : ?>
-                    <p><strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?> :</strong>
-                        <?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></p>
-                    <p><strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?> :</strong>
-                        <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
-                        <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?></p>
-                    <p><strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?> :</strong></p>
-                    <div class="stage-form-evaluation">
-                        <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?></strong>
+                        <div><?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></div>
                     </div>
-                    <p><small><?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
-                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?></small></p>
+
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?></strong>
+                        <div>
+                            <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
+                            <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?>
+                        </div>
+                    </div>
+
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
+                        <div class="stage-form-evaluation">
+                            <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                        </div>
+                    </div>
+
+                    <div class="stage-form-field">
+                        <small>
+                            <?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
+                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?>
+                        </small>
+                    </div>
                 <?php endif; ?>
             </div>
 
