@@ -74,7 +74,7 @@ use Controllers\HomeController\HomeControllerCoordinateur;
 // Partners Controllers
 use Controllers\PartnersController\PartnersControllerStudent;
 use Controllers\PartnersController\PartnersControllerAdmin;
-
+use Controllers\PartnersController\PartnersMapDataController;
 // WebPlan (Sitemap) Controllers
 use Controllers\WebPlanController\WebPlanControllerAdmin;
 use Controllers\WebPlanController\WebPlanControllerStudent;
@@ -105,6 +105,7 @@ $controllers = [
     FoldersControllerStudent::class,
     PartnersControllerAdmin::class,
     PartnersControllerStudent::class,
+    PartnersMapDataController::class,
     WebPlanController::class,
     WebPlanControllerAdmin::class,
     WebPlanControllerStudent::class,
@@ -158,9 +159,9 @@ if ($page === '' || $page === 'index.php' || $page === 'home') {
 
 // Handle Logout
 if ($page === 'logout') {
-    // Destroy session and redirect to login
     session_unset();
     session_destroy();
+    setcookie('bob_logout', '1', time() + 300, '/'); // expire dans 5 min, au cas où
     header('Location: index.php?page=login');
     exit;
 }

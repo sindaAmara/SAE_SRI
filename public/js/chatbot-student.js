@@ -105,8 +105,11 @@ Your personality:
 - Warm, encouraging — like a helpful older student
 - Use "tu" in French, "you" in English
 - Concise answers: 3 to 5 sentences max, unless the student needs step-by-step help
-- Use **bold** for important words and bullet lists when listing steps
 
+Formatting rules (strict):
+- Plain text only. Never use markdown symbols: no **bold**, no *italics*, no # headers, no bullet dashes (-).
+- Never use emojis, under any circumstance.
+- If you need to list steps, write them as plain numbered sentences (e.g. "1. D'abord... 2. Ensuite...") or separate short sentences, not a markdown list.
 Platform knowledge:
 - Students have a personal dossier where they upload documents (CV, cover letter, learning agreement, insurance)
 - They can browse partner universities in the Partenaires tab
@@ -189,7 +192,18 @@ Never invent platform features or steps not listed above.`;
             }
         });
 
-        // Backward compat for any onclick="toggleHelpPopup()" in HTML
+        const logoutTrigger = document.querySelector(
+            'a[href*="logout"], a[href*="deconnexion"], .logout-btn'
+        );
+
+        logoutTrigger?.addEventListener('click', () => {
+            try {
+                Object.keys(localStorage)
+                    .filter(k => k.startsWith('bob_chat_'))
+                    .forEach(k => localStorage.removeItem(k));
+            } catch (e) {}
+        });
+
         window.toggleHelpPopup = () => this.#togglePopup();
     }
 
@@ -307,9 +321,7 @@ Never invent platform features or steps not listed above.`;
     }
 
     async #sendMessage(text) {
-        // On ajoute le message de l'étudiant et on ancre immédiatement
-        // le scroll dessus : c'est ce point de repère qui reste fixe
-        // pendant toute la réponse du bot, même si elle est longue.
+
         const userMsgEl = this.#addMessage(this.#escape(text), 'user');
         this.#scrollToTop(userMsgEl);
 
@@ -368,10 +380,11 @@ Never invent platform features or steps not listed above.`;
     #md(text) {
         return text
             .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
-            .replace(/\*(.*?)\*/g,     '<i>$1</i>')
-            .replace(/^- (.+)$/gm,     '<li>$1</li>')
-            .replace(/(<li>[\s\S]*?<\/li>)/g, '<ul>$1</ul>')
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/\*(.*?)\*/g,     '$1')
+            .replace(/^#{1,6}\s+/gm,   '')
+            .replace(/^-\s+/gm,        '')
+            .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '')
             .replace(/\n/g, '<br>');
     }
     clearHistory() {
@@ -383,6 +396,15 @@ Never invent platform features or steps not listed above.`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (document.cookie.split('; ').some(c => c === 'bob_logout=1')) {
+        try {
+            Object.keys(localStorage)
+                .filter(k => k.startsWith('bob_chat_'))
+                .forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+        document.cookie = 'bob_logout=; Max-Age=0; path=/';
+    }
+
     window.chatbot = new BobChatbot();
     window.toggleHelpPopup = () => window.chatbot.popup &&
         window.chatbot._BobChatbot__togglePopup();

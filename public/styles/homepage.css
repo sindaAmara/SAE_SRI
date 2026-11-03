@@ -124,27 +124,174 @@
     margin-top: 5px;
 }
 
-.pub-section {
-    position: relative;
-    width: 100%;
+/* ================================================================
+   Carte interactive des partenaires (remplace la pub-section)
+================================================================ */
+
+.partners-map-section {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
     text-align: center;
 }
 
-.pub-section img {
-    width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-
-.pub-text {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    transform: none;
+.partners-map-section .pub-text {
+    position: static;
     color: #002439;
     font-size: var(--h1-size);
     font-weight: bold;
+    margin-bottom: 24px;
+}
+
+body.tritanopie .partners-map-section .pub-text {
+    color: #002c15;
+}
+
+.partners-map-toggle {
+    display: inline-flex;
+    gap: 0.75rem;
+    margin-bottom: 20px;
+}
+
+.map-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    border-radius: 999px;
+    border: 2.5px solid #d1d5db;
+    background: #fff;
+    color: #555;
+    font-size: var(--text-size);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.map-toggle-btn:hover {
+    border-color: #9ca3af;
+    background: #f9fafb;
+    color: #111;
+    transform: translateY(-2px);
+}
+
+.map-toggle-btn.active {
+    background: #003d7a;
+    border-color: #003d7a;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 61, 122, 0.35);
+}
+
+body.tritanopie .map-toggle-btn.active {
+    background: #1a5c2a;
+    border-color: #1a5c2a;
+    box-shadow: 0 4px 12px rgba(26, 92, 42, 0.35);
+}
+
+.partners-map {
+    width: 100%;
+    height: clamp(480px, 70vh, 720px);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 0;
+}
+
+.partner-cluster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    background: #003d7a;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+body.tritanopie .partner-cluster {
+    background: #1a5c2a;
+}
+
+/* Fenetre d'une universite (specificite doublee : leaflet.css est charge apres) */
+.partner-popup {
+    max-height: 280px;
+    overflow-y: auto;
+    color: #1f1f1f;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.partner-popup .partner-popup__card + .partner-popup__card {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #d9d9d9;
+}
+
+.partner-popup .partner-popup__name {
+    margin: 0 18px 8px 0;
+    color: #003d7a;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+body.tritanopie .partner-popup .partner-popup__name {
+    color: #1a5c2a;
+}
+
+.partner-popup .partner-popup__details {
+    margin: 0;
+}
+
+.partner-popup .partner-popup__row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 2px;
+}
+
+.partner-popup .partner-popup__row dt {
+    font-weight: 600;
+}
+
+.partner-popup .partner-popup__row dt::after {
+    content: " :";
+}
+
+.partner-popup .partner-popup__row dd {
+    margin: 0;
+}
+
+.partner-popup .partner-popup__offers-title {
+    margin: 10px 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.partner-popup .partner-popup__offers {
+    margin: 0;
+    white-space: pre-line;
+}
+
+@media (max-width: 1024px) {
+    .partners-map {
+        height: 360px;
+    }
+}
+
+@media (max-width: 480px) {
+    .partners-map-section .pub-text {
+        font-size: 15px;
+    }
+
+    .partners-map {
+        height: 280px;
+    }
+
+    .map-toggle-btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+    }
 }
 
 /* === PUB TEXT TRITANOPIE === */
@@ -954,4 +1101,3 @@ body.tritanopie .mobilite-filter__badge::before {
         color: white;
     }
 }
-
