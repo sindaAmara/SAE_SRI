@@ -52,6 +52,29 @@ $showAccordFilter = $showAccordFilter ?? false;
     </div>
 
     <div class="filter-group">
+        <label for="filter-mobilite"><?= $t(['fr' => 'Type :', 'en' => 'Type:']) ?></label>
+        <select id="filter-mobilite" name="mobilite">
+            <option value="all" <?= (strval($filters['mobilite'] ?? 'all')) === 'all' ? 'selected' : '' ?>><?= $t(['fr' => 'Tous', 'en' => 'All']) ?></option>
+            <option value="etude" <?= (strval($filters['mobilite'] ?? '')) === 'etude' ? 'selected' : '' ?>><?= $t(['fr' => 'Études', 'en' => 'Studies']) ?></option>
+            <option value="stage" <?= (strval($filters['mobilite'] ?? '')) === 'stage' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage', 'en' => 'Internship']) ?></option>
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="filter-sous-type"><?= $t(['fr' => 'Sous-type :', 'en' => 'Subtype:']) ?></label>
+        <select id="filter-sous-type" name="sous_type">
+            <option value="all" <?= (strval($filters['sous_type'] ?? 'all')) === 'all' ? 'selected' : '' ?>><?= $t(['fr' => 'Tous', 'en' => 'All']) ?></option>
+            <option value="BIP" <?= (strval($filters['sous_type'] ?? '')) === 'BIP' ? 'selected' : '' ?>>BIP</option>
+            <option value="longue S1" <?= (strval($filters['sous_type'] ?? '')) === 'longue S1' ? 'selected' : '' ?>><?= $t(['fr' => 'Longue S1', 'en' => 'Long S1']) ?></option>
+            <option value="longue S2" <?= (strval($filters['sous_type'] ?? '')) === 'longue S2' ? 'selected' : '' ?>><?= $t(['fr' => 'Longue S2', 'en' => 'Long S2']) ?></option>
+            <option value="FY" <?= (strval($filters['sous_type'] ?? '')) === 'FY' ? 'selected' : '' ?>>FY</option>
+            <option value="stage -2" <?= (strval($filters['sous_type'] ?? '')) === 'stage -2' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage -2', 'en' => 'Internship -2']) ?></option>
+            <option value="stage +2 Europe" <?= (strval($filters['sous_type'] ?? '')) === 'stage +2 Europe' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage +2 Europe', 'en' => 'Internship +2 Europe']) ?></option>
+            <option value="stage +2 hors Europe" <?= (strval($filters['sous_type'] ?? '')) === 'stage +2 hors Europe' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage +2 hors Europe', 'en' => 'Internship +2 outside Europe']) ?></option>
+        </select>
+    </div>
+
+    <div class="filter-group">
         <label for="filter-complet"><?= $t(['fr' => 'Statut :', 'en' => 'Status:']) ?></label>
         <select id="filter-complet">
             <option value="all" <?= (strval($filters['complet'] ?? 'all')) === 'all' ? 'selected' : '' ?>><?= $t(['fr' => 'Tous',      'en' => 'All'])        ?></option>

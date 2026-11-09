@@ -29,9 +29,47 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
      * * @param string|null $mobilite
      * @return string|null 'etude', 'stage' or null.
      */
+    private function normalizeMobilityValue(?string $value): string
+    {
+        $normalized = strtolower(trim((string) ($value ?? '')));
+        $normalized = strtr($normalized, [
+            'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+            'à' => 'a', 'â' => 'a', 'ä' => 'a',
+            'î' => 'i', 'ï' => 'i',
+            'ô' => 'o', 'ö' => 'o',
+            'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+            'ç' => 'c',
+        ]);
+        return preg_replace('/\s+/', ' ', $normalized) ?? $normalized;
+    }
+
     private function validMobilite(?string $mobilite): ?string
     {
-        return in_array($mobilite, ['etude', 'stage'], true) ? $mobilite : null;
+        $normalized = $this->normalizeMobilityValue($mobilite);
+        $valid      = [
+            'etude' => 'etude',
+            'etudes' => 'etude',
+            'study' => 'etude',
+            'studies' => 'etude',
+            'stage' => 'stage',
+            'internship' => 'stage',
+        ];
+        return $valid[$normalized] ?? null;
+    }
+
+    private function validSousType(?string $sousType): array
+    {
+        $normalized = $this->normalizeMobilityValue($sousType);
+        $rules = [
+            'bip' => ['mobilite' => 'etude'],
+            'longue s1' => ['mobilite' => 'etude'],
+            'longue s2' => ['mobilite' => 'etude'],
+            'fy' => ['mobilite' => 'etude'],
+            'stage -2' => ['mobilite' => 'stage'],
+            'stage +2 europe' => ['mobilite' => 'stage', 'zone' => 'europe'],
+            'stage +2 hors europe' => ['mobilite' => 'stage', 'zone' => 'hors_europe'],
+        ];
+        return $rules[$normalized] ?? [];
     }
 
     /**
@@ -686,7 +724,20 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $where .= " AND LOWER(Type) = LOWER(:type)";
             $params['type'] = $filters['type'];
         }
-        if (!empty($filters['mobilite']) && $filters['mobilite'] !== 'all') {
+        if (!empty($filters['sous_type']) && $filters['sous_type'] !== 'all') {
+            $sousTypeConfig = $this->validSousType(is_string($filters['sous_type']) ? $filters['sous_type'] : null);
+            if (!empty($sousTypeConfig)) {
+                $mobilite = $sousTypeConfig['mobilite'] ?? null;
+                if ($mobilite !== null) {
+                    $where .= " AND Mobilite = :mobilite";
+                    $params['mobilite'] = $mobilite;
+                }
+                if (!empty($sousTypeConfig['zone'])) {
+                    $where .= " AND LOWER(Zone) = LOWER(:zone)";
+                    $params['zone'] = $sousTypeConfig['zone'];
+                }
+            }
+        } elseif (!empty($filters['mobilite']) && $filters['mobilite'] !== 'all') {
             $valid = $this->validMobilite(is_string($filters['mobilite']) ? $filters['mobilite'] : null);
             if ($valid) {
                 $where .= " AND Mobilite = :mobilite";

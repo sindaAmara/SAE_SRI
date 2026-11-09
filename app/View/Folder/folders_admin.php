@@ -83,6 +83,8 @@ $PAGE = 'folders-admin';
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
     || (strval($filters['zone']       ?? 'all')) !== 'all'
+    || (strval($filters['mobilite']   ?? 'all')) !== 'all'
+    || (strval($filters['sous_type']  ?? 'all')) !== 'all'
     || (strval($filters['complet']    ?? 'all')) !== 'all'
     || (strval($filters['composante'] ?? 'all')) !== 'all'
     || (strval($filters['accord']     ?? 'all')) !== 'all'

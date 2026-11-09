@@ -173,6 +173,8 @@ class FoldersControllerAdmin
         $filters = [
             'type'       => $_GET['type']       ?? 'all',
             'zone'       => $_GET['zone']       ?? 'all',
+            'mobilite'   => $_GET['mobilite']   ?? 'all',
+            'sous_type'  => $_GET['sous_type']  ?? 'all',
             'search'     => $_GET['search']     ?? '',
             'complet'    => $_GET['complet']    ?? 'all',
             'composante' => $_GET['composante'] ?? 'all',

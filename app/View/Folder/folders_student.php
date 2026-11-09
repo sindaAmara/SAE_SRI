@@ -289,6 +289,34 @@ endif;
                 <option value="etudes"<?= $detectedType === 'etudes' ? 'selected' : '' ?>><?= $t(['fr' => 'Études', 'en' => 'Studies']) ?></option>
             </select>
 
+            <label for="sous_type"><?= $t(['fr' => 'Sous-type d’études', 'en' => 'Study subtype']) ?></label>
+            <select name="sous_type" id="sous_type"
+                <?= $isCreateMode ? '' : 'disabled' ?>
+                    class="<?= $clsReadonly ?>">
+                <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
+                <option value="BIP"><?= $t(['fr' => 'BIP', 'en' => 'BIP']) ?></option>
+                <option value="longue S1"><?= $t(['fr' => 'Longue S1', 'en' => 'Long S1']) ?></option>
+                <option value="longue S2"><?= $t(['fr' => 'Longue S2', 'en' => 'Long S2']) ?></option>
+                <option value="FY"><?= $t(['fr' => 'FY', 'en' => 'FY']) ?></option>
+            </select>
+
+            <div id="etudes-checklist" class="etudes-checklist" style="display:none;"></div>
+
+            <div id="etudes-conditions" class="etudes-conditions" style="display:none;">
+                <label class="inline-check">
+                    <input type="checkbox" id="boursier" name="boursier">
+                    <?= $t(['fr' => 'Je suis boursier', 'en' => 'I am a grant recipient']) ?>
+                </label>
+                <label class="inline-check">
+                    <input type="checkbox" id="erasmus" name="erasmus">
+                    <?= $t(['fr' => 'Mobilité Erasmus', 'en' => 'Erasmus mobility']) ?>
+                </label>
+                <label class="inline-check">
+                    <input type="checkbox" id="transport_vert" name="transport_vert">
+                    <?= $t(['fr' => 'Utilisation de transports verts', 'en' => 'Use of green transport']) ?>
+                </label>
+            </div>
+
         </div><!-- /.form-section -->
 
         <div class="form-section form-section--pieces">
