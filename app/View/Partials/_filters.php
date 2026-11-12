@@ -19,6 +19,7 @@
  * @var bool                 $hasActiveFilters  Whether at least one filter is currently active; controls visibility of the reset link
  * @var string               $resetUrl          URL to navigate to in order to clear all active filters
  * @var bool                 $showAccordFilter  Whether to display the Agreement filter (intended for admin use only); defaults to false
+ * @var bool                 $showEtapeFilter   Whether to display the validation-step filter (admin folder list); defaults to false
  * @var Closure              $t                 Translation callable — accepts ['fr' => '...', 'en' => '...']
  */
 
@@ -28,12 +29,12 @@ $showAccordFilter = $showAccordFilter ?? false;
     <div class="filter-group">
         <label>
             <input type="checkbox" name="entrant_sortant" value="entrant"
-                <?= (strval($filters['type'] ?? '')) === 'entrant' ? 'checked' : '' ?>>
+                    <?= (strval($filters['type'] ?? '')) === 'entrant' ? 'checked' : '' ?>>
             <?= $t(['fr' => 'Entrant', 'en' => 'Incoming']) ?>
         </label>
         <label>
             <input type="checkbox" name="entrant_sortant" value="sortant"
-                <?= (strval($filters['type'] ?? '')) === 'sortant' ? 'checked' : '' ?>>
+                    <?= (strval($filters['type'] ?? '')) === 'sortant' ? 'checked' : '' ?>>
             <?= $t(['fr' => 'Sortant', 'en' => 'Outgoing']) ?>
         </label>
     </div>
@@ -41,12 +42,12 @@ $showAccordFilter = $showAccordFilter ?? false;
     <div class="filter-group">
         <label>
             <input type="checkbox" name="zone" value="europe"
-                <?= (strval($filters['zone'] ?? '')) === 'europe' ? 'checked' : '' ?>>
+                    <?= (strval($filters['zone'] ?? '')) === 'europe' ? 'checked' : '' ?>>
             <?= $t(['fr' => 'Europe', 'en' => 'Europe']) ?>
         </label>
         <label>
             <input type="checkbox" name="zone" value="hors_europe"
-                <?= (strval($filters['zone'] ?? '')) === 'hors_europe' ? 'checked' : '' ?>>
+                    <?= (strval($filters['zone'] ?? '')) === 'hors_europe' ? 'checked' : '' ?>>
             <?= $t(['fr' => 'Hors-Europe', 'en' => 'Non-Europe']) ?>
         </label>
     </div>
@@ -68,6 +69,20 @@ $showAccordFilter = $showAccordFilter ?? false;
             <option value="IUT"       <?= (strval($filters['composante'] ?? ''))    === 'IUT'       ? 'selected' : '' ?>>IUT</option>
         </select>
     </div>
+
+    <?php if (!empty($showEtapeFilter)) : ?>
+        <div class="filter-group">
+            <label for="filter-etape"><?= $t(['fr' => 'Étape :', 'en' => 'Step:']) ?></label>
+            <select id="filter-etape" name="etape">
+                <option value="all"><?= $t(['fr' => 'Toutes', 'en' => 'All']) ?></option>
+                <?php foreach (\Model\Entity\WorkflowStep::LABELS as $etapeCode => $etapeLabel) : ?>
+                    <option value="<?= htmlspecialchars($etapeCode) ?>" <?= (strval($filters['etape'] ?? '')) === $etapeCode ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($t($etapeLabel)) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    <?php endif; ?>
 
     <?php if ($showAccordFilter) : ?>
         <div class="filter-group">

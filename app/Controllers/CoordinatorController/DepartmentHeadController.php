@@ -104,7 +104,13 @@ class DepartmentHeadController implements ControllerInterface
             $avis   = trim(strval($_POST['avis']   ?? ''));
 
             if ($numetu !== '' && in_array($avis, ['accepte', 'refuse'], true)) {
-                $this->folderUseCase->setAvisChef($numetu, $avis);
+                $ok = $this->folderUseCase->setAvisChef($numetu, $avis);
+                if (!$ok) {
+                    // setAvisChef refuse tant que le coordinateur n'a pas validé (étape 4)
+                    $_SESSION['message'] = $lang === 'en'
+                        ? 'Not possible: the folder must first be validated by the admin office and the coordinator.'
+                        : "Impossible : le dossier doit d'abord être validé par le secrétariat puis par le coordinateur.";
+                }
             }
 
             $this->redirect(

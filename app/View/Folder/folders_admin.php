@@ -61,7 +61,7 @@
  * @var string                           $lang          Current language code (e.g. 'fr' or 'en')
  * @var string                           $action        View mode: 'view' for the detail form, any other value for the list
  * @var array<string, mixed>|null        $studentData   Full folder data array from the repository (including 'pieces', 'statuts', and metadata); null when the student was not found
- * @var array<string, mixed>             $filters       Current active filter values keyed by filter name (type, zone, complet, composante, accord, date_debut, date_fin, search)
+ * @var array<string, mixed>             $filters       Current active filter values keyed by filter name (type, zone, complet, composante, accord, date_debut, date_fin, search, etape, mobilite, departement)
  * @var int                              $totalCount    Total number of folders matching the active filters (used by the student table partial)
  * @var array<int, array<string, mixed>> $paginatedData Current page of folder records for the student table partial
  * @var string                           $message       Optional feedback message displayed at the top of either mode (may be empty)
@@ -82,13 +82,16 @@ $buildUrl = function(string $path, array $params = []) use ($lang): string {
 $PAGE = 'folders-admin';
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
-    || (strval($filters['zone']       ?? 'all')) !== 'all'
-    || (strval($filters['complet']    ?? 'all')) !== 'all'
-    || (strval($filters['composante'] ?? 'all')) !== 'all'
-    || (strval($filters['accord']     ?? 'all')) !== 'all'
-    || !empty($filters['date_debut'])
-    || !empty($filters['date_fin'])
-    || !empty($filters['search']);
+        || (strval($filters['zone']       ?? 'all')) !== 'all'
+        || (strval($filters['complet']    ?? 'all')) !== 'all'
+        || (strval($filters['composante'] ?? 'all')) !== 'all'
+        || (strval($filters['accord']     ?? 'all')) !== 'all'
+        || !empty($filters['date_debut'])
+        || !empty($filters['date_fin'])
+        || !empty($filters['search'])
+        || (strval($filters['etape']       ?? 'all')) !== 'all'
+        || (strval($filters['mobilite']    ?? 'all')) !== 'all'
+        || (strval($filters['departement'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -108,7 +111,7 @@ ob_start();
             $detectedType = 'etude';
         } else {
             $detectedType = !empty($pieces['convention']['file'])         ? 'stage'
-                : (!empty($pieces['lettre_motivation']['file']) ? 'etudes' : '');
+                    : (!empty($pieces['lettre_motivation']['file']) ? 'etudes' : '');
         }
         $numEtu        = htmlspecialchars(strval($studentData['NumEtu'] ?? ''));
         $dateLimite    = $studentData['DateLimite'] ?? null;
@@ -136,6 +139,8 @@ ob_start();
         $redirectPage = $PAGE;
         include __DIR__ . '/../Partials/_banniere_date_limite.php';
         ?>
+
+        <?php include __DIR__ . '/../Partials/_workflow_steps.php'; ?>
 
         <!-- ── AVIS CHEF DE DÉPARTEMENT (lecture seule) ── -->
         <?php
@@ -230,9 +235,30 @@ ob_start();
 
     <div class="filters-container">
         <p class="filters-title"><?= $t(['fr' => 'Filtres', 'en' => 'Filters']) ?></p>
+
+        <?php
+        // Filtres arrivés depuis les cases de statistiques de l'accueil (pas de contrôle dédié ici)
+        $mobiliteActive    = strval($filters['mobilite']    ?? 'all');
+        $departementActive = strval($filters['departement'] ?? 'all');
+        ?>
+        <?php if ($mobiliteActive !== 'all' || $departementActive !== 'all') : ?>
+            <div class="filtres-accueil">
+                <span><?= $t(['fr' => "Filtres de l'accueil :", 'en' => 'Filters from home page:']) ?></span>
+                <?php if ($mobiliteActive !== 'all') : ?>
+                    <span class="filtres-accueil__chip">
+                        <?= $mobiliteActive === 'stage' ? $t(['fr' => 'Stage', 'en' => 'Internship']) : $t(['fr' => 'Études', 'en' => 'Studies']) ?>
+                    </span>
+                <?php endif; ?>
+                <?php if ($departementActive !== 'all') : ?>
+                    <span class="filtres-accueil__chip"><?= htmlspecialchars($departementActive) ?></span>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <?php
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = true;
+        $showEtapeFilter  = true;
         $viewPage         = $PAGE;
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';
@@ -250,7 +276,7 @@ ob_start();
 $content = ob_get_clean();
 
 $title      = $t(['fr' => 'Gestion des dossiers - Admin', 'en' => 'Profiles Management - Admin']);
-$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css'];
+$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/workflow.css'];
 $scripts    = ['js/folders.js'];
 $activeMenu = $PAGE;
 $userRole   = 'admin';

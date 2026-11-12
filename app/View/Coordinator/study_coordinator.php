@@ -50,10 +50,10 @@ $PAGE     = 'coordinateur-etude';
 $EDITABLE = ['niveau_etude', 'moyenne_sans_bac'];
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
-    || (strval($filters['zone']       ?? 'all')) !== 'all'
-    || (strval($filters['complet']    ?? 'all')) !== 'all'
-    || (strval($filters['composante'] ?? 'all')) !== 'all'
-    || !empty($filters['search']);
+        || (strval($filters['zone']       ?? 'all')) !== 'all'
+        || (strval($filters['complet']    ?? 'all')) !== 'all'
+        || (strval($filters['composante'] ?? 'all')) !== 'all'
+        || !empty($filters['search']);
 
 ob_start();
 ?>
@@ -87,6 +87,8 @@ ob_start();
         $redirectPage = $PAGE;
         include __DIR__ . '/../Partials/_banniere_date_limite.php';
         ?>
+
+        <?php include __DIR__ . '/../Partials/_workflow_steps.php'; ?>
 
         <form method="post" action="index.php?page=update_student&lang=<?= htmlspecialchars($lang) ?>" enctype="multipart/form-data" class="creation-form">
             <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($PAGE) ?>">
@@ -160,7 +162,7 @@ ob_start();
 $content = ob_get_clean();
 
 $title           = $t(['fr' => 'Coordinateur d\'étude - Relations Internationales AMU', 'en' => 'Study Coordinator - International Relations AMU']);
-$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/coordinators_extra.css'];
+$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/coordinators_extra.css', 'styles/workflow.css'];
 $scripts         = ['js/folders.js'];
 $activeMenu      = $PAGE;
 $userRole        = $_SESSION['role'] ?? 'coordinateur_etude';

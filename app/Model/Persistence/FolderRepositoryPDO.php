@@ -7,6 +7,7 @@ use Database;
 use Model\Entity\FolderStats;
 use Model\Entity\GenderStats;
 use Model\Entity\WorkflowStats;
+use Model\Entity\WorkflowStep;
 
 /**
  * Class FolderRepositoryPDO
@@ -67,7 +68,8 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         }
         $keyword = $hasExistingWhere ? 'AND' : 'WHERE';
         return [
-            'clause'   => "$keyword CodeDepartement = :departement",
+            // Espace en tête : cette clause est concaténée juste après celle de la mobilité
+            'clause'   => " $keyword CodeDepartement = :departement",
             'bindings' => ['departement' => $departement],
         ];
     }
@@ -130,9 +132,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         }
     }
 
-    
 
-        /**
+
+    /**
      * Calculates the 5-stage validation workflow statistics.
      * * @param string|null $mobilite
      * @param string|null $departement
@@ -146,28 +148,31 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $where    .= $where2;
             $bindings  = array_merge($bindings, $bindings2);
 
+            // Chaque dossier est rangé dans UNE seule étape (cf. WorkflowStep::sqlCase),
+            // donc la somme des 5 cases est toujours égale au total.
             $stmt = $this->run("
-                SELECT
-                    COUNT(*) AS total,
-                    SUM(CASE WHEN IsComplete = 0 THEN 1 ELSE 0 END) AS incomplete,
-                    SUM(CASE WHEN IsComplete = 1 AND valide_admin = 0 THEN 1 ELSE 0 END) AS awaiting_admin,
-                    SUM(CASE WHEN valide_admin = 1 AND valide_coordinateur = 0 THEN 1 ELSE 0 END) AS validated_admin,
-                    SUM(CASE WHEN valide_admin = 1 AND valide_coordinateur = 1 THEN 1 ELSE 0 END) AS validated_admin_coord,
-                    SUM(CASE WHEN avis_chef_departement = 'accepte' THEN 1 ELSE 0 END) AS validated_chef
+                SELECT " . WorkflowStep::sqlCase() . " AS etape, COUNT(*) AS nb
                 FROM dossiers
                 $where
+                GROUP BY etape
             ", $bindings);
 
-            $r = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
-            $g = fn(string $k) => (is_array($r) && isset($r[$k]) && is_numeric($r[$k])) ? (int) $r[$k] : 0;
+            $counts = array_fill_keys(WorkflowStep::ORDER, 0);
+            $rows   = $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+            foreach ($rows as $row) {
+                $etape = is_array($row) ? strval($row['etape'] ?? '') : '';
+                if (isset($counts[$etape]) && is_numeric($row['nb'] ?? null)) {
+                    $counts[$etape] = (int) $row['nb'];
+                }
+            }
 
             return new WorkflowStats(
-                total:                         $g('total'),
-                incomplete:                    $g('incomplete'),
-                awaitingAdmin:                 $g('awaiting_admin'),
-                validatedAdmin:                $g('validated_admin'),
-                validatedAdminAndCoordinateur: $g('validated_admin_coord'),
-                validatedChefDepartement:      $g('validated_chef'),
+                total:                         array_sum($counts),
+                incomplete:                    $counts[WorkflowStep::INCOMPLET],
+                awaitingAdmin:                 $counts[WorkflowStep::A_VALIDER],
+                validatedAdmin:                $counts[WorkflowStep::VALIDE_SECRETARIAT],
+                validatedAdminAndCoordinateur: $counts[WorkflowStep::VALIDE_COORDINATEUR],
+                validatedChefDepartement:      $counts[WorkflowStep::VALIDE_CHEF],
             );
         } catch (\PDOException $e) {
             error_log("getWorkflowStats Error: " . $e->getMessage());
@@ -544,7 +549,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                    Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
                    DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
                    StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
-                   avis_chef_departement, Mobilite
+                   avis_chef_departement, Mobilite,
+                   valide_admin, date_validation_admin,
+                   valide_coordinateur, date_validation_coordinateur
             FROM dossiers WHERE NumEtu = :numetu LIMIT 1
         ");
             $stmt->execute([':numetu' => $numEtu]);
@@ -812,6 +819,11 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $where .= " AND LOWER(CodeDepartement) = LOWER(:departement)";
             $params['departement'] = $filters['departement'];
         }
+        // Étape du circuit : même calcul que les stats de l'accueil
+        if (!empty($filters['etape']) && is_string($filters['etape']) && WorkflowStep::isValid($filters['etape'])) {
+            $where .= " AND " . WorkflowStep::sqlCase() . " = :etape";
+            $params['etape'] = $filters['etape'];
+        }
 
         $totalCount = 0;
         try {
@@ -827,7 +839,8 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         $sql = "SELECT NumEtu, Nom, Prenom, EmailPersonnel as email, Telephone, Type, Zone, Pays,
                        Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
                        DateDebut, MobiliteAnterieure, DateNaissance, Sexe, Adresse, CodePostal, Ville,
-                       EmailAMU, CodeDepartement, Composante, IsComplete, PiecesJustificatives, status, Mobilite
+                       EmailAMU, CodeDepartement, Composante, IsComplete, PiecesJustificatives, status, Mobilite,
+                       " . WorkflowStep::sqlCase() . " AS etape
                 FROM dossiers" . $where . " ORDER BY Nom ASC, Prenom ASC" . $limitClause;
 
         try {
@@ -838,23 +851,23 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
             }
             $stmt->execute();
-            
+
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            
+
             if (!empty($data)) {
                 $numEtus = array_column($data, 'NumEtu');
                 $inQuery = implode(',', array_fill(0, count($numEtus), '?'));
-                
+
                 $relancesStmt = $this->db->prepare("SELECT numetu, COUNT(*) as cnt FROM relances WHERE numetu IN ($inQuery) GROUP BY numetu");
                 $relancesStmt->execute($numEtus);
-                
+
                 $counts = [];
                 while ($row = $relancesStmt->fetch(PDO::FETCH_ASSOC)) {
                     if (is_array($row) && isset($row['numetu'], $row['cnt'])) {
                         $counts[(string)$row['numetu']] = (int)$row['cnt'];
                     }
                 }
-                
+
                 foreach ($data as &$row) {
                     $row['nb_relances'] = $counts[$row['NumEtu']] ?? 0;
                 }
@@ -862,7 +875,7 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
 
             $totalPages = ($perPage > 0 && $totalCount > 0) ? (int) ceil($totalCount / $perPage) : 1;
             return ['data' => $data, 'total' => $totalCount, 'totalPages' => $totalPages];
-            
+
         } catch (\PDOException $e) {
             error_log("SQL Error searchWithPagination : " . $e->getMessage() . " | SQL: " . $sql);
             return ['data' => [], 'total' => 0, 'totalPages' => 0];

@@ -59,10 +59,10 @@ $EDITABLE = ['niveau_etude', 'moyenne_sans_bac'];
 $userRole = $_SESSION['role'] ?? 'chef_departement';
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
-    || (strval($filters['zone']       ?? 'all')) !== 'all'
-    || (strval($filters['complet']    ?? 'all')) !== 'all'
-    || (strval($filters['composante'] ?? 'all')) !== 'all'
-    || !empty($filters['search']);
+        || (strval($filters['zone']       ?? 'all')) !== 'all'
+        || (strval($filters['complet']    ?? 'all')) !== 'all'
+        || (strval($filters['composante'] ?? 'all')) !== 'all'
+        || !empty($filters['search']);
 
 ob_start();
 ?>
@@ -98,6 +98,8 @@ ob_start();
 
         <!-- Bannière décision : reçoit $currentStatus = avis_chef_departement -->
         <?php include __DIR__ . '/../Partials/_banniere_decision.php'; ?>
+
+        <?php include __DIR__ . '/../Partials/_workflow_steps.php'; ?>
 
         <?php
         $redirectPage = $PAGE;
@@ -178,7 +180,7 @@ ob_start();
 $content = ob_get_clean();
 
 $title           = $t(['fr' => 'Chef de département - Relations Internationales AMU', 'en' => 'Department Head - International Relations AMU']);
-$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css'];
+$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/workflow.css'];
 $scripts         = ['js/folders.js'];
 $activeMenu      = $PAGE;
 $metaDescription = $t(['fr' => 'Espace chef de département — gestion des mobilités étudiantes.', 'en' => 'Department head space — student mobility management.']);

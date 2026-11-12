@@ -29,7 +29,7 @@ class FoldersControllerAdmin
         return in_array($page, [
             'folders', 'save_student', 'folders-admin', 'toggle_complete',
             'update_student', 'import_folders', 'update_document_status',
-            'update_global_status', 'valider_documents'
+            'update_global_status', 'valider_documents', 'valider_etape'
         ]);
     }
 
@@ -96,7 +96,7 @@ class FoldersControllerAdmin
         $lang   = $_GET['lang']   ?? 'fr';
 
         // Pages accessible to multiple roles (not just admin)
-        $sharedPages  = ['update_student', 'update_document_status', 'update_global_status', 'valider_documents'];
+        $sharedPages  = ['update_student', 'update_document_status', 'update_global_status', 'valider_documents', 'valider_etape'];
         $allowedRoles = ['admin', 'coordinateur_stage', 'coordinateur_etude', 'coordinateur', 'chef_departement'];
 
         if (in_array($page, $sharedPages, true)) {
@@ -162,6 +162,7 @@ class FoldersControllerAdmin
             if ($page === 'save_student')            { $this->saveStudent($lang);      return; }
             if ($page === 'update_student')          { $this->updateStudent($lang);    return; }
             if ($page === 'valider_documents')       { $this->validerDocuments($lang); return; }
+            if ($page === 'valider_etape')           { $this->validerEtape($lang);     return; }
         }
 
         // Load student details when viewing a specific folder
@@ -171,12 +172,16 @@ class FoldersControllerAdmin
         }
 
         $filters = [
-            'type'       => $_GET['type']       ?? 'all',
-            'zone'       => $_GET['zone']       ?? 'all',
-            'search'     => $_GET['search']     ?? '',
-            'complet'    => $_GET['complet']    ?? 'all',
-            'composante' => $_GET['composante'] ?? 'all',
-            'accord'     => $_GET['accord']     ?? 'all',
+            'type'        => $_GET['type']        ?? 'all',
+            'zone'        => $_GET['zone']        ?? 'all',
+            'search'      => $_GET['search']      ?? '',
+            'complet'     => $_GET['complet']     ?? 'all',
+            'composante'  => $_GET['composante']  ?? 'all',
+            'accord'      => $_GET['accord']      ?? 'all',
+            // Filtres transmis par les cases de statistiques de l'accueil
+            'etape'       => $_GET['etape']       ?? 'all',
+            'mobilite'    => $_GET['mobilite']    ?? 'all',
+            'departement' => $_GET['departement'] ?? 'all',
         ];
 
         $result = $this->folderUseCase->searchWithoutPagination($filters);
@@ -196,6 +201,47 @@ class FoldersControllerAdmin
             'totalPages'    => 1,
             'userRole'      => $_SESSION['role'] ?? 'admin',
         ]);
+    }
+
+    /**
+     * POST — valide ou dévalide une étape du circuit (complet / secrétariat / coordinateur).
+     * L'ordre des étapes et les droits par rôle sont vérifiés dans ManageFolderUseCase.
+     * Redirige ensuite vers la fiche du dossier sur la page d'origine.
+     */
+    private function validerEtape(string $lang): void
+    {
+        $numetu   = trim(strval($_POST['numetu']   ?? ''));
+        $etape    = strval($_POST['etape']    ?? '');
+        $decision = strval($_POST['decision'] ?? 'valider');
+        $role     = strval($_SESSION['role']  ?? '');
+
+        // Seules les pages qui affichent la frise peuvent servir de retour
+        $redirectTo = strval($_POST['redirect_to'] ?? 'folders-admin');
+        if (!in_array($redirectTo, ['folders-admin', 'coordinateur-etude', 'coordinateur-stage', 'chef-departement'], true)) {
+            $redirectTo = 'folders-admin';
+        }
+
+        $result = $decision === 'devalider'
+            ? $this->folderUseCase->devaliderEtape($numetu, $etape, $role)
+            : $this->folderUseCase->validerEtape($numetu, $etape, $role);
+
+        $messages = [
+            'ok_valider'     => ['fr' => 'Étape validée.',                                         'en' => 'Step validated.'],
+            'ok_devalider'   => ['fr' => 'Étape annulée (les étapes suivantes ont été remises à zéro).', 'en' => 'Step cancelled (following steps were reset).'],
+            'wrong_order'    => ['fr' => "Impossible : l'étape précédente n'est pas encore validée.", 'en' => 'Not possible: the previous step is not validated yet.'],
+            'already_done'   => ['fr' => 'Cette étape est déjà validée.',                           'en' => 'This step is already validated.'],
+            'not_validated'  => ['fr' => "Cette étape n'est pas validée, rien à annuler.",          'en' => 'This step is not validated, nothing to cancel.'],
+            'forbidden'      => ['fr' => "Votre rôle ne permet pas de valider cette étape.",        'en' => 'Your role cannot validate this step.'],
+            'not_found'      => ['fr' => 'Dossier introuvable.',                                    'en' => 'Folder not found.'],
+            'unknown_action' => ['fr' => 'Action inconnue.',                                        'en' => 'Unknown action.'],
+            'db'             => ['fr' => "Erreur lors de l'enregistrement.",                        'en' => 'Error while saving.'],
+        ];
+        $key = $result['success']
+            ? ($decision === 'devalider' ? 'ok_devalider' : 'ok_valider')
+            : strval($result['error'] ?? 'db');
+        $_SESSION['message'] = ($messages[$key] ?? $messages['db'])[$lang === 'en' ? 'en' : 'fr'];
+
+        $this->redirect('index.php?page=' . $redirectTo . '&action=view&numetu=' . urlencode($numetu) . '&lang=' . $lang);
     }
 
     /**
@@ -220,7 +266,7 @@ class FoldersControllerAdmin
                 $admin = $stmt->fetch(\PDO::FETCH_ASSOC);
 
                 // FIXED: Added is_array check to satisfy PHPStan and ensure safe offset access
-                if (is_array($admin)) { 
+                if (is_array($admin)) {
                     $dbPrenom = strval($admin['prenom'] ?? '');
                     $dbNom    = strval($admin['nom']    ?? '');
                     $dbName   = trim($dbPrenom . ' ' . $dbNom);

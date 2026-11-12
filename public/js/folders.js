@@ -131,7 +131,7 @@ class FilterManager {
     }
 
     _initSelectFilters() {
-        document.querySelectorAll('#filter-complet, #date-debut, #date-fin, #filter-composante, #filter-accord').forEach(sel => {
+        document.querySelectorAll('#filter-complet, #date-debut, #date-fin, #filter-composante, #filter-accord, #filter-etape').forEach(sel => {
             if (sel) sel.addEventListener('change', () => this.appliquerFiltres(true));
         });
     }
@@ -162,6 +162,13 @@ class FilterManager {
         const accordVal = document.getElementById('filter-accord');
         if (accordVal && accordVal.value !== 'all') url.searchParams.set('accord', accordVal.value);
         else                                         url.searchParams.delete('accord');
+
+        // Étape de validation (présent uniquement sur la liste admin)
+        const etapeVal = document.getElementById('filter-etape');
+        if (etapeVal) {
+            if (etapeVal.value !== 'all') url.searchParams.set('etape', etapeVal.value);
+            else                          url.searchParams.delete('etape');
+        }
 
         if (resetPage) url.searchParams.delete('p');
         window.location.href = url.toString();
