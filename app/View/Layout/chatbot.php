@@ -18,13 +18,17 @@
  * base_minimal.php.
  *
  * All dynamic content (messages, quick actions) is injected at runtime by
- * js/chatbot.js via the Anthropic API. The markup here is purely structural.
+ * js/chatbot-student.js (Bob, via index.php?page=api/bob) or js/chatbot-admin.js.
+ *
+ * data-chat-session carries $_SESSION['bob_token'], regenerated at each login
+ * (AuthController): when it changes, chatbot-student.js clears the old conversation.
  * @var Closure(array<string, string>): string $t Translation callable — used for the "Assistant" header label
  */
 ?>
 <div id="help-bubble">💬</div>
 
-<div id="help-popup" class="chat-popup">
+<div id="help-popup" class="chat-popup"
+     data-chat-session="<?= htmlspecialchars(is_string($_SESSION['bob_token'] ?? null) ? $_SESSION['bob_token'] : '') ?>">
     <div class="help-popup-header">
         <span><?= $t(['fr' => 'Assistant', 'en' => 'Assistant']) ?></span>
         <button>✖</button>

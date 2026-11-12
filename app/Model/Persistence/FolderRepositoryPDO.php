@@ -446,7 +446,7 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                    Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
                    DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
                    StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
-                   avis_chef_departement, Mobilite
+                   avis_chef_departement, Mobilite, Destination, Continent, valide_admin
             FROM dossiers WHERE NumEtu = :numetu LIMIT 1
         ");
             $stmt->execute([':numetu' => $numEtu]);
@@ -740,23 +740,23 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
             }
             $stmt->execute();
-            
+
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            
+
             if (!empty($data)) {
                 $numEtus = array_column($data, 'NumEtu');
                 $inQuery = implode(',', array_fill(0, count($numEtus), '?'));
-                
+
                 $relancesStmt = $this->db->prepare("SELECT numetu, COUNT(*) as cnt FROM relances WHERE numetu IN ($inQuery) GROUP BY numetu");
                 $relancesStmt->execute($numEtus);
-                
+
                 $counts = [];
                 while ($row = $relancesStmt->fetch(PDO::FETCH_ASSOC)) {
                     if (is_array($row) && isset($row['numetu'], $row['cnt'])) {
                         $counts[(string)$row['numetu']] = (int)$row['cnt'];
                     }
                 }
-                
+
                 foreach ($data as &$row) {
                     $row['nb_relances'] = $counts[$row['NumEtu']] ?? 0;
                 }
@@ -764,7 +764,7 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
 
             $totalPages = ($perPage > 0 && $totalCount > 0) ? (int) ceil($totalCount / $perPage) : 1;
             return ['data' => $data, 'total' => $totalCount, 'totalPages' => $totalPages];
-            
+
         } catch (\PDOException $e) {
             error_log("SQL Error searchWithPagination : " . $e->getMessage() . " | SQL: " . $sql);
             return ['data' => [], 'total' => 0, 'totalPages' => 0];

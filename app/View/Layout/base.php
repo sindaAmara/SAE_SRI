@@ -110,7 +110,7 @@ $noMain       = $noMain ?? false;
 <?php if ($userRole === 'admin'): ?>
     <script src="js/chatbot-admin.js"></script>
 <?php elseif ($userRole === 'student'): ?>
-    <script src="js/chatbot-student.js"></script>
+    <script src="js/chatbot-student.js?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/js/chatbot-student.js') ?>"></script>
 <?php endif; ?>
 <?php foreach ($scripts as $script): ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>

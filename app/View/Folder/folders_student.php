@@ -144,8 +144,8 @@ if ($dateLimite !== null) :
     }
 
     $dateFormatee = $dateObj
-        ? ($lang === 'en' ? $dateObj->format('F j, Y') : $dateObj->format('d/m/Y'))
-        : $dateLimite;
+            ? ($lang === 'en' ? $dateObj->format('F j, Y') : $dateObj->format('d/m/Y'))
+            : $dateLimite;
     ?>
     <div class="banniere-date-limite <?= $modifierClass ?>">
         <span class="banniere-date-limite__icone"><?= $icone ?></span>
@@ -173,22 +173,22 @@ endif;
 
             <label><?= $t(['fr' => 'Nom *', 'en' => 'Last Name *']) ?></label>
             <input type="text" name="nom" value="<?= $valNom ?>"
-                <?= $isCreateMode ? 'required' : 'readonly' ?>
+                    <?= $isCreateMode ? 'required' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Prénom *', 'en' => 'First Name *']) ?></label>
             <input type="text" name="prenom" value="<?= $valPrenom ?>"
-                <?= $isCreateMode ? 'required' : 'readonly' ?>
+                    <?= $isCreateMode ? 'required' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Date de naissance', 'en' => 'Date of Birth']) ?></label>
             <input type="date" name="naissance" value="<?= $valDate ?>"
-                <?= $isCreateMode ? '' : 'readonly' ?>
+                    <?= $isCreateMode ? '' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Sexe', 'en' => 'Gender']) ?></label>
             <select name="sexe" id="sexe"
-                <?= $isCreateMode ? '' : 'disabled' ?>
+                    <?= $isCreateMode ? '' : 'disabled' ?>
                     class="<?= $clsReadonly ?>">
                 <option value="M"    <?= $valSexe === 'M'    ? 'selected' : '' ?>><?= $t(['fr' => 'Masculin', 'en' => 'Male']) ?></option>
                 <option value="F"    <?= $valSexe === 'F'    ? 'selected' : '' ?>><?= $t(['fr' => 'Féminin',  'en' => 'Female']) ?></option>
@@ -209,7 +209,7 @@ endif;
 
             <label><?= $t(['fr' => 'Email AMU', 'en' => 'AMU Email']) ?></label>
             <input type="email" name="email_amu" value="<?= $valEmailA ?>"
-                <?= $isCreateMode ? '' : 'readonly' ?>
+                    <?= $isCreateMode ? '' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Téléphone *', 'en' => 'Phone *']) ?></label>
@@ -217,12 +217,12 @@ endif;
 
             <label><?= $t(['fr' => 'Composante', 'en' => 'Component']) ?></label>
             <input type="text" name="composante" value="<?= $valComposante ?>"
-                <?= $isCreateMode ? '' : 'readonly' ?>
+                    <?= $isCreateMode ? '' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Code Département', 'en' => 'Department Code']) ?></label>
             <input type="text" name="departement" value="<?= $valDept ?>"
-                <?= $isCreateMode ? '' : 'readonly' ?>
+                    <?= $isCreateMode ? '' : 'readonly' ?>
                    class="<?= $clsReadonly ?>">
 
             <label><?= $t(['fr' => 'Discipline', 'en' => 'Discipline']) ?></label>
@@ -264,7 +264,7 @@ endif;
 
             <label for="type"><?= $t(['fr' => 'Type *', 'en' => 'Type *']) ?></label>
             <select name="type" id="type"
-                <?= $isCreateMode ? 'required' : 'disabled' ?>
+                    <?= $isCreateMode ? 'required' : 'disabled' ?>
                     class="<?= $clsReadonly ?>">
                 <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
                 <option value="entrant" <?= $valType === 'entrant' ? 'selected' : '' ?>><?= $t(['fr' => 'Entrant', 'en' => 'Incoming']) ?></option>
@@ -273,7 +273,7 @@ endif;
 
             <label for="zone"><?= $t(['fr' => 'Zone *', 'en' => 'Zone *']) ?></label>
             <select name="zone" id="zone"
-                <?= $isCreateMode ? 'required' : 'disabled' ?>
+                    <?= $isCreateMode ? 'required' : 'disabled' ?>
                     class="<?= $clsReadonly ?>">
                 <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
                 <option value="europe"     <?= $valZone === 'europe'     ? 'selected' : '' ?>><?= $t(['fr' => 'Europe',      'en' => 'Europe']) ?></option>
@@ -282,7 +282,7 @@ endif;
 
             <label for="mobilite_type"><?= $t(['fr' => 'Type de mobilité', 'en' => 'Mobility Type']) ?></label>
             <select name="mobilite_type" id="mobilite_type"
-                <?= $isCreateMode ? '' : 'disabled' ?>
+                    <?= $isCreateMode ? '' : 'disabled' ?>
                     class="<?= $clsReadonly ?>">
                 <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
                 <option value="stage" <?= $detectedType === 'stage'  ? 'selected' : '' ?>><?= $t(['fr' => 'Stage',  'en' => 'Internship']) ?></option>
@@ -296,17 +296,17 @@ endif;
 
             <?php
             $docTypes = [
-                'photo'            => ['label' => $t(['fr' => 'Photo',                    'en' => 'Photo']),               'id' => 'doc_photo',              'name' => 'photo',             'accept' => 'image/*'],
-                'cv'               => ['label' => $t(['fr' => 'CV',                        'en' => 'CV']),                  'id' => 'doc_cv',                 'name' => 'cv',                'accept' => '.pdf,.doc,.docx'],
-                'convention'       => ['label' => $t(['fr' => 'Convention de stage',       'en' => 'Internship Agreement']),'id' => 'justificatif_convention','name' => 'convention',        'accept' => '.pdf,.doc,.docx'],
-                'lettre_motivation'=> ['label' => $t(['fr' => 'Lettre de motivation',      'en' => 'Motivation Letter']),   'id' => 'lettre_motivation',      'name' => 'lettre_motivation', 'accept' => '.pdf,.doc,.docx'],
-                'langues'          => ['label' => $t(['fr' => 'Attestation de langues',    'en' => 'Language Certificate']),'id' => 'doc_langues',            'name' => 'langues_file',      'accept' => '.pdf,.doc,.docx,.jpg,.png'],
+                    'photo'            => ['label' => $t(['fr' => 'Photo',                    'en' => 'Photo']),               'id' => 'doc_photo',              'name' => 'photo',             'accept' => 'image/*'],
+                    'cv'               => ['label' => $t(['fr' => 'CV',                        'en' => 'CV']),                  'id' => 'doc_cv',                 'name' => 'cv',                'accept' => '.pdf,.doc,.docx'],
+                    'convention'       => ['label' => $t(['fr' => 'Convention de stage',       'en' => 'Internship Agreement']),'id' => 'justificatif_convention','name' => 'convention',        'accept' => '.pdf,.doc,.docx'],
+                    'lettre_motivation'=> ['label' => $t(['fr' => 'Lettre de motivation',      'en' => 'Motivation Letter']),   'id' => 'lettre_motivation',      'name' => 'lettre_motivation', 'accept' => '.pdf,.doc,.docx'],
+                    'langues'          => ['label' => $t(['fr' => 'Attestation de langues',    'en' => 'Language Certificate']),'id' => 'doc_langues',            'name' => 'langues_file',      'accept' => '.pdf,.doc,.docx,.jpg,.png'],
             ];
 
             $statusText = [
-                'pending'  => $t(['fr' => 'En attente', 'en' => 'Pending']),
-                'accepted' => $t(['fr' => 'Accepté',    'en' => 'Accepted']),
-                'refused'  => $t(['fr' => 'Refusé',     'en' => 'Refused']),
+                    'pending'  => $t(['fr' => 'En attente', 'en' => 'Pending']),
+                    'accepted' => $t(['fr' => 'Accepté',    'en' => 'Accepted']),
+                    'refused'  => $t(['fr' => 'Refusé',     'en' => 'Refused']),
             ];
 
             foreach ($docTypes as $key => $info) :
@@ -356,8 +356,8 @@ endif;
                         <div class="piece-block__upload">
                             <label class="piece-block__upload-label">
                                 <?= $hasFile
-                                    ? $t(['fr' => 'Remplacer ce fichier :', 'en' => 'Replace this file:'])
-                                    : $t(['fr' => 'Ajouter un fichier :',   'en' => 'Add a file:']) ?>
+                                        ? $t(['fr' => 'Remplacer ce fichier :', 'en' => 'Replace this file:'])
+                                        : $t(['fr' => 'Ajouter un fichier :',   'en' => 'Add a file:']) ?>
                             </label>
                             <input type="file" name="<?= $info['name'] ?>" accept="<?= $info['accept'] ?>" class="piece-block__file-input">
                         </div>
@@ -398,7 +398,7 @@ $content = ob_get_clean();
 $title = $t(['fr' => 'Mon profil - Étudiant', 'en' => 'My Profile - Student']);
 
 $styles    = ['styles/folders.css', 'styles/chatbot.css'];
-$scripts   = ['js/chatbot-student.js', 'js/folders.js'];
+$scripts   = ['js/folders.js'];
 $activeMenu = 'folders';
 $userRole   = 'student';
 

@@ -82,6 +82,8 @@ class AuthController implements ControllerInterface
 
                 $_SESSION['role']            = $role;
                 $_SESSION['user_identifier'] = $identifier;
+                // New token at each login: the chatbot clears the previous conversation
+                $_SESSION['bob_token']       = bin2hex(random_bytes(16));
 
                 if ($role === 'student' && isset($result['numetu'])) {
                     $_SESSION['numetu'] = $result['numetu'];
@@ -297,5 +299,5 @@ class AuthController implements ControllerInterface
             't'        => $t,
             'userRole' => $_SESSION['role'] ?? 'guest',  // ← ajout
         ]);
-}
+    }
 }
