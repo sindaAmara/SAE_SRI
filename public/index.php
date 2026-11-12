@@ -74,7 +74,6 @@ use Controllers\HomeController\HomeControllerCoordinateur;
 // Partners Controllers
 use Controllers\PartnersController\PartnersControllerStudent;
 use Controllers\PartnersController\PartnersControllerAdmin;
-use Controllers\PartnersController\PartnersMapDataController;
 // WebPlan (Sitemap) Controllers
 use Controllers\WebPlanController\WebPlanControllerAdmin;
 use Controllers\WebPlanController\WebPlanControllerStudent;
