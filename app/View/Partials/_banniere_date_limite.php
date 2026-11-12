@@ -36,7 +36,7 @@
               style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <input type="hidden" name="numetu"      value="<?= $numEtu ?>">
             <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectPage) ?>">
-            <input type="date" name="date_limite"
+            <input type="text" class="datepicker" name="date_limite"
                    value="<?= htmlspecialchars($dateLimite ?? '') ?>"
                    min="<?= date('Y-m-d') ?>"
                    class="date-limite-input" style="width:auto;">

@@ -250,8 +250,8 @@ ob_start();
 $content = ob_get_clean();
 
 $title      = $t(['fr' => 'Gestion des dossiers - Admin', 'en' => 'Profiles Management - Admin']);
-$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css'];
-$scripts    = ['js/folders.js'];
+$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', "styles/flatpickr.min.css"];
+$scripts    = ['js/folders.js', 'js/flatpickr.min.js', 'js/flatpickr.init.js'];
 $activeMenu = $PAGE;
 $userRole   = 'admin';
 
