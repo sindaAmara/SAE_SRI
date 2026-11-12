@@ -1,19 +1,140 @@
 /**
- * Chatbot Bob — IA powered by Claude API
- * Drop-in replacement for the keyword-based chatbot.
+ * Chatbot Bob
+ *
+ * 3 classes, chacune avec un seul rôle :
+ *   ChatStorage — mémoire locale de la conversation (localStorage)
+ *   BobApi      — appel au serveur (index.php?page=api/bob)
+ *   BobChatbot  — affichage et interactions (DOM)
+ *
  * Uses existing CSS classes: chat-popup, chat-messages, chat-input-area,
  * quick-actions, bot-message, user-message, help-popup-header
  */
 
-class BobChatbot {
-    constructor() {
-        const configEl      = document.getElementById('app-config');
-        this.currentLang    = configEl?.dataset.lang ?? 'fr';
-        this.userRole       = configEl?.dataset.role ?? 'student';
-        this.history        = this.#loadHistory();
-        this.systemPrompt   = this.#buildSystemPrompt();
+/* ───────────────────────────── ChatStorage ───────────────────────────── */
 
-        // Existing DOM elements — no IDs changed
+class ChatStorage {
+    static #PREFIX = 'bob_chat_';
+
+    /**
+     * @param {string} sessionToken Jeton qui change à chaque connexion (fourni par PHP).
+     *   S'il est différent de celui en mémoire, c'est une nouvelle connexion :
+     *   on efface l'ancienne conversation.
+     */
+    constructor(sessionToken) {
+        const isNewLogin = sessionToken && this.#get('session') !== sessionToken;
+
+        // Nouvelle connexion ou page rafraîchie (F5) : on repart d'une conversation vide.
+        // Une navigation normale entre les pages garde la conversation.
+        if (isNewLogin || ChatStorage.#isPageReload()) {
+            this.clear();
+        }
+        if (sessionToken) {
+            this.#set('session', sessionToken);
+        }
+    }
+
+    /** true si la page a été rechargée (F5 / bouton actualiser), false pour une navigation normale. */
+    static #isPageReload() {
+        try {
+            const nav = performance.getEntriesByType('navigation')[0];
+            return nav ? nav.type === 'reload' : performance.navigation?.type === 1;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    loadHistory() {
+        try {
+            const parsed = JSON.parse(this.#get('history'));
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    saveHistory(history) {
+        this.#set('history', JSON.stringify(history));
+    }
+
+    isPopupOpen() {
+        return this.#get('open') === '1';
+    }
+
+    setPopupOpen(isOpen) {
+        this.#set('open', isOpen ? '1' : '0');
+    }
+
+    clear() {
+        try {
+            Object.keys(localStorage)
+                .filter(k => k.startsWith(ChatStorage.#PREFIX))
+                .forEach(k => localStorage.removeItem(k));
+        } catch (e) {}
+    }
+
+    #get(key) {
+        try { return localStorage.getItem(ChatStorage.#PREFIX + key); } catch (e) { return null; }
+    }
+
+    #set(key, value) {
+        try { localStorage.setItem(ChatStorage.#PREFIX + key, value); } catch (e) {}
+    }
+}
+
+/* ─────────────────────────────── BobApi ─────────────────────────────── */
+
+class BobApi {
+    constructor(endpoint = 'index.php?page=api/bob') {
+        this.endpoint = endpoint;
+    }
+
+    /**
+     * Envoie l'historique au serveur et renvoie la réponse de Bob.
+     * Le prompt système et le dossier de l'étudiant sont ajoutés côté serveur.
+     */
+    async send(history) {
+        const res = await fetch(this.endpoint, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ messages: history })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        return data.reply;
+    }
+}
+
+/* ───────────────────────────── BobChatbot ───────────────────────────── */
+
+class BobChatbot {
+    static #TEXTS = {
+        welcome: {
+            fr: "Salut ! Je suis <b>Bob</b> 👋 Je suis là pour t'aider avec ta mobilité internationale. Pose-moi n'importe quelle question sur ton dossier, les partenaires ou la plateforme !",
+            en: "Hey! I'm <b>Bob</b> 👋 I'm here to help with your international mobility. Ask me anything about your folder, partner universities, or the platform!"
+        },
+        error: {
+            fr: "Désolé, je rencontre un problème technique. Réessaie dans quelques instants 🙏",
+            en: "Sorry, I'm having a technical issue. Please try again in a moment 🙏"
+        },
+        quickActions: {
+            fr: ['📁 Mon dossier', '🌍 Trouver un partenaire', '📄 Documents requis', '📊 Mon avancement'],
+            en: ['📁 My folder',   '🌍 Find a partner',       '📄 Required documents', '📊 My progress']
+        }
+    };
+
+    /**
+     * @param {ChatStorage} storage
+     * @param {BobApi} api
+     * @param {string} lang
+     */
+    constructor(storage, api, lang = 'fr') {
+        this.storage = storage;
+        this.api     = api;
+        this.lang    = lang in BobChatbot.#TEXTS.welcome ? lang : 'fr';
+        this.history = storage.loadHistory();
+
         this.bubble        = document.getElementById('help-bubble');
         this.popup         = document.querySelector('.chat-popup');
         this.closeBtn      = document.querySelector('.help-popup-header button');
@@ -22,169 +143,41 @@ class BobChatbot {
         this.sendBtn       = document.querySelector('.chat-input-area button');
         this.quickActions  = document.querySelector('.quick-actions');
 
-        this.#initEvents();
-        this.#restoreState();
+        this.#bindEvents();
+        this.#restore();
     }
 
-    #storageKey(suffix) {
-        return `bob_chat_${suffix}`;
-    }
+    // ── Actions publiques ────────────────────────────────────────────────────
 
-    #store(key, value) {
-        try { localStorage.setItem(key, value); } catch(e) {}
-    }
+    toggle() {
+        if (!this.popup) return;
+        const willOpen = window.getComputedStyle(this.popup).display === 'none';
+        this.popup.style.display = willOpen ? 'flex' : 'none';
+        this.storage.setPopupOpen(willOpen);
 
-    #retrieve(key) {
-        try { return localStorage.getItem(key); } catch(e) { return null; }
-    }
-    #loadHistory() {
-        const storedUser  = this.#retrieve(this.#storageKey('user'));
-        const currentUser = document.getElementById('app-config')?.dataset.numetu ?? '';
-
-
-        if (currentUser && storedUser && storedUser !== currentUser) {
-            try { localStorage.removeItem(this.#storageKey('history')); } catch(e) {}
-            try { localStorage.removeItem(this.#storageKey('open')); } catch(e) {}
+        if (!willOpen) return;
+        if (this.history.length === 0 && this.chatContainer?.innerHTML === '') {
+            this.#showWelcome();
         }
-
-
-        if (currentUser) {
-            this.#store(this.#storageKey('user'), currentUser);
-        }
-
-        const raw = this.#retrieve(this.#storageKey('history'));
-        return raw ? JSON.parse(raw) : [];
+        requestAnimationFrame(() => this.#scrollToBottom());
     }
 
-    #saveHistory() {
-        this.#store(this.#storageKey('history'), JSON.stringify(this.history));
+    close() {
+        if (this.popup) this.popup.style.display = 'none';
+        this.storage.setPopupOpen(false);
     }
 
-    #savePopupOpen(isOpen) {
-        this.#store(this.#storageKey('open'), isOpen ? '1' : '0');
+    clearHistory() {
+        this.storage.clear();
+        this.history = [];
     }
 
-    #loadPopupOpen() {
-        return this.#retrieve(this.#storageKey('open')) === '1';
-    }
+    // ── Initialisation ───────────────────────────────────────────────────────
 
-
-    #restoreState() {
-        if (!this.chatContainer || !this.popup) return;
-
-        if (this.history.length > 0) {
-            this.history.forEach(entry => {
-                const isUser = entry.role === 'user';
-                const html = isUser ? this.#escape(entry.content) : this.#md(entry.content);
-                this.#addMessage(html, isUser ? 'user' : 'bot');
-            });
-            this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-        }
-
-        if (this.#loadPopupOpen()) {
-            this.popup.style.display = 'flex';
-            // Si jamais le popup était ouvert mais qu'aucun historique n'existe
-            // (cas rare : storage vidé entre-temps), on affiche l'accueil.
-            if (this.history.length === 0) {
-                this.#showWelcome();
-            }
-        }
-    }
-
-    // ── System prompt ──────────────────────────────────────────────────────────
-
-    #buildSystemPrompt() {
-        return `You are Bob, a friendly and professional assistant for students of the international mobility platform at Aix-Marseille Université (AMU).
-
-Your role:
-- Help students with their international mobility (internship abroad, exchange semester)
-- Guide them through uploading documents, tracking their folder, finding partner universities
-- Answer questions about the platform features
-
-Your personality:
-- Warm, encouraging — like a helpful older student
-- Use "tu" in French, "you" in English
-- Concise answers: 3 to 5 sentences max, unless the student needs step-by-step help
-
-Formatting rules (strict):
-- Plain text only. Never use markdown symbols: no **bold**, no *italics*, no # headers, no bullet dashes (-).
-- Never use emojis, under any circumstance.
-- If you need to list steps, write them as plain numbered sentences (e.g. "1. D'abord... 2. Ensuite...") or separate short sentences, not a markdown list.
-Platform knowledge:
-- Students have a personal dossier where they upload documents (CV, cover letter, learning agreement, insurance)
-- They can browse partner universities in the Partenaires tab
-- Progress shown as percentage on dashboard: 0% = red, 1–49% = orange, 50–99% = yellow, 100% = green
-- Coordinators review folders and can send reminders
-- Campagnes define the academic year and mobility type (internship or exchange)
-- Students first register on MoveOn; the secretary then imports their dossier from MoveOn into the platform, which creates their account automatically
-
-MOBILITY TYPES & STEPS:
-There are two main mobility tracks, each split into sub-types with slightly different steps:
-
-**A) STAGE (internship)** — 3 sub-types: Europe + pays tiers (+2 mois), Hors Europe (+2 mois), et -2 mois (courte durée, non financée).
-Phases: Préparation → Départ/Début du stage → Fin du stage et retour → Bilan/Témoignages.
-
-Préparation (commune aux 3 types) :
-- Organiser le voyage (billets, passeport, visa), chercher un logement
-- S'inscrire sur le Fil d'Ariane, se renseigner sur la culture locale, pratiquer la langue
-- Prendre un rendez-vous pré-stage avec le SRI (Service des Relations Internationales)
-- Vérifier son éligibilité aux bourses (aucune bourse possible pour les stages -2 mois)
-- Compléter le FORMULAIRE DE DÉCLARATION DE STAGE sur le portail avec : certificat de scolarité, attestations d'assurance (accident, responsabilité civile, rapatriement), convention de stage AMU signée (tuteur + chef de département + étudiant), RIB, notification CROUS si boursier
-- Spécifique Europe +2mois : CEAM (Carte Européenne d'Assurance Maladie) + contrat pédagogique SMT Erasmus signé + original du contrat de financement Erasmus transmis au SRI
-- Spécifique Québec (tous types) : formulaire SE401Q à transmettre par mail au SRI
-
-Début du stage (commun) :
-- Compléter le FORMULAIRE D'ARRIVÉE sur le portail (déclenche le 1er versement de la bourse), avec attestation de présence "arrivée" et convention/contrat pédagogique signés par l'organisme d'accueil
-- Rester en contact avec son tuteur de stage pendant toute la durée
-
-Fin du stage et retour (commun, variantes selon le type) :
-- Compléter le FORMULAIRE DE RETOUR sur le portail avec l'attestation de présence "retour" signée
-- Europe +2mois : + page 6 du contrat pédagogique "after the mobility" signée, + sondage "EU Corporate survey" à déposer sur MoveOn
-- Hors Europe +2mois et -2mois : + questionnaire "Bilan de fin de séjour" à déposer sur Ametice ou MoveOn
-- Tous types : possibilité d'être sollicité par le coordinateur RI du département pour témoigner ou participer à des réunions d'information
-
-**B) MOBILITÉ D'ÉTUDES** — 2 sous-types : courte (-2 mois) et longue (1 semestre ou année complète).
-
-Mobilité d'études courte (-2 mois) :
-1. Créer un compte MoveOn (si pas déjà fait)
-2. Compléter le formulaire "mobilités d'études courte" avec : certificat de scolarité, attestations d'assurance (responsabilité civile, accident, rapatriement), contrat d'études signé par tous
-3. Transmettre l'original du contrat de financement signé au SRI (courrier ou remise en main propre)
-4. Préparer la logistique : infos pratiques de l'université d'accueil, logement, transport, visa, langue
-5. À l'arrivée : formulaire "à l'arrivée" avec attestation de présence
-6. Au retour : formulaire de suivi "au retour" avec attestation de présence, justificatifs de transport, rapport de fin de mobilité
-7. Possibilité de témoigner / participer à des réunions d'information
-
-Mobilité d'études longue (1er semestre ou année) :
-- Préparer un budget prévisionnel : coût de la vie, éligibilité aux aides AMU, aides du pays/université d'accueil, financements personnels complémentaires
-- Consulter les infos pratiques de l'université d'accueil, préparer logement/transport/visa/langue
-- Inscription administrative avant le 20 juillet via l'ENT (onglet "réinscription")
-- Paiement des droits d'inscription avant fin août
-- Formulaire "post-nomination" avant fin mai
-- Si Erasmus : contrat de financement original transmis au SRI
-- Formulaire "constitution du dossier de mobilité" avant fin août (1er semestre/année) ou fin novembre (2ème semestre), incluant le contrat d'études signé par l'étudiant et le coordinateur RI
-- Si départ en Europe : OLA complété et approuvé dans MoveOn
-- À l'arrivée (max 10 jours après le départ) : formulaire "à l'arrivée" avec attestation de présence, notification CROUS définitive, certificat de scolarité si tardif, contrat d'études signé par tous si possible (hors Europe)
-- Vérifier le versement des aides à la mobilité (1 mois minimum après dépôt de l'attestation d'arrivée)
-- Pendant la mobilité : formulaire "pendant la mobilité" si retard/changement de contrat d'études (hors Europe)
-- Au retour (max 10 jours après le retour) : formulaire de suivi "au retour" avec attestation de présence, justificatifs de transport (mobilité verte), rapport de fin de mobilité
-- Possibilité de témoigner / participer à des réunions d'information
-
-Language rules:
-- Always reply in the SAME language as the student's message
-- Switch naturally if the student switches language
-- Default to French if unclear
-
-If you don't know something specific, say so and suggest contacting the coordinator (SRI).
-Never invent platform features or steps not listed above.`;
-    }
-
-    // ── Events ────────────────────────────────────────────────────────────────
-
-    #initEvents() {
-        this.bubble?.addEventListener('click', () => this.#togglePopup());
-        this.closeBtn?.addEventListener('click', () => this.#closePopup());
+    #bindEvents() {
+        this.bubble?.addEventListener('click', () => this.toggle());
+        this.closeBtn?.addEventListener('click', () => this.close());
         this.sendBtn?.addEventListener('click', () => this.#handleSend());
-
         this.inputField?.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -192,56 +185,30 @@ Never invent platform features or steps not listed above.`;
             }
         });
 
-        const logoutTrigger = document.querySelector(
-            'a[href*="logout"], a[href*="deconnexion"], .logout-btn'
-        );
+        // En plus du jeton de session : on vide aussi au clic sur "Déconnexion"
+        document
+            .querySelector('a[href*="logout"], a[href*="deconnexion"], .logout-btn')
+            ?.addEventListener('click', () => this.storage.clear());
+    }
 
-        logoutTrigger?.addEventListener('click', () => {
-            try {
-                Object.keys(localStorage)
-                    .filter(k => k.startsWith('bob_chat_'))
-                    .forEach(k => localStorage.removeItem(k));
-            } catch (e) {}
+    #restore() {
+        if (!this.chatContainer || !this.popup) return;
+
+        this.history.forEach(({ role, content }) => {
+            const isUser = role === 'user';
+            this.#addMessage(isUser ? this.#escape(content) : this.#format(content), isUser ? 'user' : 'bot');
         });
+        this.#scrollToBottom();
 
-        window.toggleHelpPopup = () => this.#togglePopup();
-    }
-
-    // ── UI ────────────────────────────────────────────────────────────────────
-
-    #togglePopup() {
-        if (!this.popup) return;
-        const isHidden = window.getComputedStyle(this.popup).display === 'none';
-        this.popup.style.display = isHidden ? 'flex' : 'none';
-        this.#savePopupOpen(isHidden);
-        if (isHidden && this.history.length === 0 && this.chatContainer?.innerHTML === '') {
-            this.#showWelcome();
+        if (this.storage.isPopupOpen()) {
+            this.popup.style.display = 'flex';
+            if (this.history.length === 0) this.#showWelcome();
         }
-        if (isHidden) {
-            // Scroll to bottom when opening
-            requestAnimationFrame(() => {
-                if (this.chatContainer) {
-                    this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-                }
-            });
-        }
-    }
-
-    #closePopup() {
-        if (this.popup) this.popup.style.display = 'none';
-        this.#savePopupOpen(false);
     }
 
     #showWelcome() {
-        const welcomes = {
-            fr: "Salut ! Je suis <b>Bob</b> 👋 Je suis là pour t'aider avec ta mobilité internationale. Pose-moi n'importe quelle question sur ton dossier, les partenaires ou la plateforme !",
-            en: "Hey! I'm <b>Bob</b> 👋 I'm here to help with your international mobility. Ask me anything about your folder, partner universities, or the platform!"
-        };
-        this.#addMessage(welcomes[this.currentLang] ?? welcomes.fr, 'bot');
-        // Premier message : on scrolle en bas normalement, il n'y a rien à ancrer
-        if (this.chatContainer) {
-            this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
-        }
+        this.#addMessage(BobChatbot.#TEXTS.welcome[this.lang], 'bot');
+        this.#scrollToBottom();
         this.#renderQuickActions();
     }
 
@@ -249,13 +216,7 @@ Never invent platform features or steps not listed above.`;
         if (!this.quickActions) return;
         this.quickActions.innerHTML = '';
 
-        const actions = {
-            fr: ['📁 Mon dossier', '🌍 Trouver un partenaire', '📄 Documents requis', '📊 Mon avancement'],
-            en: ['📁 My folder',   '🌍 Find a partner',       '📄 Required documents', '📊 My progress']
-        };
-
-        const lang = this.currentLang in actions ? this.currentLang : 'fr';
-        actions[lang].forEach(label => {
+        BobChatbot.#TEXTS.quickActions[this.lang].forEach(label => {
             const btn = document.createElement('button');
             btn.textContent = label;
             btn.addEventListener('click', () => {
@@ -266,52 +227,7 @@ Never invent platform features or steps not listed above.`;
         });
     }
 
-    // Ne scrolle plus automatiquement — retourne l'élément créé pour que
-    // l'appelant décide où ancrer le scroll (voir #scrollToTop / #sendMessage)
-    #addMessage(html, sender) {
-        if (!this.chatContainer) return null;
-        const div = document.createElement('div');
-        div.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
-        div.innerHTML = html;
-        this.chatContainer.appendChild(div);
-        return div;
-    }
-
-    // Fait défiler la zone de messages pour placer "el" tout en haut
-    // de la zone visible (au lieu de tout défiler jusqu'en bas).
-    // Le double requestAnimationFrame garantit que le positionnement
-    // s'applique APRÈS que le navigateur ait fini son propre reflow/paint
-    // (y compris un éventuel ajustement de scroll anchoring), pour que
-    // notre scroll manuel ne soit pas écrasé juste après.
-    #scrollToTop(el) {
-        if (!el || !this.chatContainer) return;
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                this.chatContainer.scrollTop = el.offsetTop - 10;
-            });
-        });
-    }
-
-    #showTyping() {
-        const div = document.createElement('div');
-        div.classList.add('message', 'bot-message');
-        div.id = 'bob-typing';
-        div.innerHTML = '<span class="bob-dot"></span><span class="bob-dot"></span><span class="bob-dot"></span>';
-        this.chatContainer?.appendChild(div);
-        // Pas de scroll ici : on garde la position ancrée sur le message de l'étudiant
-    }
-
-    #hideTyping() {
-        document.getElementById('bob-typing')?.remove();
-    }
-
-    #setLoading(on) {
-        if (this.sendBtn)    this.sendBtn.disabled    = on;
-        if (this.inputField) this.inputField.disabled = on;
-        if (this.sendBtn)    this.sendBtn.textContent = on ? '…' : '➤';
-    }
-
-    // ── Messaging ─────────────────────────────────────────────────────────────
+    // ── Conversation ─────────────────────────────────────────────────────────
 
     #handleSend() {
         const text = this.inputField?.value.trim();
@@ -321,65 +237,81 @@ Never invent platform features or steps not listed above.`;
     }
 
     async #sendMessage(text) {
-
         const userMsgEl = this.#addMessage(this.#escape(text), 'user');
-        this.#scrollToTop(userMsgEl);
+        this.#scrollTo(userMsgEl);
 
-        this.history.push({ role: 'user', content: text });
-        this.#saveHistory();
-        this.#showTyping();
+        this.#pushHistory('user', text);
         this.#setLoading(true);
 
         try {
-            const reply = await this.#callApi();
-            this.#hideTyping();
-            this.#addMessage(this.#md(reply), 'bot');
-            this.history.push({ role: 'assistant', content: reply });
-            this.#saveHistory();
-            // On ré-ancre sur le message de l'étudiant plutôt que de
-            // descendre jusqu'à la fin de la réponse du bot
-            this.#scrollToTop(userMsgEl);
+            const reply = await this.api.send(this.history);
+            this.#addMessage(this.#format(reply), 'bot');
+            this.#pushHistory('assistant', reply);
         } catch (err) {
-            this.#hideTyping();
-            const msg = {
-                fr: "Désolé, je rencontre un problème technique. Réessaie dans quelques instants 🙏",
-                en: "Sorry, I'm having a technical issue. Please try again in a moment 🙏"
-            };
-            this.#addMessage(msg[this.currentLang] ?? msg.fr, 'bot');
-            this.#scrollToTop(userMsgEl);
+            this.#addMessage(BobChatbot.#TEXTS.error[this.lang], 'bot');
             console.error('Bob error:', err);
         } finally {
             this.#setLoading(false);
+            // On garde le message de l'étudiant en haut plutôt que de descendre en bas de la réponse
+            this.#scrollTo(userMsgEl);
         }
     }
 
-    // ── API ───────────────────────────────────────────────────────────────────
-
-    async #callApi() {
-        // Calls the PHP proxy — never exposes the API key in the browser
-        const res = await fetch('index.php?page=api/bob', {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({
-                system:   this.systemPrompt,
-                messages: this.history
-            })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        return data.reply;
+    #pushHistory(role, content) {
+        this.history.push({ role, content });
+        this.storage.saveHistory(this.history);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ── DOM ──────────────────────────────────────────────────────────────────
 
-    #escape(t) {
-        return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    #addMessage(html, sender) {
+        if (!this.chatContainer) return null;
+        const div = document.createElement('div');
+        div.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
+        div.innerHTML = html;
+        this.chatContainer.appendChild(div);
+        return div;
     }
 
-    #md(text) {
-        return text
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    #setLoading(on) {
+        if (on) {
+            const typing = document.createElement('div');
+            typing.classList.add('message', 'bot-message');
+            typing.id = 'bob-typing';
+            typing.innerHTML = '<span class="bob-dot"></span>'.repeat(3);
+            this.chatContainer?.appendChild(typing);
+        } else {
+            document.getElementById('bob-typing')?.remove();
+        }
+
+        if (this.sendBtn) {
+            this.sendBtn.disabled    = on;
+            this.sendBtn.textContent = on ? '…' : '➤';
+        }
+        if (this.inputField) this.inputField.disabled = on;
+    }
+
+    #scrollToBottom() {
+        if (this.chatContainer) this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+    }
+
+    // Double requestAnimationFrame : le scroll s'applique après le reflow du navigateur
+    #scrollTo(el) {
+        if (!el || !this.chatContainer) return;
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            this.chatContainer.scrollTop = el.offsetTop - 10;
+        }));
+    }
+
+    // ── Texte ────────────────────────────────────────────────────────────────
+
+    #escape(text) {
+        return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /** Échappe le HTML, retire le markdown et les emojis, garde les retours à la ligne. */
+    #format(text) {
+        return this.#escape(text)
             .replace(/\*\*(.*?)\*\*/g, '$1')
             .replace(/\*(.*?)\*/g,     '$1')
             .replace(/^#{1,6}\s+/gm,   '')
@@ -387,25 +319,17 @@ Never invent platform features or steps not listed above.`;
             .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '')
             .replace(/\n/g, '<br>');
     }
-    clearHistory() {
-        try {
-            localStorage.removeItem(this.#storageKey('history'));
-            localStorage.removeItem(this.#storageKey('open'));
-        } catch (e) {}
-    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.cookie.split('; ').some(c => c === 'bob_logout=1')) {
-        try {
-            Object.keys(localStorage)
-                .filter(k => k.startsWith('bob_chat_'))
-                .forEach(k => localStorage.removeItem(k));
-        } catch (e) {}
-        document.cookie = 'bob_logout=; Max-Age=0; path=/';
-    }
+/* ─────────────────────────────── Démarrage ─────────────────────────────── */
 
-    window.chatbot = new BobChatbot();
-    window.toggleHelpPopup = () => window.chatbot.popup &&
-        window.chatbot._BobChatbot__togglePopup();
+document.addEventListener('DOMContentLoaded', () => {
+    const config = document.getElementById('app-config')?.dataset ?? {};
+    // Jeton régénéré à chaque connexion (AuthController -> Layout/chatbot.php)
+    const token  = document.getElementById('help-popup')?.dataset.chatSession || config.numetu || '';
+
+    window.chatbot = new BobChatbot(new ChatStorage(token), new BobApi(), config.lang ?? 'fr');
+
+    // Compatibilité avec les anciens <div onclick="toggleHelpPopup()">
+    window.toggleHelpPopup = () => window.chatbot.toggle();
 });
