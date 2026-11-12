@@ -159,7 +159,6 @@ if ($page === '' || $page === 'index.php' || $page === 'home') {
 if ($page === 'logout') {
     session_unset();
     session_destroy();
-    setcookie('bob_logout', '1', time() + 300, '/'); // expire dans 5 min, au cas où
     header('Location: index.php?page=login');
     exit;
 }

@@ -3,81 +3,90 @@
 namespace Controllers\BobController;
 
 use Controllers\ControllerInterface;
+use Model\UseCase\AskBobUseCase;
+use Service\Bob\BobException;
 
+/**
+ * BobController
+ *
+ * HTTP entry point of the Bob chatbot (POST index.php?page=api/bob).
+ * Only checks the session, reads the request and returns JSON;
+ * the logic lives in {@see AskBobUseCase}.
+ */
 class BobController implements ControllerInterface
 {
-    public static function support(string $page, string $method): bool
+    /** @var AskBobUseCase|null Use case, created lazily so a GET never touches the database */
+    private ?AskBobUseCase $useCase;
+
+    /**
+     * @param AskBobUseCase|null $useCase Injected for tests; created on demand otherwise
+     */
+    public function __construct(?AskBobUseCase $useCase = null)
     {
-        return $page === 'api/bob' && $method === 'POST';
+        $this->useCase = $useCase;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public static function support(string $chemin, string $method): bool
+    {
+        return $chemin === 'api/bob' && $method === 'POST';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function control(): void
+    {
+        $this->sendHeaders();
+
+        $numetu = $_SESSION['numetu'] ?? null;
+        if (!is_scalar($numetu) || (string) $numetu === '') {
+            $this->respond(401, ['error' => 'Non autorisé']);
+            return;
+        }
+
+        $body = json_decode($this->readBody(), true);
+
+        try {
+            $this->useCase ??= new AskBobUseCase();
+            $reply = $this->useCase->execute((string) $numetu, is_array($body) ? ($body['messages'] ?? null) : null);
+            $this->respond(200, ['reply' => $reply]);
+        } catch (BobException $e) {
+            $this->respond($e->getHttpStatus(), ['error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Reads the raw request body. Protected to allow mocking during tests.
+     *
+     * @return string
+     */
+    protected function readBody(): string
+    {
+        $body = file_get_contents('php://input');
+        return $body === false ? '' : $body;
+    }
+
+    /**
+     * Sends the JSON / CORS headers. Protected to allow mocking during tests.
+     */
+    protected function sendHeaders(): void
     {
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: https://amara.alwaysdata.net');
+    }
 
-        if (!isset($_SESSION['numetu'])) {
-            http_response_code(401);
-            echo json_encode(['error' => 'Non autorisé']);
-            return;
-        }
-
-        $apiKey = $_ENV['GROQ_API_KEY'] ?? '';
-        if (empty($apiKey)) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Clé API manquante']);
-            return;
-        }
-
-        $body = json_decode(file_get_contents('php://input'), true);
-        if (!isset($body['messages']) || !is_array($body['messages'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Requête invalide']);
-            return;
-        }
-
-        $messages = array_slice($body['messages'], -20);
-        $system = $body['system'] ?? '';
-
-        $payload = json_encode([
-            'model'      => 'openai/gpt-oss-120b',            'max_tokens' => 1000,
-            'messages' => array_merge(
-                [['role' => 'system', 'content' => $system]],
-                $messages
-            ),
-        ]);
-
-        $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $apiKey,
-            ],
-            CURLOPT_TIMEOUT => 30,
-        ]);
-
-        $response  = curl_exec($ch);
-        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($httpCode !== 200) {
-            error_log('Groq error ' . $httpCode . ': ' . ($curlError ?: $response));
-            http_response_code(502);
-            echo json_encode(['error' => 'Erreur API Groq (' . $httpCode . ')']);
-            return;
-        }
-
-        $data  = json_decode($response, true);
-        $reply = $data['choices'][0]['message']['content'] ?? '';
-
-        if ($reply === '') {
-            error_log('Groq empty reply: ' . $response);
-        }
-
-        echo json_encode(['reply' => $reply], JSON_INVALID_UTF8_SUBSTITUTE);
+    /**
+     * Sends a JSON response with the given status code.
+     *
+     * @param int                  $status HTTP status code
+     * @param array<string, mixed> $data   Response payload
+     */
+    protected function respond(int $status, array $data): void
+    {
+        http_response_code($status);
+        echo json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE);
     }
 }
