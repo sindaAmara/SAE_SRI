@@ -12,8 +12,8 @@
  *
  * Each row displays: last name, first name, mobility direction (incoming/outgoing),
  * component, department, mobility type (stage/études), reminder badge count,
- * a colour-coded status badge (depot / instruction / accepte / refuse) and the
- * validation-workflow step badge (WorkflowStep, 5 étapes).
+ * and the folder status = validation-workflow step badge (WorkflowStep, 5 étapes).
+ * (The old global status depot / instruction / accepte / refuse is no longer shown.)
  *
  * @var array<int, array<string, mixed>> $paginatedData  Current page of student records from the repository
  * @var int                              $totalCount     Total number of matching students (across all pages)
@@ -58,7 +58,6 @@ foreach ($paginatedData as $etudiant) {
                         <th><?= $t(['fr' => 'Mobilité',            'en' => 'Mobility'])              ?></th>
                         <th><?= $t(['fr' => 'Relances',            'en' => 'Reminders'])             ?></th>
                         <th><?= $t(['fr' => 'Statut',              'en' => 'Status'])                ?></th>
-                        <th><?= $t(['fr' => 'Étape de validation', 'en' => 'Validation step'])       ?></th>
                     </tr></thead>
                     <tbody>
                     <?php foreach ($students as $etudiant) : ?>
@@ -83,7 +82,6 @@ foreach ($paginatedData as $etudiant) {
                         $nbRelances = isset($etudiant['nb_relances']) && is_numeric($etudiant['nb_relances'])
                                 ? (int)$etudiant['nb_relances']
                                 : 0;
-                        $eStatus      = strval($etudiant['status']          ?? 'depot');
                         $eEtape       = strval($etudiant['etape'] ?? \Model\Entity\WorkflowStep::fromRow($etudiant));
                         $eEtapeLabel  = \Model\Entity\WorkflowStep::LABELS[$eEtape] ?? null;
                         $rowUrl       = $buildUrl('index.php', ['page' => $viewPage, 'action' => 'view', 'numetu' =>$eNumEtu]);
@@ -102,17 +100,6 @@ foreach ($paginatedData as $etudiant) {
                                     <span class="badge-relance"><?= $nbRelances ?></span>
                                 <?php else : ?>
                                     -
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <?php if ($eStatus === 'accepte') : ?>
-                                    <span class="status-badge accepte">Accepté</span>
-                                <?php elseif ($eStatus === 'refuse') : ?>
-                                    <span class="status-badge refuse">Refusé</span>
-                                <?php elseif ($eStatus === 'instruction') : ?>
-                                    <span class="status-badge instruction">En instruction</span>
-                                <?php else : ?>
-                                    <span class="status-badge depot">Dépôt</span>
                                 <?php endif; ?>
                             </td>
                             <td>

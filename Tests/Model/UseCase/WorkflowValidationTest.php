@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Tests du circuit de validation étape par étape :
- * validerEtape(), devaliderEtape() et la protection de setAvisChef().
+ * validerEtape(), devaliderEtape(), synchroniserComplet() et la protection de setAvisChef().
  *
  * Run with:
  *   ./vendor/bin/phpunit Tests/Model/UseCase/WorkflowValidationTest.php
@@ -33,14 +33,6 @@ class WorkflowValidationTest extends TestCase
     }
 
     // ── validerEtape ─────────────────────────────────────────────
-
-    public function test_admin_marks_folder_complete(): void
-    {
-        $this->repo->method('findByNumEtu')->willReturn($this->row(0, 0, 0));
-        $this->repo->expects($this->once())->method('toggleCompleteStatus')->with('E1')->willReturn(true);
-
-        $this->assertSame(['success' => true, 'error' => null], $this->useCase->validerEtape('E1', 'complet', 'admin'));
-    }
 
     public function test_admin_validates_secretariat_when_complete(): void
     {
@@ -96,6 +88,9 @@ class WorkflowValidationTest extends TestCase
     public function test_unknown_action_and_unknown_folder(): void
     {
         $this->assertSame('unknown_action', $this->useCase->validerEtape('E1', 'chef', 'admin')['error']);
+        // Le passage en complet n'est plus une action manuelle
+        $this->assertSame('unknown_action', $this->useCase->validerEtape('E1', 'complet', 'admin')['error']);
+        $this->assertSame('unknown_action', $this->useCase->devaliderEtape('E1', 'complet', 'admin')['error']);
 
         $this->repo->method('findByNumEtu')->willReturn(null);
         $this->assertSame('not_found', $this->useCase->validerEtape('E1', 'secretariat', 'admin')['error']);
@@ -132,23 +127,109 @@ class WorkflowValidationTest extends TestCase
         $this->assertTrue($this->useCase->devaliderEtape('E1', 'coordinateur', 'coordinateur')['success']);
     }
 
-    public function test_back_to_incomplete_resets_everything(): void
-    {
-        $this->repo->method('findByNumEtu')->willReturn($this->row(1, 1, 0));
-        $this->repo->method('setAvisChef')->willReturn(true);
-        $this->repo->method('setValideCoordinateur')->willReturn(true);
-        $this->repo->expects($this->once())->method('setValideAdmin')->with('E1', false)->willReturn(true);
-        $this->repo->expects($this->once())->method('toggleCompleteStatus')->with('E1')->willReturn(true);
-
-        $this->assertTrue($this->useCase->devaliderEtape('E1', 'complet', 'admin')['success']);
-    }
-
     public function test_cannot_cancel_a_step_not_reached(): void
     {
         $this->repo->method('findByNumEtu')->willReturn($this->row(1, 0, 0));
         $this->repo->expects($this->never())->method('setValideAdmin');
 
         $this->assertSame('not_validated', $this->useCase->devaliderEtape('E1', 'secretariat', 'admin')['error']);
+    }
+
+    // ── synchroniserComplet (passage automatique en complet) ─────
+
+    /**
+     * @param array<int, string>    $manquants
+     * @param array<int, string>    $presents
+     * @param array<string, string> $statuts
+     */
+    private function docs(array $manquants, array $presents, array $statuts): void
+    {
+        $this->repo->method('analyserDocuments')->willReturn(['manquants' => $manquants, 'presents' => $presents, 'statuts' => $statuts]);
+    }
+
+    public function test_all_documents_accepted_makes_folder_complete(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(0, 0, 0));
+        $this->docs([], ['photo', 'cv'], ['photo' => 'accepted', 'cv' => 'accepted']);
+        $this->repo->expects($this->once())->method('toggleCompleteStatus')->with('E1')->willReturn(true);
+
+        $this->assertSame('complet', $this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_missing_document_keeps_folder_incomplete(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(0, 0, 0));
+        $this->docs(['convention'], ['photo'], ['photo' => 'accepted']);
+        $this->repo->expects($this->never())->method('toggleCompleteStatus');
+
+        $this->assertNull($this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_pending_document_keeps_folder_incomplete(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(0, 0, 0));
+        $this->docs([], ['photo', 'cv'], ['photo' => 'accepted', 'cv' => 'pending']);
+        $this->repo->expects($this->never())->method('toggleCompleteStatus');
+
+        $this->assertNull($this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_refused_document_on_validated_folder_resets_everything(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(1, 1, 1, 'accepte'));
+        $this->docs([], ['photo', 'cv'], ['photo' => 'accepted', 'cv' => 'refused']);
+        $this->repo->expects($this->once())->method('setAvisChef')->with('E1', null)->willReturn(true);
+        $this->repo->expects($this->once())->method('setValideCoordinateur')->with('E1', false)->willReturn(true);
+        $this->repo->expects($this->once())->method('setValideAdmin')->with('E1', false)->willReturn(true);
+        $this->repo->expects($this->once())->method('toggleCompleteStatus')->with('E1')->willReturn(true);
+
+        $this->assertSame('incomplet_validations_annulees', $this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_refused_document_on_unvalidated_folder(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(1, 0, 0));
+        $this->docs([], ['photo'], ['photo' => 'refused']);
+        $this->repo->method('setAvisChef')->willReturn(true);
+        $this->repo->method('setValideCoordinateur')->willReturn(true);
+        $this->repo->method('setValideAdmin')->willReturn(true);
+        $this->repo->expects($this->once())->method('toggleCompleteStatus')->willReturn(true);
+
+        $this->assertSame('incomplet', $this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_already_complete_and_still_ok_changes_nothing(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(1, 1, 0));
+        $this->docs([], ['photo'], ['photo' => 'accepted']);
+        $this->repo->expects($this->never())->method('toggleCompleteStatus');
+        $this->repo->expects($this->never())->method('setValideAdmin');
+
+        $this->assertNull($this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_no_required_document_never_complete(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturn($this->row(0, 0, 0));
+        $this->docs([], [], []);
+        $this->repo->expects($this->never())->method('toggleCompleteStatus');
+
+        $this->assertNull($this->useCase->synchroniserComplet('E1'));
+    }
+
+    public function test_progression_counts_accepted_required_documents(): void
+    {
+        $this->docs(['langues'], ['photo', 'cv', 'convention'], ['photo' => 'accepted', 'cv' => 'refused', 'convention' => 'accepted', 'autre' => 'accepted']);
+
+        $this->assertSame(['acceptees' => 2, 'total' => 4], $this->useCase->progressionPieces('E1'));
+    }
+
+    public function test_getEtape(): void
+    {
+        $this->repo->method('findByNumEtu')->willReturnOnConsecutiveCalls($this->row(1, 1, 0), null);
+
+        $this->assertSame('valide_secretariat', $this->useCase->getEtape('E1'));
+        $this->assertNull($this->useCase->getEtape('E2'));
     }
 
     // ── setAvisChef protégé ──────────────────────────────────────

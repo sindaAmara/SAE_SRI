@@ -3,6 +3,7 @@
 namespace Controllers\FolderController;
 
 use Model\UseCase\ManageFolderUseCase;
+use Model\Entity\WorkflowStep;
 use Service\Email\EmailReminderService;
 use Core\View;
 
@@ -166,9 +167,18 @@ class FoldersControllerAdmin
         }
 
         // Load student details when viewing a specific folder
-        $studentData = null;
+        $studentData       = null;
+        $progressionPieces = null;
+        $piecesRequises    = null;
         if ($action === 'view' && !empty($_GET['numetu'])) {
+            // Les anciens dossiers peuvent être marqués complets alors que des pièces manquent
+            // (ou l'inverse) : on corrige à l'ouverture, avant d'afficher la frise.
+            $this->folderUseCase->synchroniserComplet(strval($_GET['numetu']));
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
+            // Pièces acceptées / requises, affiché dans la frise à l'étape 1
+            $progressionPieces = $this->folderUseCase->progressionPieces(strval($_GET['numetu']));
+            // Pièces obligatoires : les autres sont masquées (ou marquées « non requise ») dans la revue
+            $piecesRequises    = $this->folderUseCase->getPiecesRequises(strval($_GET['numetu']));
         }
 
         $filters = [
@@ -196,6 +206,8 @@ class FoldersControllerAdmin
             'message'       => $message,
             'lang'          => $lang,
             'studentData'   => $studentData,
+            'progressionPieces' => $progressionPieces,
+            'piecesRequises'    => $piecesRequises,
             'paginatedData' => $result['data'],
             'totalCount'    => $result['total'],
             'totalPages'    => 1,
@@ -375,7 +387,15 @@ class FoldersControllerAdmin
             }
 
             $success = $this->folderUseCase->updateDocumentStatus($numEtu, $docType, $status, $comment, $fileContent);
-            $this->jsonResponse(['success' => $success]);
+
+            // Le dossier passe (ou repasse) complet selon l'état de toutes ses pièces
+            $etapeChange = $success ? $this->folderUseCase->synchroniserComplet(strval($numEtu)) : null;
+
+            $this->jsonResponse([
+                'success'      => $success,
+                'etape_change' => $etapeChange,
+                'reload'       => $etapeChange !== null, // la frise doit être rafraîchie
+            ]);
         } catch (\Throwable $e) {
             $this->log("AJAX updateDocumentStatus error: " . $e->getMessage());
             $this->jsonResponse(['success' => false, 'message' => 'Internal server error']);
@@ -467,10 +487,13 @@ class FoldersControllerAdmin
 
         $success = $this->folderUseCase->enregistrerValidation($numetu, $statutsDocuments, $dateLimite, $commentaire);
 
+        // Le dossier passe (ou repasse) complet selon l'état de toutes ses pièces
+        $etapeChange = $success ? $this->folderUseCase->synchroniserComplet(strval($numetu)) : null;
+
         if ($success) {
-            $currentDossier = $this->folderUseCase->getStudentDetails($numetu);
-            $globalStatus   = is_array($currentDossier) ? strval($currentDossier['status'] ?? 'depot') : 'depot';
-            $globalLabels   = ['depot' => 'Dépôt', 'instruction' => 'En instruction', 'accepte' => 'Accepté', 'refuse' => 'Refusé'];
+            // Le mail à l'étudiant indique l'étape du circuit (remplace l'ancien statut global)
+            $etape      = $this->folderUseCase->getEtape(strval($numetu)) ?? WorkflowStep::INCOMPLET;
+            $etapeLabel = WorkflowStep::LABELS[$etape]['fr'];
 
             $piecesAcceptees = [];
             $piecesRefusees  = [];
@@ -500,7 +523,7 @@ class FoldersControllerAdmin
                 }
             }
 
-            $updates[] = '__STATUT_GLOBAL__' . ($globalLabels[$globalStatus] ?? $globalStatus) . '__END_STATUT__';
+            $updates[] = '__STATUT_GLOBAL__' . $etapeLabel . '__END_STATUT__';
 
             // Include deadline change in notification only if the date actually changed
             if (!empty($dateLimite)) {
@@ -517,6 +540,16 @@ class FoldersControllerAdmin
         $_SESSION['message'] = $success
             ? (($lang === 'fr') ? 'Validation enregistrée avec succès. L\'étudiant a été notifié si nécessaire.' : 'Validation saved successfully. Student notified.')
             : (($lang === 'fr') ? 'Erreur lors de l\'enregistrement' : 'Error saving validation');
+
+        // Précise si le dossier a changé d'étape à cause des pièces
+        $changeMessages = [
+            'complet'                        => ['fr' => ' Toutes les pièces sont acceptées : le dossier est complet et attend la validation du secrétariat.', 'en' => ' All documents accepted: the folder is complete and awaits admin validation.'],
+            'incomplet'                      => ['fr' => ' Une pièce n\'est plus conforme : le dossier repasse en incomplet.', 'en' => ' A document is no longer compliant: the folder is incomplete again.'],
+            'incomplet_validations_annulees' => ['fr' => ' Une pièce n\'est plus conforme : le dossier repasse en incomplet et ses validations ont été annulées.', 'en' => ' A document is no longer compliant: the folder is incomplete again and its validations were cancelled.'],
+        ];
+        if ($etapeChange !== null && isset($changeMessages[$etapeChange])) {
+            $_SESSION['message'] = strval($_SESSION['message']) . $changeMessages[$etapeChange][$lang === 'en' ? 'en' : 'fr'];
+        }
 
         $this->redirect('index.php?page=' . $redirectTo . '&action=view&numetu=' . urlencode($numetu) . '&lang=' . $lang);
     }

@@ -353,6 +353,8 @@ class DocumentManager {
                 indicator.textContent = result.success ? "Enregistré ✓" : "Erreur serveur";
                 indicator.style.color = result.success ? "green" : "red";
             }
+            // Le dossier vient de changer d'étape (complet / incomplet) : on recharge pour mettre la frise à jour
+            if (result.success && result.reload) setTimeout(() => window.location.reload(), 800);
         } catch {
             if (indicator) { indicator.textContent = "Erreur réseau"; indicator.style.color = "red"; }
         }

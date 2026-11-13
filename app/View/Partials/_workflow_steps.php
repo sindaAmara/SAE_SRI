@@ -10,7 +10,11 @@
  *
  * Utilisable sur la page dossier admin et les pages coordinateur / chef de dépt.
  *
+ * Le passage « Incomplet → Complet » est automatique (toutes les pièces acceptées,
+ * voir ManageFolderUseCase::synchroniserComplet) : il n'y a pas de bouton pour lui.
+ *
  * @var array<string, mixed> $studentData Ligne du dossier (doit contenir IsComplete, valide_admin, valide_coordinateur, avis_chef_departement)
+ * @var array{acceptees: int, total: int}|null $progressionPieces (optionnel) Pièces acceptées / requises, affiché à l'étape 1
  * @var string               $PAGE        Page courante, utilisée pour revenir sur la fiche après l'action
  * @var string               $lang        Langue courante
  * @var Closure              $t           Traduction — accepte ['fr' => '...', 'en' => '...']
@@ -35,11 +39,11 @@ $wfDate = function (mixed $value): string {
 
 // Informations affichées sous chaque étape
 $wfMeta = [
-    WorkflowStep::INCOMPLET           => '',
-    WorkflowStep::A_VALIDER           => '',
-    WorkflowStep::VALIDE_SECRETARIAT  => $wfDate($wfRow['date_validation_admin'] ?? null),
-    WorkflowStep::VALIDE_COORDINATEUR => $wfDate($wfRow['date_validation_coordinateur'] ?? null),
-    WorkflowStep::VALIDE_CHEF         => '',
+        WorkflowStep::INCOMPLET           => '',
+        WorkflowStep::A_VALIDER           => '',
+        WorkflowStep::VALIDE_SECRETARIAT  => $wfDate($wfRow['date_validation_admin'] ?? null),
+        WorkflowStep::VALIDE_COORDINATEUR => $wfDate($wfRow['date_validation_coordinateur'] ?? null),
+        WorkflowStep::VALIDE_CHEF         => '',
 ];
 
 // L'étape "incomplet" est franchie dès que le dossier est complet : on l'affiche comme "Complet"
@@ -50,7 +54,6 @@ if ($wfIndex >= 1) {
 
 // Bouton "étape suivante" et bouton "annuler" selon l'étape et le rôle
 $wfNext = match ($wfStep) {
-    WorkflowStep::INCOMPLET          => ['complet',      ['fr' => 'Marquer le dossier complet',          'en' => 'Mark folder as complete']],
     WorkflowStep::A_VALIDER          => ['secretariat',  ['fr' => 'Valider administrativement',          'en' => 'Validate (admin office)']],
     WorkflowStep::VALIDE_SECRETARIAT => ['coordinateur', ['fr' => 'Valider (coordinateur)',              'en' => 'Validate (coordinator)']],
     default                          => null,
@@ -60,16 +63,21 @@ if ($wfNext !== null && !ManageFolderUseCase::peutAgirSurEtape($wfNext[0], $wfRo
 }
 
 $wfCancel = null;
-foreach (['coordinateur', 'secretariat', 'complet'] as $wfAction) {
+foreach (['coordinateur', 'secretariat'] as $wfAction) {
     $reached = $wfIndex >= WorkflowStep::index(ManageFolderUseCase::ETAPE_ACTIONS[$wfAction]);
     if ($reached && ManageFolderUseCase::peutAgirSurEtape($wfAction, $wfRole)) {
         $wfCancel = [$wfAction, match ($wfAction) {
             'coordinateur' => ['fr' => 'Annuler la validation coordinateur', 'en' => 'Cancel coordinator validation'],
-            'secretariat'  => ['fr' => 'Annuler la validation secrétariat',  'en' => 'Cancel admin validation'],
-            'complet'      => ['fr' => 'Repasser le dossier en incomplet',    'en' => 'Set folder back to incomplete'],
+            default        => ['fr' => 'Annuler la validation secrétariat',  'en' => 'Cancel admin validation'],
         }];
         break;
     }
+}
+
+// Étape 1 : nombre de pièces acceptées (si la page l'a fourni)
+$wfPieces = (isset($progressionPieces) && is_array($progressionPieces)) ? $progressionPieces : null;
+if ($wfPieces !== null && $wfPieces['total'] > 0) {
+    $wfMeta[WorkflowStep::INCOMPLET] = $wfPieces['acceptees'] . '/' . $wfPieces['total'] . ' ' . $t(['fr' => 'pièces acceptées', 'en' => 'documents accepted']);
 }
 
 $wfAction = 'index.php?page=valider_etape&lang=' . urlencode($lang);
@@ -93,6 +101,8 @@ $wfAction = 'index.php?page=valider_etape&lang=' . urlencode($lang);
                 <span class="workflow__label"><?= htmlspecialchars($t($wfLabels[$code])) ?></span>
                 <?php if ($isChefRefused) : ?>
                     <span class="workflow__meta"><?= $t(['fr' => 'Refusé par le chef de département', 'en' => 'Refused by dept. head']) ?></span>
+                <?php elseif ($code === WorkflowStep::INCOMPLET && $wfMeta[$code] !== '') : ?>
+                    <span class="workflow__meta"><?= htmlspecialchars($wfMeta[$code]) ?></span>
                 <?php elseif ($i <= $wfIndex && $wfMeta[$code] !== '') : ?>
                     <span class="workflow__meta"><?= $t(['fr' => 'le', 'en' => 'on']) ?> <?= $wfMeta[$code] ?></span>
                 <?php elseif ($i === $wfIndex + 1) : ?>
@@ -111,6 +121,8 @@ $wfAction = 'index.php?page=valider_etape&lang=' . urlencode($lang);
                 <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($PAGE) ?>">
                 <button type="submit" class="workflow__btn">✔ <?= $t($wfNext[1]) ?></button>
             </form>
+        <?php elseif ($wfStep === WorkflowStep::INCOMPLET) : ?>
+            <p class="workflow__hint"><?= $t(['fr' => "Le dossier passera automatiquement à l'étape suivante dès que toutes les pièces seront acceptées.", 'en' => 'The folder moves to the next step automatically once all documents are accepted.']) ?></p>
         <?php elseif ($wfIndex === $wfChefIdx - 1 && $wfRole === 'chef_departement') : ?>
             <p class="workflow__hint"><?= $t(['fr' => 'Utilisez les boutons « Accepter / Refuser le dossier » pour donner votre décision.', 'en' => 'Use the "Accept / Refuse" buttons to record your decision.']) ?></p>
         <?php elseif ($wfIndex < $wfChefIdx) : ?>

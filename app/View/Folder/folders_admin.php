@@ -43,7 +43,6 @@
  *   ($allEditable = true, $editableFields = []).
  * - _doc_review.php            : document review panel; all file types editable
  *   ($allFilesEditable = true, $languesEditable = false).
- * - _global_status.php         : global workflow status dropdown + update button.
  * - Form action buttons        : "Save and Notify" (#btn-enregistrer, wired to the
  *   validation modal via JavaScript) and a "Back" button.
  * - _modal_validation.php      : confirmation modal shown before final save.
@@ -185,7 +184,8 @@ ob_start();
                 ?>
             </div>
 
-            <?php include __DIR__ . '/../Partials/_global_status.php'; ?>
+            <?php /* Ancien « statut global » (dépôt / instruction / accepté / refusé) retiré :
+                     l'état du dossier est désormais donné par la frise du circuit de validation. */ ?>
 
             <div class="form-actions">
                 <button type="button" id="btn-enregistrer" class="btn-secondary">

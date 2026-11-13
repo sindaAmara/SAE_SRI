@@ -10,8 +10,8 @@ namespace Model\Entity;
  * Chaque dossier se trouve dans UNE SEULE étape, calculée à partir des colonnes
  * existantes de la table `dossiers` (aucune nouvelle colonne) :
  *
- *   1. incomplet           IsComplete = 0
- *   2. a_valider           complet, pas encore validé par le secrétariat
+ *   1. incomplet           IsComplete = 0 (pièces manquantes ou pas encore toutes acceptées)
+ *   2. a_valider           toutes les pièces acceptées (automatique), en attente du secrétariat
  *   3. valide_secretariat  valide_admin = 1, en attente du coordinateur
  *   4. valide_coordinateur valide_coordinateur = 1, en attente du chef de département
  *   5. valide_chef         avis_chef_departement = 'accepte'
@@ -44,7 +44,7 @@ final class WorkflowStep
     /** @var array<string, array{fr: string, en: string}> Libellés affichés */
     public const LABELS = [
         self::INCOMPLET           => ['fr' => 'Incomplet',                 'en' => 'Incomplete'],
-        self::A_VALIDER           => ['fr' => 'À valider (secrétariat)',   'en' => 'Awaiting admin'],
+        self::A_VALIDER           => ['fr' => 'Pièces conformes, à valider', 'en' => 'Documents OK, awaiting admin'],
         self::VALIDE_SECRETARIAT  => ['fr' => 'Validé secrétariat',        'en' => 'Validated by admin'],
         self::VALIDE_COORDINATEUR => ['fr' => 'Validé coordinateur',       'en' => 'Validated by coordinator'],
         self::VALIDE_CHEF         => ['fr' => 'Validé chef de département', 'en' => 'Validated by dept. head'],

@@ -24,15 +24,19 @@
  * @var string                                                            $numEtu         Student number used in download filenames and JavaScript calls
  * @var array<string, array{file?: string, status?: string, comment?: string}> $pieces   Map of document type key to its stored file (base64), status, and admin comment
  * @var array<string, string>                                             $statuts        Map of document type key to its current validation status (overrides $pieces status when present)
+ * @var array<int, string>|null                                           $piecesRequises (optionnel) Pièces obligatoires de ce dossier. Si fourni : une pièce
+ *                                                                                        non obligatoire et non déposée n'est pas affichée ; déposée, elle
+ *                                                                                        est affichée avec la mention « Non requise » (et n'est pas comptée).
  */
 $languesEditable = $languesEditable ?? false;
+$piecesRequises  = (isset($piecesRequises) && is_array($piecesRequises)) ? $piecesRequises : null;
 
 $docTypes = [
-    'photo'             => $t(['fr' => 'Photo',                  'en' => 'Photo']),
-    'cv'                => $t(['fr' => 'CV',                     'en' => 'CV']),
-    'convention'        => $t(['fr' => 'Convention de stage',    'en' => 'Internship Agreement']),
-    'lettre_motivation' => $t(['fr' => 'Lettre de motivation',   'en' => 'Motivation Letter']),
-    'langues'           => $t(['fr' => 'Attestation de langues', 'en' => 'Language Certificate']),
+        'photo'             => $t(['fr' => 'Photo',                  'en' => 'Photo']),
+        'cv'                => $t(['fr' => 'CV',                     'en' => 'CV']),
+        'convention'        => $t(['fr' => 'Convention de stage',    'en' => 'Internship Agreement']),
+        'lettre_motivation' => $t(['fr' => 'Lettre de motivation',   'en' => 'Motivation Letter']),
+        'langues'           => $t(['fr' => 'Attestation de langues', 'en' => 'Language Certificate']),
 ];
 ?>
 
@@ -42,13 +46,21 @@ $docTypes = [
         $doc        = $pieces[$key] ?? null;
         $hasDoc     = !empty($doc['file']);
         $statut     = $statuts[$key] ?? ($doc['status'] ?? 'pending');
+        // Pas de fichier = rien à accepter ni refuser. Certaines données de test ont un statut
+        // « accepted » sans fichier : la carte était alors grisée et bloquée (bouton Modifier inactif).
+        if (!$hasDoc) $statut = 'pending';
         $comment    = $doc['comment'] ?? '';
         $isAccepted = ($statut === 'accepted');
         $isRefused  = ($statut === 'refused');
+        $isRequise  = $piecesRequises === null || in_array($key, $piecesRequises, true);
+        if (!$isRequise && !$hasDoc) continue; // pièce sans objet pour ce dossier
         ?>
         <div class="doc-review-item <?= $isAccepted ? 'is-accepted' : '' ?>" data-doctype="<?= $key ?>">
             <div class="doc-info">
                 <h4><?= $label ?></h4>
+                <?php if (!$isRequise) : ?>
+                    <span class="doc-non-requise"><?= $t(['fr' => 'Non requise pour ce dossier (non comptée)', 'en' => 'Not required for this folder (not counted)']) ?></span>
+                <?php endif; ?>
                 <?php if ($hasDoc) : ?>
                     <a href="data:application/octet-stream;base64,<?= strval($doc['file']) ?>"
                        download="<?= $key ?>_<?= $numEtu ?>" class="btn-download">
@@ -69,7 +81,7 @@ $docTypes = [
                            name="<?= $key === 'langues' ? 'langues_file' : $key ?>"
                            accept="<?= $key === 'photo' ? 'image/*' : '.pdf,.doc,.docx' ?>"
                            class="file-input-margin <?= $isAccepted ? 'input-disabled' : '' ?>"
-                           <?= $isAccepted ? 'disabled' : '' ?>>
+                            <?= $isAccepted ? 'disabled' : '' ?>>
                 <?php endif; ?>
             </div>
 
@@ -79,7 +91,7 @@ $docTypes = [
                     <div class="doc-status-shown">
                         <span class="doc-status-badge accepted">✅ <?= $t(['fr' => 'Acceptée', 'en' => 'Accepted']) ?></span>
                         <button type="button" class="btn-undo-accept"
-                                onclick="document.querySelector('.doc-review-item[data-doctype=\'<?= $key ?>\']').classList.add('editing')">
+                                onclick="const it = this.closest('.doc-review-item'); it.classList.add('editing'); it.querySelectorAll('input[type=file]').forEach(f => { f.disabled = false; f.classList.remove('input-disabled'); });">
                             ↩ <?= $t(['fr' => 'Modifier', 'en' => 'Change']) ?>
                         </button>
                     </div>
@@ -91,14 +103,14 @@ $docTypes = [
                     <div class="status-radios">
                         <label class="radio-accept">
                             <input type="radio" name="status_<?= $key ?>" value="accepted"
-                                <?= ($isAccepted || $statut === 'pending') ? 'checked' : '' ?>
-                                <?= !$hasDoc ? 'disabled' : '' ?>>
+                                    <?= ($isAccepted || $statut === 'pending') ? 'checked' : '' ?>
+                                    <?= !$hasDoc ? 'disabled' : '' ?>>
                             <?= $t(['fr' => 'Accepter', 'en' => 'Accept']) ?>
                         </label>
                         <label class="radio-refuse">
                             <input type="radio" name="status_<?= $key ?>" value="refused"
-                                <?= $isRefused ? 'checked' : '' ?>
-                                <?= !$hasDoc ? 'disabled' : '' ?>>
+                                    <?= $isRefused ? 'checked' : '' ?>
+                                    <?= !$hasDoc ? 'disabled' : '' ?>>
                             <?= $t(['fr' => 'Refuser', 'en' => 'Refuse']) ?>
                         </label>
                     </div>
@@ -113,7 +125,7 @@ $docTypes = [
                             data-numetu="<?= $numEtu ?>"
                             data-doctype="<?= $key ?>"
                             onclick="window.folderManager.confirmDocument('<?= $numEtu ?>', '<?= $key ?>')"
-                        <?= !$hasDoc ? 'disabled' : '' ?>>
+                            <?= !$hasDoc ? 'disabled' : '' ?>>
                         <?= $t(['fr' => 'Enregistrer', 'en' => 'Save']) ?>
                     </button>
                     <span class="doc-save-indicator" id="indicator_<?= $key ?>"></span>

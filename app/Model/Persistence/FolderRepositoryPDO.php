@@ -1042,6 +1042,47 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     // ===========================================================
 
     /**
+     * Liste des pièces obligatoires d'un dossier, selon le type et la mobilité.
+     *
+     * - Toujours : photo, CV, attestation de langues
+     * - Sortant en STAGE           : + convention de stage
+     * - Sortant en ÉTUDES          : rien de plus (pas de convention de stage)
+     * - Entrant                    : + lettre de motivation
+     * - Sortant, mobilité inconnue : + convention (règle d'origine, par prudence)
+     * - Type inconnu               : règle d'origine (selon les pièces déjà déposées)
+     *
+     * À compléter quand la liste exacte par type de mobilité sera connue (fichier Excel / prof).
+     *
+     * @param array<mixed> $pieces Contenu décodé de PiecesJustificatives
+     * @return array<int, string>
+     */
+    public static function piecesRequises(?string $type, ?string $mobilite, array $pieces): array
+    {
+        $type     = strtolower(trim($type ?? ''));
+        $mobilite = strtolower(trim($mobilite ?? ''));
+
+        $requises = ['photo', 'cv'];
+
+        if ($type === 'sortant') {
+            if ($mobilite !== 'etude' && $mobilite !== 'etudes') {
+                $requises[] = 'convention';
+            }
+        } elseif ($type === 'entrant') {
+            $requises[] = 'lettre_motivation';
+        } elseif (!empty($pieces['convention'])) {
+            $requises[] = 'convention';
+        } elseif (!empty($pieces['lettre_motivation'])) {
+            $requises[] = 'lettre_motivation';
+        } else {
+            $requises[] = 'convention';
+            $requises[] = 'lettre_motivation';
+        }
+
+        $requises[] = 'langues';
+        return $requises;
+    }
+
+    /**
      * Checks which required documents are missing or present.
      * * @param string $numetu
      * @return array{manquants: array<int, string>, presents: array<int, string>, statuts: array<string, string>}
@@ -1050,7 +1091,7 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     {
         try {
             $stmt = $this->db->prepare("
-                SELECT PiecesJustificatives, StatutDocuments, Type
+                SELECT PiecesJustificatives, StatutDocuments, Type, Mobilite
                 FROM dossiers
                 WHERE NumEtu = :numetu
                 LIMIT 1
@@ -1066,24 +1107,20 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $pieces     = json_decode($piecesJson, true) ?? [];
             if (!is_array($pieces)) $pieces = [];
 
-            $documentsRequis = ['photo', 'cv'];
-            $type = strtolower(trim(is_string($result['Type'] ?? null) ? $result['Type'] : ''));
-
-            if (!empty($pieces['convention']) || $type === 'sortant') {
-                $documentsRequis[] = 'convention';
-            } elseif (!empty($pieces['lettre_motivation']) || $type === 'entrant') {
-                $documentsRequis[] = 'lettre_motivation';
-            } else {
-                if (empty($pieces['convention']))        $documentsRequis[] = 'convention';
-                if (empty($pieces['lettre_motivation'])) $documentsRequis[] = 'lettre_motivation';
-            }
-
-            $documentsRequis[] = 'langues';
+            $documentsRequis = self::piecesRequises(
+                is_string($result['Type'] ?? null) ? $result['Type'] : null,
+                is_string($result['Mobilite'] ?? null) ? $result['Mobilite'] : null,
+                $pieces
+            );
 
             $manquants = [];
             $presents  = [];
             foreach ($documentsRequis as $doc) {
-                if (empty($pieces[$doc])) {
+                // Présente = un fichier non vide, que la pièce soit stockée en texte ("cv": "...")
+                // ou en objet ("cv": {"file": "...", ...}). Même règle que l'affichage (_doc_review).
+                $piece   = $pieces[$doc] ?? null;
+                $fichier = is_array($piece) ? ($piece['file'] ?? '') : $piece;
+                if (empty($fichier)) {
                     $manquants[] = $doc;
                 } else {
                     $presents[] = $doc;
@@ -1101,6 +1138,16 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                     if (is_scalar($key) && is_scalar($val)) {
                         $statuts[(string)$key] = (string)$val;
                     }
+                }
+            }
+
+            // Certains statuts ne sont enregistrés que dans PiecesJustificatives ({"cv": {"status": "accepted"}})
+            // et pas dans StatutDocuments. La page dossier les affiche quand même (_doc_review :
+            // StatutDocuments d'abord, sinon le statut de la pièce) : on applique la même règle ici,
+            // sinon une pièce affichée « Acceptée » n'est pas comptée.
+            foreach ($pieces as $key => $val) {
+                if (is_string($key) && !isset($statuts[$key]) && is_array($val) && is_scalar($val['status'] ?? null)) {
+                    $statuts[$key] = (string) $val['status'];
                 }
             }
 
