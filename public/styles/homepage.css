@@ -213,6 +213,15 @@ body.tritanopie .partner-cluster {
     background: #1a5c2a;
 }
 
+/* TRITANOPIE — fond de carte et marqueurs
+   Le fond OpenStreetMap et l'icône localisation.png sont des images :
+   on décale leurs teintes (bleu -> vert) comme le reste du site.
+   Les clusters (.partner-cluster) ont déjà leur couleur ci-dessus, on les exclut. */
+body.tritanopie .partners-map .leaflet-tile-pane,
+body.tritanopie .partners-map .leaflet-marker-icon:not(.partner-cluster) {
+    filter: hue-rotate(-75deg) saturate(0.9);
+}
+
 /* Fenetre d'une universite (specificite doublee : leaflet.css est charge apres) */
 .partner-popup {
     max-height: 280px;

@@ -72,7 +72,6 @@ use Controllers\HomeController\SuperAdminController;
 use Controllers\HomeController\HomeControllerCoordinateur;
 
 // Partners Controllers
-use Controllers\PartnersController\PartnersControllerStudent;
 use Controllers\PartnersController\PartnersControllerAdmin;
 // WebPlan (Sitemap) Controllers
 use Controllers\WebPlanController\WebPlanControllerAdmin;
@@ -103,7 +102,6 @@ $controllers = [
     FoldersControllerAdmin::class,
     FoldersControllerStudent::class,
     PartnersControllerAdmin::class,
-    PartnersControllerStudent::class,
     WebPlanController::class,
     WebPlanControllerAdmin::class,
     WebPlanControllerStudent::class,
