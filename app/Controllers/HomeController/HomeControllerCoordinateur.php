@@ -20,6 +20,62 @@ class HomeControllerCoordinateur implements ControllerInterface
         return $page === 'home-coordinateur';
     }
 
+    /** Valeur de filtre qui ne correspond à aucun dossier (compte sans département). */
+    public const AUCUN_DEPARTEMENT = '__aucun_departement__';
+
+    /**
+     * Les 3 cases de l'accueil du profil Département.
+     *
+     * - Incomplets (étape 1)
+     * - À valider par moi : coordinateur → dossiers validés par le secrétariat (étape 3),
+     *                       chef de dépt → dossiers validés par le coordinateur (étape 4)
+     * - Validés (étape 5, vert)
+     *
+     * Chaque case pointe vers la (ou les) liste(s) du rôle, filtrée(s) sur l'étape.
+     *
+     * @return array<int, array{etape: string, label: array{fr: string, en: string}, count: int, class: string, links: array<int, array{page: string, label: array{fr: string, en: string}}>}>
+     */
+    public static function buildWorkflowTiles(string $role, ?string $mobilite, \Model\Entity\WorkflowStats $ws): array
+    {
+        $isChef = $role === 'chef_departement';
+
+        // Page(s) de liste du rôle
+        $etude = ['page' => 'coordinateur-etude', 'label' => ['fr' => 'Études', 'en' => 'Studies']];
+        $stage = ['page' => 'coordinateur-stage', 'label' => ['fr' => 'Stages', 'en' => 'Internships']];
+        $links = match (true) {
+            $isChef                         => [['page' => 'chef-departement', 'label' => ['fr' => 'Voir', 'en' => 'View']]],
+            $role === 'coordinateur_etude'  => [$etude],
+            $role === 'coordinateur_stage'  => [$stage],
+            $mobilite === 'etude'           => [$etude],
+            $mobilite === 'stage'           => [$stage],
+            default                         => [$etude, $stage], // coordinateur études + stages
+        };
+
+        return [
+            [
+                'etape' => \Model\Entity\WorkflowStep::INCOMPLET,
+                'label' => ['fr' => 'Dossiers incomplets', 'en' => 'Incomplete folders'],
+                'count' => $ws->getIncomplete(),
+                'class' => 'incomplete',
+                'links' => $links,
+            ],
+            [
+                'etape' => $isChef ? \Model\Entity\WorkflowStep::VALIDE_COORDINATEUR : \Model\Entity\WorkflowStep::VALIDE_SECRETARIAT,
+                'label' => ['fr' => 'À valider par moi', 'en' => 'Awaiting my validation'],
+                'count' => $isChef ? $ws->getValidatedAdminAndCoordinateur() : $ws->getValidatedAdmin(),
+                'class' => 'a-valider-moi',
+                'links' => $links,
+            ],
+            [
+                'etape' => \Model\Entity\WorkflowStep::VALIDE_CHEF,
+                'label' => ['fr' => 'Dossiers validés', 'en' => 'Validated folders'],
+                'count' => $ws->getValidatedChefDepartement(),
+                'class' => 'complete',
+                'links' => $links,
+            ],
+        ];
+    }
+
     /**
      * Starts the session if it is not already active.
      */
@@ -104,17 +160,21 @@ class HomeControllerCoordinateur implements ControllerInterface
             $_SESSION['tritanopia'] = (strval($_GET['tritanopia']) === '1');
         }
 
-        // Mobility filter (study or internship)
+        $role = strval($_SESSION['role']);
+
+        // Mobility filter (study or internship).
+        // Un coordinateur études ne voit que les études, un coordinateur stage que les stages (CDC §9.2.2).
         $mobiliteFilter = null;
         if (isset($_GET['mobilite']) && in_array($_GET['mobilite'], ['etude', 'stage'], true)) {
             $mobiliteFilter = $_GET['mobilite'];
         }
+        if ($role === 'coordinateur_etude') $mobiliteFilter = 'etude';
+        if ($role === 'coordinateur_stage') $mobiliteFilter = 'stage';
 
-        // Department filter
-        $departementFilter = null;
-        if (isset($_GET['departement']) && !empty($_GET['departement'])) {
-            $departementFilter = strval($_GET['departement']);
-        }
+        // Department: always the one of the logged-in user (CDC §7.2 « leur département uniquement »).
+        // Le paramètre ?departement= de l'URL est ignoré. Sans département sur le compte : aucun dossier.
+        $userDepartement   = trim(strval($_SESSION['departement'] ?? ''));
+        $departementFilter = $userDepartement !== '' ? $userDepartement : self::AUCUN_DEPARTEMENT;
 
         // Retrieve all departments
         $allDepartements = [];
@@ -126,10 +186,26 @@ class HomeControllerCoordinateur implements ControllerInterface
 
         $stats                = null;
         $completionPercentage = 0.0;
+        $workflowGroups       = [];
 
         try {
             $useCase = $this->makeUseCase();
             $stats   = $useCase->execute($mobiliteFilter, $departementFilter);
+
+            // « Mes dossiers » : incomplets / à valider par moi / validés.
+            // Coordinateur études + stages sans filtre : un bloc Études et un bloc Stages,
+            // pour qu'il sache tout de suite dans quelle liste se trouvent les dossiers.
+            if ($role === 'coordinateur' && $mobiliteFilter === null) {
+                $blocs = ['etude' => ['fr' => 'Études', 'en' => 'Studies'], 'stage' => ['fr' => 'Stages', 'en' => 'Internships']];
+                foreach ($blocs as $mobilite => $titre) {
+                    $workflowGroups[] = [
+                        'titre' => $titre,
+                        'tiles' => self::buildWorkflowTiles($role, $mobilite, $useCase->execute($mobilite, $departementFilter)->getWorkflowStats()),
+                    ];
+                }
+            } else {
+                $workflowGroups[] = ['titre' => null, 'tiles' => self::buildWorkflowTiles($role, $mobiliteFilter, $stats->getWorkflowStats())];
+            }
 
             // Calculate folder completion percentage
             $dossierStats         = $stats->getDossierStats();
@@ -161,6 +237,8 @@ class HomeControllerCoordinateur implements ControllerInterface
             'stats'                => $stats,
             'mobiliteFilter'       => $mobiliteFilter,
             'departementFilter'    => $departementFilter,
+            'userDepartement'      => $userDepartement,
+            'workflowGroups'       => $workflowGroups,
             'allDepartements'      => $allDepartements,
             't'                    => $t,
             'buildUrl'             => $buildUrl,

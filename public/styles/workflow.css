@@ -154,8 +154,7 @@
 .table-etudiants td:nth-child(8) { white-space: normal; overflow: visible; }
 .table-etudiants td:nth-child(8) .etape-badge { white-space: normal; line-height: 1.25; border-radius: 8px; padding: 4px 8px; }
 
-
-
+/* ── Revue des pièces : pièce déposée mais non obligatoire pour ce dossier ── */
 .doc-non-requise {
     display: inline-block;
     margin: 2px 0 6px;
@@ -167,3 +166,17 @@
     font-size: 0.85em;
     font-weight: 700;
 }
+
+/* ── Accueil coordinateur / chef : case « À valider par moi » et liens multiples ── */
+.stat-item.a-valider-moi {
+    background: linear-gradient(135deg, #e3f0fb 0%, #cfe3f5 100%);
+    border: 3px solid #00558B;
+}
+.stat-links { display: flex; justify-content: center; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+.stat-links a { font-weight: 700; color: #00558B; }
+.dept-warning { margin: 8px auto 0; max-width: 900px; padding: 8px 12px; border-radius: 6px; background: #fff3e0; color: #b45309; text-align: center; }
+
+/* Accueil coordinateur études + stages : deux blocs de 3 cases */
+.workflow-group-title { margin: 6px 0 8px; color: #00558B; font-size: 1.3em; text-align: left; width: 100%; max-width: 1000px; margin-left: auto; margin-right: auto; }
+.workflow-grid--compact .stat-item { padding: 14px 10px; }
+.workflow-grid--compact .stat-number { font-size: 2.4rem; }

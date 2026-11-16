@@ -26,7 +26,6 @@
  *   $redirectPage is also set here for the hidden redirect_to field.
  * - _doc_review.php           : document review panel with $languesEditable = true
  *   (language certificate can be updated by the coordinator).
- * - _global_status.php        : global workflow status dropdown + update button.
  * - _modal_validation.php     : confirmation modal for save-and-notify
  *   ($redirectPage is reassigned to $PAGE before this include).
  *
@@ -59,7 +58,8 @@ $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
         || (strval($filters['composante'] ?? 'all')) !== 'all'
         || !empty($filters['date_debut'])
         || !empty($filters['date_fin'])
-        || !empty($filters['search']);
+        || !empty($filters['search'])
+        || (strval($filters['etape'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -112,9 +112,7 @@ ob_start();
                 ?>
             </div>
 
-            <?php
-            include __DIR__ . '/../Partials/_global_status.php';
-            ?>
+            <?php /* « Statut global » retiré : l'état du dossier est donné par la frise du circuit (en haut). */ ?>
 
             <div class="form-actions">
                 <button type="submit" class="btn-secondary">
@@ -160,6 +158,7 @@ ob_start();
         $viewPage         = $PAGE;
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = false;
+        $showEtapeFilter  = true; // filtre « Étape » (cases « Mes dossiers » de l'accueil)
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';
         ?>

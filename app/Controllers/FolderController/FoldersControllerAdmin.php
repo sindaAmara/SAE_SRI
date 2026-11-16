@@ -233,6 +233,17 @@ class FoldersControllerAdmin
             $redirectTo = 'folders-admin';
         }
 
+        // CDC §7.2 : un profil Département n'agit que sur les dossiers de son département
+        if (in_array($role, ['coordinateur', 'coordinateur_etude', 'coordinateur_stage', 'chef_departement'], true)) {
+            $dossier  = $this->folderUseCase->getStudentDetails($numetu);
+            $userDept = trim(strval($_SESSION['departement'] ?? ''));
+            if (!is_array($dossier) || $userDept === ''
+                || strcasecmp(trim(strval($dossier['CodeDepartement'] ?? '')), $userDept) !== 0) {
+                $_SESSION['message'] = $lang === 'en' ? 'This folder belongs to another department.' : 'Ce dossier appartient à un autre département.';
+                $this->redirect('index.php?page=' . $redirectTo . '&lang=' . $lang);
+            }
+        }
+
         $result = $decision === 'devalider'
             ? $this->folderUseCase->devaliderEtape($numetu, $etape, $role)
             : $this->folderUseCase->validerEtape($numetu, $etape, $role);

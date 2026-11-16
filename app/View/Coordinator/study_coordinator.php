@@ -23,7 +23,6 @@
  * - _form_fields.php          : folder form with only 'niveau_etude' and
  *   'moyenne_sans_bac' editable ($EDITABLE list, $allEditable = false).
  * - _doc_review.php           : document review panel with $languesEditable = true.
- * - _global_status.php        : global workflow status dropdown + update button.
  * - _modal_validation.php     : confirmation modal for save-and-notify.
  *
  * The form posts to index.php?page=update_student with a hidden redirect_to
@@ -53,7 +52,8 @@ $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
         || (strval($filters['zone']       ?? 'all')) !== 'all'
         || (strval($filters['complet']    ?? 'all')) !== 'all'
         || (strval($filters['composante'] ?? 'all')) !== 'all'
-        || !empty($filters['search']);
+        || !empty($filters['search'])
+        || (strval($filters['etape'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -108,7 +108,7 @@ ob_start();
                 ?>
             </div>
 
-            <?php include __DIR__ . '/../Partials/_global_status.php'; ?>
+            <?php /* « Statut global » retiré : l'état du dossier est donné par la frise du circuit (en haut). */ ?>
 
             <div class="form-actions">
                 <button type="submit" class="btn-secondary">
@@ -150,6 +150,7 @@ ob_start();
         <?php
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = false;
+        $showEtapeFilter  = true; // filtre « Étape » (cases « Mes dossiers » de l'accueil)
         $viewPage         = $PAGE;
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';

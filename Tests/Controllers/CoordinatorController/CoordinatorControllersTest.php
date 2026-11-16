@@ -247,10 +247,30 @@ class CoordinatorControllersTest extends TestCase
         $_POST['numetu']           = 'ETU001';
         $_POST['avis']             = 'accepte';
 
+        $_SESSION['departement']   = 'INFO'; // le chef ne décide que pour son département (CDC §7.2)
+
         [$controller, $useCaseMock] = $this->makeDeptController();
+        $useCaseMock->method('getStudentDetails')->willReturn(['CodeDepartement' => 'INFO']);
         $useCaseMock->expects($this->once())->method('setAvisChef')->with('ETU001', 'accepte');
 
         try { $controller->control(); } catch (\RuntimeException $e) {}
+    }
+
+    public function test_dept_post_set_avis_chef_refused_for_other_department(): void
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SESSION['role']          = 'chef_departement';
+        $_SESSION['departement']   = 'INFO';
+        $_POST['set_avis_chef']    = '1';
+        $_POST['numetu']           = 'ETU001';
+        $_POST['avis']             = 'accepte';
+
+        [$controller, $useCaseMock] = $this->makeDeptController();
+        $useCaseMock->method('getStudentDetails')->willReturn(['CodeDepartement' => 'GEA']);
+        $useCaseMock->expects($this->never())->method('setAvisChef');
+
+        try { $controller->control(); } catch (\RuntimeException $e) {}
+        $this->assertStringContainsString('autre département', strval($_SESSION['message'] ?? ''));
     }
 
     public function test_dept_post_set_avis_chef_redirects_after_save(): void

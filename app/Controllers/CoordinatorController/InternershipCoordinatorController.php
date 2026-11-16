@@ -85,6 +85,11 @@ class InternershipCoordinatorController implements ControllerInterface
         if (in_array($role, $rolesAvecDepartement, true) && !empty($_SESSION['departement'])) {
             $userDepartement = trim((string) $_SESSION['departement']);
         }
+        // CDC §7.2 : un profil Département ne voit que son département. Sans département sur le compte,
+        // on n'affiche rien (avant : le filtre de l'URL, donc potentiellement tous les départements).
+        if (in_array($role, $rolesAvecDepartement, true) && $userDepartement === null) {
+            $userDepartement = '__aucun_departement__';
+        }
 
         // Translation helper
         $t = function (array $translations) use ($lang): string {
@@ -104,6 +109,14 @@ class InternershipCoordinatorController implements ControllerInterface
         // Display details of a specific student folder
         if ($action === 'view' && !empty($_GET['numetu'])) {
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
+            // CDC §7.2 : pas d'accès aux dossiers d'un autre département
+            if (is_array($studentData) && $userDepartement !== null
+                && strcasecmp(trim(strval($studentData['CodeDepartement'] ?? '')), $userDepartement) !== 0) {
+                $_SESSION['message'] = $lang === 'en'
+                    ? 'This folder belongs to another department.'
+                    : "Ce dossier appartient à un autre département.";
+                $this->redirect('index.php?page=coordinateur-stage&lang=' . $lang); // retour à la liste, avec le message
+            }
         }
 
         // Filters applied to search internship folders
@@ -114,6 +127,7 @@ class InternershipCoordinatorController implements ControllerInterface
             'search'      => $_GET['search']  ?? '',
             'mobilite'    => 'stage',
             'departement' => $userDepartement ?? ($_GET['departement'] ?? 'all'),
+            'etape'       => $_GET['etape'] ?? 'all', // cases « Mes dossiers » de l'accueil
         ];
 
         // Pagination configuration

@@ -62,7 +62,8 @@ $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
         || (strval($filters['zone']       ?? 'all')) !== 'all'
         || (strval($filters['complet']    ?? 'all')) !== 'all'
         || (strval($filters['composante'] ?? 'all')) !== 'all'
-        || !empty($filters['search']);
+        || !empty($filters['search'])
+        || (strval($filters['etape'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -168,6 +169,7 @@ ob_start();
         <?php
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = false;
+        $showEtapeFilter  = true; // filtre « Étape » (cases « Mes dossiers » de l'accueil)
         $viewPage         = $PAGE;
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';
