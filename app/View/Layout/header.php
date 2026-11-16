@@ -187,8 +187,8 @@ $userRole === 'admin'        ? 'home-admin'        :
                     'en' => 'Home',
                 ],
                 'dashboard' => [
-                    'fr' => ($userRole === 'admin' ? 'Tableau de bord' : 'Mon Tableau de bord'),
-                    'en' => ($userRole === 'admin' ? 'Dashboard' : 'My Dashboard'),
+                    'fr' => ($userRole === 'admin' ? 'Formulaires' : 'Mon Tableau de bord'),
+                    'en' => ($userRole === 'admin' ? 'Forms' : 'My Dashboard'),
                 ],
                 'partners' => [
                     'fr' => 'Destinations',
@@ -209,7 +209,8 @@ $userRole === 'admin'        ? 'home-admin'        :
             }
 
             foreach ($menus as $key => $labels):
-                $isActive = $activeMenu === $key || $activeMenu === $key . $suffix;                $page     = $key . $suffix;
+                $isActive = $activeMenu === $key || $activeMenu === $key . $suffix;
+                $page     = ($key === 'dashboard' && $userRole === 'admin') ? 'stage-form-admin' : $key . $suffix;
                 $url      = 'index.php?page=' . urlencode($page) . '&lang=' . urlencode($lang);
 
                 if ($key === 'partners' && $userRole === 'student'):

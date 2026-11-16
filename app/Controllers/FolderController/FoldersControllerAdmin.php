@@ -3,6 +3,7 @@
 namespace Controllers\FolderController;
 
 use Model\UseCase\ManageFolderUseCase;
+use Model\UseCase\ManageStageFormUseCase;
 use Service\Email\EmailReminderService;
 use Core\View;
 
@@ -15,10 +16,12 @@ use Core\View;
 class FoldersControllerAdmin
 {
     private ManageFolderUseCase $folderUseCase;
+    private ManageStageFormUseCase $formUseCase;
 
     public function __construct()
     {
         $this->folderUseCase = new ManageFolderUseCase();
+        $this->formUseCase = new ManageStageFormUseCase();
     }
 
     /**
@@ -166,8 +169,10 @@ class FoldersControllerAdmin
 
         // Load student details when viewing a specific folder
         $studentData = null;
+        $stageFormResponse = null;
         if ($action === 'view' && !empty($_GET['numetu'])) {
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
+            $stageFormResponse = $this->formUseCase->getExistingResponse($_GET['numetu']);
         }
 
         $filters = [
@@ -191,6 +196,7 @@ class FoldersControllerAdmin
             'message'       => $message,
             'lang'          => $lang,
             'studentData'   => $studentData,
+            'stageFormResponse' => $stageFormResponse,
             'paginatedData' => $result['data'],
             'totalCount'    => $result['total'],
             'totalPages'    => 1,

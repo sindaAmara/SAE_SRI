@@ -1360,6 +1360,51 @@ tr:nth-child(even) {
     color: #7a5800;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Affichage des résultats des formulaires
+   ═══════════════════════════════════════════════════════════ */
+
+.stage-form-field {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.stage-form-field > strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.stage-form-evaluation {
+    white-space: pre-wrap;
+    padding: 0.75rem;
+    background: #f7f7f7;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.eval-toggle-cell { text-align: right; width: 2rem; }
+
+.eval-toggle {
+    background: #2a8fbd;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 2rem;
+    text-align: center;
+}
+
+.eval-detail-row td { background: #f7f7f7; cursor: default; }
+
+.eval-full {
+    white-space: pre-wrap;
+    margin-top: 0.25rem;
+}
 
 
 

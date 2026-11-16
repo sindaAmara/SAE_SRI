@@ -60,6 +60,7 @@ use Controllers\AuthController;
 use Controllers\DashboardController;
 use Controllers\NotFoundController;
 use Controllers\SaveStudentController;
+use Controllers\StageFormController;
 
 // Folder Controllers
 use Controllers\FolderController\FoldersControllerAdmin;
@@ -108,6 +109,7 @@ $controllers = [
     FoldersControllerAdmin::class,
     FoldersControllerStudent::class,
     DashboardController::class,
+    StageFormController::class,
     SaveStudentController::class,
     ContactControllerStudent::class,
     ContactControllerAdmin::class,
