@@ -375,6 +375,75 @@ h2 { color: #003366; border-bottom: 2px solid #ddd; padding-bottom: 10px; margin
     margin: 20px 0;
 }
 
+/* ─── Bouton formulaire de fin de stage ─── */
+.form-link-box {
+    text-align: center;
+    margin: 30px auto 0;
+}
+
+.form-link-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: var(--button-size);
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.form-link-btn:hover {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+}
+
+body.tritanopie .form-link-btn:hover {
+    background-color: var(--hover-color);
+}
+
+.stage-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Augmentez cette valeur (ex: 30px, 40px) pour sauter plus de lignes entre les parties */
+    max-width: 700px;
+    margin: 30px auto;
+}
+
+.stage-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Espace entre le label et le champ */
+}
+
+.stage-form input,
+.stage-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.stage-form .form-actions {
+    margin-top: 15px; /* Espace supplémentaire avant le bouton */
+    display: flex;
+    justify-content: flex-start; /* Mettez 'center' pour centrer le bouton */
+}
+
+.form-notice {
+    display: block !important;
+    background: #e7f3fe;
+    border-left: 6px solid #2196F3;
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 12px 15px;
+    color: #333;
+    font-size: 0.95rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
 /* ======= RESPONSIVE  ======= */
 @media (max-width: 1024px) {
     main {

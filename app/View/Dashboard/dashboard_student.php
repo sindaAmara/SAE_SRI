@@ -74,8 +74,8 @@ elseif ($status === 'refuse') $decisionClass = 'decision-refused';
     </div>
 
     <?php if (in_array($status, ['accepte'], true)):?>
-        <div class="form-link">
-            <a href="index.php?page=stage-form">
+        <div class="form-link-box">
+            <a href="index.php?page=stage-form" class="form-link-btn">
                 <?= $t(['fr' => 'Formulaire de fin de stage', 'en' => 'End-of-internship form']) ?>
             </a>
         </div>
