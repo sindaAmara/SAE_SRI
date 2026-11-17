@@ -125,10 +125,7 @@ ob_start();
                 ?>
             </div>
 
-            <?php
-            $currentStatus = $globalStatus;
-            include __DIR__ . '/../Partials/_global_status.php';
-            ?>
+            <?php /* « Statut global » retiré : l'état du dossier est donné par la frise du circuit (en haut). */ ?>
 
             <div class="form-actions">
                 <button type="submit" class="btn-secondary">
