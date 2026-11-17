@@ -232,6 +232,37 @@ class WorkflowValidationTest extends TestCase
         $this->assertNull($this->useCase->getEtape('E2'));
     }
 
+    // ── synchroniserTous (script cron/recalcul_complet.php) ──────
+
+    public function test_synchroniserTous_simulation_changes_nothing(): void
+    {
+        $this->repo->method('findAll')->willReturn([['NumEtu' => 'E1', 'Prenom' => 'Jean', 'Nom' => 'Dupont']]);
+        $this->repo->method('findByNumEtu')->willReturn($this->row(1, 0, 0, 'accepte'));
+        $this->docs([], ['photo', 'cv'], ['photo' => 'accepted', 'cv' => 'pending']);
+        $this->repo->expects($this->never())->method('toggleCompleteStatus');
+        $this->repo->expects($this->never())->method('setAvisChef');
+
+        $this->assertSame([[
+            'numEtu' => 'E1', 'nom' => 'Jean Dupont', 'avant' => 'complet', 'apres' => 'incomplet',
+            'pieces' => '1/2', 'validationsAnnulees' => true,
+        ]], $this->useCase->synchroniserTous(true));
+    }
+
+    public function test_synchroniserTous_applies_and_skips_up_to_date_folders(): void
+    {
+        $this->repo->method('findAll')->willReturn([['NumEtu' => 'E1'], ['NumEtu' => 'E2']]);
+        $this->repo->method('findByNumEtu')->willReturnCallback(
+            fn(string $n) => $n === 'E1' ? $this->row(0, 0, 0) : $this->row(1, 0, 0)
+        );
+        // Toutes les pièces acceptées : E1 (incomplet) doit passer complet, E2 (déjà complet) ne bouge pas
+        $this->docs([], ['photo'], ['photo' => 'accepted']);
+        $this->repo->expects($this->once())->method('toggleCompleteStatus')->with('E1')->willReturn(true);
+
+        $changes = $this->useCase->synchroniserTous();
+        $this->assertCount(1, $changes);
+        $this->assertSame('complet', $changes[0]['apres']);
+    }
+
     // ── setAvisChef protégé ──────────────────────────────────────
 
     public function test_chef_cannot_decide_before_coordinator(): void
