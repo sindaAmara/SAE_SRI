@@ -59,13 +59,6 @@ ob_start();
         <nav class="menu">
             <button class="active" onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'home-student']) ?>'"><?= $t(['fr' => 'Accueil','en' => 'Home']) ?></button>
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'dashboard-student']) ?>'"><?= $t(['fr' => 'Mon Tableau de bord','en' => 'My Dashboard']) ?></button>
-            <div class="dropdown">
-                <button><?= $t(['fr' => 'Destinations','en' => 'Destinations']) ?></button>
-                <div class="dropdown-content">
-                    <a href="<?= $buildUrl('index.php', ['page' => 'partners-student', 'partner' => 'amu']) ?>">AMU</a>
-                    <a href="<?= $buildUrl('index.php', ['page' => 'partners-student', 'partner' => 'iut']) ?>">IUT</a>
-                </div>
-            </div>
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'folders-student']) ?>'"><?= $t(['fr' => 'Mon Dossier','en' => 'My Profil']) ?></button>
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'contact-student']) ?>'"><?= $t(['fr' => 'Contact','en' => 'Contact']) ?></button>
 

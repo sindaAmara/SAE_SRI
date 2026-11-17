@@ -98,7 +98,12 @@ class BobApi {
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ messages: history })
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+            // On récupère le message d'erreur du serveur pour l'afficher dans la console
+            let detail = '';
+            try { detail = (await res.json()).error ?? ''; } catch (e) {}
+            throw new Error(`HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
+        }
 
         const data = await res.json();
         if (data.error) throw new Error(data.error);
