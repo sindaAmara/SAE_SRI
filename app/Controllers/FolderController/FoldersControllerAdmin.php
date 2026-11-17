@@ -4,6 +4,7 @@ namespace Controllers\FolderController;
 
 use Model\UseCase\ManageFolderUseCase;
 use Model\Entity\WorkflowStep;
+use Model\UseCase\ManageStageFormUseCase;
 use Service\Email\EmailReminderService;
 use Core\View;
 
@@ -16,10 +17,12 @@ use Core\View;
 class FoldersControllerAdmin
 {
     private ManageFolderUseCase $folderUseCase;
+    private ManageStageFormUseCase $formUseCase;
 
     public function __construct()
     {
         $this->folderUseCase = new ManageFolderUseCase();
+        $this->formUseCase = new ManageStageFormUseCase();
     }
 
     /**
@@ -170,11 +173,14 @@ class FoldersControllerAdmin
         $studentData       = null;
         $progressionPieces = null;
         $piecesRequises    = null;
+        $studentData = null;
+        $stageFormResponse = null;
         if ($action === 'view' && !empty($_GET['numetu'])) {
             // Les anciens dossiers peuvent être marqués complets alors que des pièces manquent
             // (ou l'inverse) : on corrige à l'ouverture, avant d'afficher la frise.
             $this->folderUseCase->synchroniserComplet(strval($_GET['numetu']));
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
+            $stageFormResponse = $this->formUseCase->getExistingResponse($_GET['numetu']);
             // Pièces acceptées / requises, affiché dans la frise à l'étape 1
             $progressionPieces = $this->folderUseCase->progressionPieces(strval($_GET['numetu']));
             // Pièces obligatoires : les autres sont masquées (ou marquées « non requise ») dans la revue
@@ -206,6 +212,7 @@ class FoldersControllerAdmin
             'message'       => $message,
             'lang'          => $lang,
             'studentData'   => $studentData,
+            'stageFormResponse' => $stageFormResponse,
             'progressionPieces' => $progressionPieces,
             'piecesRequises'    => $piecesRequises,
             'paginatedData' => $result['data'],

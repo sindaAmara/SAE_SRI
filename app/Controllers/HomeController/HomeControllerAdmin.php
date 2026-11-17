@@ -3,6 +3,7 @@
 namespace Controllers\HomeController;
 
 use Controllers\ControllerInterface;
+use Model\UseCase\ManageFolderUseCase;
 use PDOException;
 use Model\UseCase\GetAdminStatsUseCase;
 use Core\View;

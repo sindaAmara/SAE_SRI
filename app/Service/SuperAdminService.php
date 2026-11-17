@@ -132,6 +132,10 @@ class SuperAdminService
             . "Login : $email\nMot de passe : $password\nRôle : $role$extra\n\n"
             . "Connectez-vous sur : https://votre-site.fr\n\nCordialement,\nL'équipe AMU";
 
-        mail($email, $subject, $body, "From: noreply@univ-amu.fr");
+        $success = mail($email, $subject, $body, "From: noreply@univ-amu.fr");
+        if (!$success) {
+            $errorMessage = error_get_last()['message'];
+            var_dump("Erreur lors de l'envoi de l'email : $errorMessage");
+        }
     }
 }

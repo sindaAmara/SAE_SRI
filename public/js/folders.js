@@ -225,7 +225,7 @@ class AccordionManager {
             const paginationContainer = section.querySelector('.accordion-pagination');
             if (!tbody || !paginationContainer) return;
 
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.eval-detail-row)'));
             if (rows.length <= this.itemsPerPage) { paginationContainer.style.display = 'none'; return; }
 
             const totalPages = Math.ceil(rows.length / this.itemsPerPage);
@@ -233,6 +233,14 @@ class AccordionManager {
             const showPage = (page) => {
                 rows.forEach((row, index) => {
                     row.style.display = (index >= (page - 1) * this.itemsPerPage && index < page * this.itemsPerPage) ? '' : 'none';
+
+                    // Referme l'évaluation associée lors d'un changement de page
+                    const detail = row.nextElementSibling;
+                    if (detail && detail.classList.contains('eval-detail-row')) {
+                        detail.style.display = 'none';
+                        const arrow = row.querySelector('.eval-toggle');
+                        if (arrow) { arrow.textContent = '▼'; arrow.setAttribute('aria-expanded', 'false'); }
+                    }
                 });
                 renderButtons(page);
             };

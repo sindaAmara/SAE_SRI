@@ -8,9 +8,11 @@
  * to the student dashboard, partner destination pages (AMU / IUT), the student
  * folder, and the contact page.
  *
- * Below the header, a hero section displays the AMU logo followed by a
- * promotional banner whose image switches to the tritanopia-friendly version
- * when the corresponding session preference is active.
+ * Below the header, a hero section displays the AMU logo, followed by an
+ * interactive world map (Leaflet) showing AMU or IUT partner institutions,
+ * toggled via an AMU/IUT switch. Marker data is fetched asynchronously from
+ * index.php?page=api-partners-map&site=amu|iut (see js/partners_map.js) and
+ * rendered with a custom pin icon (img/localisation.png).
  *
  * The rendered HTML is captured via output buffering into $content and passed
  * to the base_home layout along with the page title, active menu key, styles,
@@ -21,8 +23,6 @@
  * @var Closure(string, array<string, mixed>=): string $buildUrl   URL builder callable — accepts a base URL and an optional query-parameter array
  * @var bool                                          $isLoggedIn  Whether the current user is authenticated; controls the login/logout button
  */
-
-$isTritanopia = !empty($_SESSION['tritanopia']) && ((bool)$_SESSION['tritanopia'] === true);
 
 ob_start();
 ?>
@@ -76,21 +76,27 @@ ob_start();
         <img class="hero_logo" src="img/amu.png" alt="AMU Logo Large">
     </section>
 
-    <section class="pub-section">
-        <img id="pub_amu"
-             src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
-             alt="Promotion AMU">
+    <section class="partners-map-section">
         <div class="pub-text">
             <?= $t([
-                'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
-                'en' => 'Aix-Marseille University, a university open to the world'
+                    'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
+                    'en' => 'Aix-Marseille University, a university open to the world'
             ]) ?>
         </div>
+
+        <div class="partners-map-toggle" role="group" aria-label="<?= htmlspecialchars($t(['fr' => 'Choix des partenaires', 'en' => 'Partner selection'])) ?>">
+            <button type="button" class="map-toggle-btn active" data-site="amu">AMU</button>
+            <button type="button" class="map-toggle-btn" data-site="iut">IUT</button>
+        </div>
+
+        <div id="partners-map" class="partners-map" aria-live="polite"></div>
     </section>
 
     <div id="app-config"
          data-lang="<?= htmlspecialchars($lang) ?>"
          data-role="student"
+         data-api-partners-map="<?= htmlspecialchars($buildUrl('index.php', ['page' => 'api-partners-map'])) ?>"
+         data-icon-localisation="img/localisation.png"
          style="display:none;">
     </div>
 
@@ -98,17 +104,23 @@ ob_start();
 $content = ob_get_clean();
 
 $title = $t([
-    'fr' => 'Accueil - Service des relations internationales AMU',
-    'en' => 'Home - International Relations Service AMU'
+        'fr' => 'Accueil - Service des relations internationales AMU',
+        'en' => 'Home - International Relations Service AMU'
 ]);
-$styles = ['styles/homepage.css'];
-$scripts = [];
+$styles = [
+        'styles/homepage.css',
+        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+];
+$scripts = [
+        'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+        'js/partners_map.js',
+];
 $activeMenu = 'home';
 $userRole = 'student';
 
 $metaDescription = $t([
-    'fr' => 'Service des relations internationales de l\'AMU. Informations pour étudiants internationaux, échanges universitaires et partenariats.',
-    'en' => 'International Relations Service of AMU. Info for international students, university exchanges, and partnerships.'
+        'fr' => 'Service des relations internationales de l\'AMU. Informations pour étudiants internationaux, échanges universitaires et partenariats.',
+        'en' => 'International Relations Service of AMU. Info for international students, university exchanges, and partnerships.'
 ]);
 
 include __DIR__ . '/../Layout/base_home.php';

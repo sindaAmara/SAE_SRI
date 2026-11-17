@@ -127,7 +127,8 @@ class ContactControllerAdmin implements ControllerInterface
                 'conversation'   => $conversation,
                 'lang'           => $lang,
                 't'              => $t,
-                'buildUrl'       => $buildUrl,
+                'buildUrl' => $buildUrl,
+            'userRole' => 'admin',
                 'action'         => $action,
                 'conversationId' => $conversationId,
             ]);
@@ -144,7 +145,8 @@ class ContactControllerAdmin implements ControllerInterface
                 'filter'        => $filter,
                 'lang'          => $lang,
                 't'             => $t,
-                'buildUrl'      => $buildUrl,
+                'buildUrl' => $buildUrl,
+            'userRole' => 'admin',
                 'action'        => $action,
             ]);
         }

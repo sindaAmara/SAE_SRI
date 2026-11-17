@@ -78,5 +78,13 @@ $isTritanopia = !empty($_SESSION['tritanopia']) && ((bool)$_SESSION['tritanopia'
     <img src="img/logo_amu_login.png" alt="Aix-Marseille University Logo" class="logo-amu">
 
 </div>
+<script>
+    // Retour à la connexion : on efface la conversation du chatbot Bob
+    try {
+        Object.keys(localStorage)
+            .filter(k => k.startsWith('bob_chat_'))
+            .forEach(k => localStorage.removeItem(k));
+    } catch (e) {}
+</script>
 </body>
 </html>

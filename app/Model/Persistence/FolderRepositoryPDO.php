@@ -545,13 +545,13 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         try {
             $stmt = $this->db->prepare("
             SELECT NumEtu, Nom, Prenom, DateNaissance, Sexe, Adresse, CodePostal, Ville,
-                   EmailPersonnel, EmailAMU, Telephone, CodeDepartement, Composante, Type, Zone, Pays,
-                   Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
-                   DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
-                   StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
-                   avis_chef_departement, Mobilite,
-                   valide_admin, date_validation_admin,
-                   valide_coordinateur, date_validation_coordinateur
+       EmailPersonnel, EmailAMU, Telephone, CodeDepartement, Composante, Type, Zone, Pays,
+       Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
+       DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
+       StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
+       avis_chef_departement, Mobilite, Destination, Continent,
+       valide_admin, date_validation_admin,
+       valide_coordinateur, date_validation_coordinateur
             FROM dossiers WHERE NumEtu = :numetu LIMIT 1
         ");
             $stmt->execute([':numetu' => $numEtu]);

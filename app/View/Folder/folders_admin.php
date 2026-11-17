@@ -60,6 +60,7 @@
  * @var string                           $lang          Current language code (e.g. 'fr' or 'en')
  * @var string                           $action        View mode: 'view' for the detail form, any other value for the list
  * @var array<string, mixed>|null        $studentData   Full folder data array from the repository (including 'pieces', 'statuts', and metadata); null when the student was not found
+ * @var array<string, mixed>|null        $stageFormResponse Existing end-of-internship form response for this student, or null
  * @var array<string, mixed>             $filters       Current active filter values keyed by filter name (type, zone, complet, composante, accord, date_debut, date_fin, search, etape, mobilite, departement)
  * @var int                              $totalCount    Total number of folders matching the active filters (used by the student table partial)
  * @var array<int, array<string, mixed>> $paginatedData Current page of folder records for the student table partial
@@ -188,6 +189,40 @@ ob_start();
                 ?>
             </div>
 
+            <h2><?= $t(['fr' => 'Formulaire de fin de stage', 'en' => 'End-of-internship form']) ?></h2>
+            <div class="form-section full-width">
+                <?php if (!$stageFormResponse) : ?>
+                    <p><?= $t(['fr' => 'Aucune réponse soumise pour le moment.', 'en' => 'No response submitted yet.']) ?></p>
+                <?php else : ?>
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?></strong>
+                        <div><?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></div>
+                    </div>
+
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?></strong>
+                        <div>
+                            <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
+                            <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?>
+                        </div>
+                    </div>
+
+                    <div class="stage-form-field">
+                        <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
+                        <div class="stage-form-evaluation">
+                            <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                        </div>
+                    </div>
+
+                    <div class="stage-form-field">
+                        <small>
+                            <?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
+                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?>
+                        </small>
+                    </div>
+                <?php endif; ?>
+            </div>
+
             <?php /* Ancien « statut global » (dépôt / instruction / accepté / refusé) retiré :
                      l'état du dossier est désormais donné par la frise du circuit de validation. */ ?>
 
@@ -280,8 +315,8 @@ ob_start();
 $content = ob_get_clean();
 
 $title      = $t(['fr' => 'Gestion des dossiers - Admin', 'en' => 'Profiles Management - Admin']);
-$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/workflow.css'];
-$scripts    = ['js/folders.js'];
+$styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/flatpickr.min.css', 'styles/workflow.css'];
+$scripts    = ['js/folders.js', 'js/flatpickr.min.js', 'js/flatpickr.init.js'];
 $activeMenu = $PAGE;
 $userRole   = 'admin';
 

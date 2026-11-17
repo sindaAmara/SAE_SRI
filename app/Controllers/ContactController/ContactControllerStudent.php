@@ -142,6 +142,7 @@ class ContactControllerStudent implements ControllerInterface
             'action' => $action,
             't' => $t,
             'buildUrl' => $buildUrl,
+            'userRole' => 'student',
             'messageSent' => $messageSent,
             'error' => $error,
             'contactInfo' => $contactInfo,
