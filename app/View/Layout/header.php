@@ -52,8 +52,7 @@
  *   - 'student' adds a Contact item.
  *   Page URLs use a $suffix ('-admin' or '-student') appended to the menu key.
  *   The active state is true when $activeMenu equals the key or key+suffix.
- *   The 'partners' item for students is rendered as a drop-down (.dropdown)
- *   with two sub-links: ?partner=amu and ?partner=iut.
+ *   - 'student' has no Destinations (partners) item.
  *
  * @var string|null   $lang        Current language code; falls back to $_SESSION['lang'] or 'fr'
  * @var string|null   $activeMenu  Identifier of the current active nav item for highlighting
@@ -187,8 +186,8 @@ $userRole === 'admin'        ? 'home-admin'        :
                     'en' => 'Home',
                 ],
                 'dashboard' => [
-                    'fr' => ($userRole === 'admin' ? 'Formulaires' : 'Mon Tableau de bord'),
-                    'en' => ($userRole === 'admin' ? 'Forms' : 'My Dashboard'),
+                    'fr' => ($userRole === 'admin' ? 'Tableau de bord' : 'Mon Tableau de bord'),
+                    'en' => ($userRole === 'admin' ? 'Dashboard' : 'My Dashboard'),
                 ],
                 'partners' => [
                     'fr' => 'Destinations',
@@ -205,35 +204,21 @@ $userRole === 'admin'        ? 'home-admin'        :
             }
 
             if ($userRole === 'student') {
+                unset($menus['partners']);
                 $menus['contact'] = ['fr' => 'Contact', 'en' => 'Contact'];
             }
 
             foreach ($menus as $key => $labels):
                 $isActive = $activeMenu === $key || $activeMenu === $key . $suffix;
-                $page     = ($key === 'dashboard' && $userRole === 'admin') ? 'stage-form-admin' : $key . $suffix;
+                $page     = $key . $suffix;
                 $url      = 'index.php?page=' . urlencode($page) . '&lang=' . urlencode($lang);
-
-                if ($key === 'partners' && $userRole === 'student'):
-                    $urlAmu = 'index.php?page=partners-student&partner=amu&lang=' . urlencode($lang);
-                    $urlIut = 'index.php?page=partners-student&partner=iut&lang=' . urlencode($lang);
-                    ?>
-                    <div class="dropdown <?= $isActive ? 'active' : '' ?>">
-                        <button <?= $isActive ? 'class="active"' : '' ?>>
-                            <?= $t($labels) ?>
-                        </button>
-                        <div class="dropdown-content">
-                            <a href="<?= htmlspecialchars($urlAmu) ?>">AMU</a>
-                            <a href="<?= htmlspecialchars($urlIut) ?>">IUT</a>
-                        </div>
-                    </div>
-                <?php else : ?>
-                    <button
-                        <?= $isActive ? 'class="active"' : '' ?>
-                            onclick="window.location.href='<?= htmlspecialchars($url) ?>'">
-                        <?= $t($labels) ?>
-                    </button>
-                <?php endif;
-            endforeach; ?>
+                ?>
+                <button
+                    <?= $isActive ? 'class="active"' : '' ?>
+                        onclick="window.location.href='<?= htmlspecialchars($url) ?>'">
+                    <?= $t($labels) ?>
+                </button>
+            <?php endforeach; ?>
 
         <?php endif; ?>
 
