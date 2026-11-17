@@ -12,7 +12,8 @@
  *
  * Each row displays: last name, first name, mobility direction (incoming/outgoing),
  * component, department, mobility type (stage/études), reminder badge count,
- * and a colour-coded status badge (depot / instruction / accepte / refuse).
+ * and the folder status = validation-workflow step badge (WorkflowStep, 5 étapes).
+ * (The old global status depot / instruction / accepte / refuse is no longer shown.)
  *
  * @var array<int, array<string, mixed>> $paginatedData  Current page of student records from the repository
  * @var int                              $totalCount     Total number of matching students (across all pages)
@@ -78,10 +79,11 @@ foreach ($paginatedData as $etudiant) {
                         $eType        = strval($etudiant['Type']            ?? '');
                         $eComposante  = strval($etudiant['Composante']      ?? '-');
                         $eDepartement = strval($etudiant['CodeDepartement'] ?? '-');
-                        $nbRelances = isset($etudiant['nb_relances']) && is_numeric($etudiant['nb_relances']) 
-                                    ? (int)$etudiant['nb_relances'] 
-                                    : 0;
-                        $eStatus      = strval($etudiant['status']          ?? 'depot');
+                        $nbRelances = isset($etudiant['nb_relances']) && is_numeric($etudiant['nb_relances'])
+                                ? (int)$etudiant['nb_relances']
+                                : 0;
+                        $eEtape       = strval($etudiant['etape'] ?? \Model\Entity\WorkflowStep::fromRow($etudiant));
+                        $eEtapeLabel  = \Model\Entity\WorkflowStep::LABELS[$eEtape] ?? null;
                         $rowUrl       = $buildUrl('index.php', ['page' => $viewPage, 'action' => 'view', 'numetu' =>$eNumEtu]);
                         ?>
                         <tr class="clickable-row"
@@ -101,14 +103,10 @@ foreach ($paginatedData as $etudiant) {
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if ($eStatus === 'accepte') : ?>
-                                    <span class="status-badge accepte">Accepté</span>
-                                <?php elseif ($eStatus === 'refuse') : ?>
-                                    <span class="status-badge refuse">Refusé</span>
-                                <?php elseif ($eStatus === 'instruction') : ?>
-                                    <span class="status-badge instruction">En instruction</span>
+                                <?php if ($eEtapeLabel !== null) : ?>
+                                    <span class="etape-badge etape-badge--<?= htmlspecialchars($eEtape) ?>"><?= htmlspecialchars($t($eEtapeLabel)) ?></span>
                                 <?php else : ?>
-                                    <span class="status-badge depot">Dépôt</span>
+                                    -
                                 <?php endif; ?>
                             </td>
                         </tr>

@@ -12,6 +12,7 @@ class MainApp {
         this.initLanguageDropdown();
         this.initThemeToggle();
         this.initAutoDismissMessages();
+        this.initHeaderHeight(); 
     }
 
     /**
@@ -97,9 +98,27 @@ class MainApp {
                     msg.style.transition = 'opacity 0.5s ease';
                     msg.style.opacity = '0';
                     setTimeout(() => msg.remove(), 500);
-                }, 5000);
+                }, 7000);
             }
         });
+    }
+
+    /**
+     * Publishes the real header height as the CSS variable --header-h so the
+     * home pages can size their photo to exactly fill the remaining viewport.
+     * Follows header size changes (burger menu, window resize).
+     */
+    initHeaderHeight() {
+        const header = document.querySelector('header');
+        if (!header) return;
+
+        const update = () => {
+            document.documentElement.style.setProperty('--header-h', header.offsetHeight + 'px');
+        };
+
+        update();
+        window.addEventListener('resize', update);
+        if (window.ResizeObserver) new ResizeObserver(update).observe(header);
     }
 
     /**

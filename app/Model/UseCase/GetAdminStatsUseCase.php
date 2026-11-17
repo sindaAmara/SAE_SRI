@@ -67,6 +67,8 @@ class GetAdminStatsUseCase
             $this->repository->getDepartmentStats(5, $mobiliteFilter, $departementFilter)
         );
 
+        $workflowStats = $this->repository->getWorkflowStats($mobiliteFilter, $departementFilter);
+
         return new AdminStats(
             dossierStats:            $dossierStats,
             topCountries:            $topCountries,
@@ -77,6 +79,7 @@ class GetAdminStatsUseCase
             zoneStats:               $continents,
             europeCountriesCount:    $europeStats['europe_countries'],
             nonEuropeCountriesCount: $europeStats['non_europe_countries'],
+            workflowStats:           $workflowStats,
         );
     }
 }

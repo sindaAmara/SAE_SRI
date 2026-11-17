@@ -6,6 +6,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Model\Repository\FolderRepositoryInterface;
 use Model\Persistence\FolderRepositoryPDO;
+use Model\Entity\WorkflowStep;
 
 /**
  * ManageFolderUseCase
@@ -135,6 +136,15 @@ class ManageFolderUseCase
      */
     public function setAvisChef(string $numEtu, ?string $avis): bool
     {
+        // Le chef ne peut décider qu'une fois le coordinateur passé (étape 4 atteinte).
+        // La remise à zéro (null) reste toujours possible.
+        if ($avis !== null) {
+            $row = $this->dossierRepo->findByNumEtu($numEtu);
+            if ($row === null || WorkflowStep::index(WorkflowStep::fromRow($row)) < WorkflowStep::index(WorkflowStep::VALIDE_COORDINATEUR)) {
+                return false;
+            }
+        }
+
         $result = $this->dossierRepo->setAvisChef($numEtu, $avis);
 
         if ($result && $avis === 'refuse') {
@@ -142,6 +152,263 @@ class ManageFolderUseCase
         }
 
         return $result;
+    }
+
+
+    /**
+     * Records or resets the admin/secretariat validation of a folder.
+     *
+     * @param string $numEtu Student number identifying the folder
+     * @param bool   $value  True to validate, false to reset
+     * @return bool True on success, false on failure
+     */
+    public function setValideAdmin(string $numEtu, bool $value): bool
+    {
+        return $this->dossierRepo->setValideAdmin($numEtu, $value);
+    }
+
+    /**
+     * Records or resets the coordinator validation of a folder.
+     *
+     * @param string $numEtu Student number identifying the folder
+     * @param bool   $value  True to validate, false to reset
+     * @return bool True on success, false on failure
+     */
+    public function setValideCoordinateur(string $numEtu, bool $value): bool
+    {
+        return $this->dossierRepo->setValideCoordinateur($numEtu, $value);
+    }
+
+    // ===========================================================
+    // CIRCUIT DE VALIDATION ÉTAPE PAR ÉTAPE
+    // ===========================================================
+    //
+    // Étape 1 → 2 (incomplet → complet) : AUTOMATIQUE, voir synchroniserComplet().
+    //   Le dossier est complet dès que toutes les pièces requises sont acceptées.
+    // Étape 2 → 3 : validation administrative (secrétariat) — bouton.
+    // Étape 3 → 4 : validation du coordinateur — bouton.
+    // Étape 4 → 5 : décision du chef de département — setAvisChef().
+
+    /**
+     * Pour chaque action de validation manuelle : l'étape atteinte une fois validée.
+     *
+     * @var array<string, string>
+     */
+    public const ETAPE_ACTIONS = [
+        'secretariat'  => WorkflowStep::VALIDE_SECRETARIAT,
+        'coordinateur' => WorkflowStep::VALIDE_COORDINATEUR,
+    ];
+
+    /**
+     * Rôles autorisés pour chaque action.
+     *
+     * @var array<string, array<int, string>>
+     */
+    public const ETAPE_ROLES = [
+        'secretariat'  => ['admin'],
+        'coordinateur' => ['coordinateur', 'coordinateur_etude', 'coordinateur_stage'],
+    ];
+
+    /** Vrai si le rôle a le droit d'effectuer cette action sur le circuit. */
+    public static function peutAgirSurEtape(string $action, string $role): bool
+    {
+        return in_array($role, self::ETAPE_ROLES[$action] ?? [], true);
+    }
+
+    /** Étape actuelle du dossier (code WorkflowStep), ou null si le dossier n'existe pas. */
+    public function getEtape(string $numEtu): ?string
+    {
+        $row = $this->dossierRepo->findByNumEtu($numEtu);
+        return $row === null ? null : WorkflowStep::fromRow($row);
+    }
+
+    /**
+     * Valide une étape du circuit, uniquement si l'étape précédente est validée.
+     *
+     * @param string $action 'secretariat' | 'coordinateur'
+     * @param string $role   Rôle de l'utilisateur connecté ($_SESSION['role'])
+     * @return array{success: bool, error: string|null}
+     *         error : 'unknown_action' | 'forbidden' | 'not_found' | 'already_done' | 'wrong_order' | 'db'
+     */
+    public function validerEtape(string $numEtu, string $action, string $role): array
+    {
+        $check = $this->checkEtape($numEtu, $action, $role);
+        if ($check['error'] !== null) return ['success' => false, 'error' => $check['error']];
+
+        $current = $check['current'];
+        $target  = WorkflowStep::index(self::ETAPE_ACTIONS[$action]);
+
+        if ($current >= $target)      return ['success' => false, 'error' => 'already_done'];
+        if ($current !== $target - 1) return ['success' => false, 'error' => 'wrong_order'];
+
+        $ok = $action === 'secretariat'
+            ? $this->dossierRepo->setValideAdmin($numEtu, true)
+            : $this->dossierRepo->setValideCoordinateur($numEtu, true);
+
+        return ['success' => $ok, 'error' => $ok ? null : 'db'];
+    }
+
+    /**
+     * Annule une étape du circuit ET toutes les étapes suivantes (remise à zéro en cascade).
+     * Exemple : dévalider le secrétariat efface aussi la validation du coordinateur
+     * et l'avis du chef de département.
+     *
+     * @param string $action 'secretariat' | 'coordinateur'
+     * @return array{success: bool, error: string|null}
+     *         error : 'unknown_action' | 'forbidden' | 'not_found' | 'not_validated' | 'db'
+     */
+    public function devaliderEtape(string $numEtu, string $action, string $role): array
+    {
+        $check = $this->checkEtape($numEtu, $action, $role);
+        if ($check['error'] !== null) return ['success' => false, 'error' => $check['error']];
+
+        $target = WorkflowStep::index(self::ETAPE_ACTIONS[$action]);
+        if ($check['current'] < $target) return ['success' => false, 'error' => 'not_validated'];
+
+        $ok = $this->resetValidations($numEtu, $action === 'secretariat');
+
+        return ['success' => $ok, 'error' => $ok ? null : 'db'];
+    }
+
+    /**
+     * Met IsComplete en accord avec les pièces justificatives.
+     *
+     * - Toutes les pièces requises sont fournies ET acceptées → le dossier devient complet
+     *   (il passe tout seul à l'étape « Pièces conformes, à valider »).
+     * - Une pièce manque ou n'est plus acceptée alors que le dossier était complet
+     *   → il repasse incomplet, et ses validations (secrétariat, coordinateur, chef)
+     *   sont annulées : elles portaient sur des pièces qui ne sont plus conformes.
+     *
+     * À appeler après chaque enregistrement du statut d'une pièce.
+     *
+     * @return string|null 'complet' | 'incomplet' | 'incomplet_validations_annulees' si l'état a changé, null sinon
+     */
+    public function synchroniserComplet(string $numEtu): ?string
+    {
+        $row = $this->dossierRepo->findByNumEtu($numEtu);
+        if ($row === null) return null;
+
+        $progress     = $this->progressionPieces($numEtu);
+        $complet      = $progress['total'] > 0 && $progress['acceptees'] === $progress['total'];
+        $etaitComplet = !empty($row['IsComplete']);
+
+        if ($complet === $etaitComplet) return null;
+
+        if ($complet) {
+            return $this->dossierRepo->toggleCompleteStatus($numEtu) ? 'complet' : null; // 0 -> 1
+        }
+
+        $avaitValidations = !empty($row['valide_admin']) || !empty($row['valide_coordinateur'])
+            || !empty($row['avis_chef_departement']);
+        $this->resetValidations($numEtu, true);
+        $this->dossierRepo->toggleCompleteStatus($numEtu); // 1 -> 0
+
+        return $avaitValidations ? 'incomplet_validations_annulees' : 'incomplet';
+    }
+
+    /**
+     * Recalcule « complet / incomplet » pour TOUS les dossiers (même règle que synchroniserComplet).
+     *
+     * Sert à corriger en une fois les anciens dossiers, marqués complets avant que le calcul
+     * soit automatique. Utilisé par cron/recalcul_complet.php.
+     *
+     * @param bool $simulation true = ne modifie rien, indique seulement ce qui changerait
+     * @return array<int, array{numEtu: string, nom: string, avant: string, apres: string, pieces: string, validationsAnnulees: bool}>
+     */
+    public function synchroniserTous(bool $simulation = false): array
+    {
+        $changements = [];
+
+        foreach ($this->dossierRepo->findAll() as $dossier) {
+            $numEtu = strval($dossier['NumEtu'] ?? '');
+            if ($numEtu === '') continue;
+
+            $row = $this->dossierRepo->findByNumEtu($numEtu);
+            if ($row === null) continue;
+
+            $progress     = $this->progressionPieces($numEtu);
+            $complet      = $progress['total'] > 0 && $progress['acceptees'] === $progress['total'];
+            $etaitComplet = !empty($row['IsComplete']);
+            if ($complet === $etaitComplet) continue;
+
+            $avaitValidations = !$complet && (!empty($row['valide_admin']) || !empty($row['valide_coordinateur'])
+                    || !empty($row['avis_chef_departement']));
+
+            if (!$simulation) {
+                $this->synchroniserComplet($numEtu);
+            }
+
+            $changements[] = [
+                'numEtu'              => $numEtu,
+                'nom'                 => trim(strval($dossier['Prenom'] ?? '') . ' ' . strval($dossier['Nom'] ?? '')),
+                'avant'               => $etaitComplet ? 'complet' : 'incomplet',
+                'apres'               => $complet ? 'complet' : 'incomplet',
+                'pieces'              => $progress['acceptees'] . '/' . $progress['total'],
+                'validationsAnnulees' => $avaitValidations,
+            ];
+        }
+
+        return $changements;
+    }
+
+    /**
+     * Nombre de pièces requises et nombre de pièces acceptées pour ce dossier.
+     * La liste des pièces requises vient de analyserDocuments() (dépend du type de mobilité).
+     *
+     * @return array{acceptees: int, total: int}
+     */
+    public function progressionPieces(string $numEtu): array
+    {
+        $docs     = $this->dossierRepo->analyserDocuments($numEtu);
+        $requises = array_merge($docs['manquants'], $docs['presents']);
+
+        $acceptees = 0;
+        foreach ($docs['presents'] as $doc) {
+            if (($docs['statuts'][$doc] ?? '') === 'accepted') $acceptees++;
+        }
+
+        return ['acceptees' => $acceptees, 'total' => count($requises)];
+    }
+
+    /**
+     * Liste des pièces obligatoires de ce dossier (dépend du type et de la mobilité).
+     *
+     * @return array<int, string>
+     */
+    public function getPiecesRequises(string $numEtu): array
+    {
+        $docs = $this->dossierRepo->analyserDocuments($numEtu);
+        return array_values(array_merge($docs['manquants'], $docs['presents']));
+    }
+
+    /**
+     * Efface l'avis du chef et la validation du coordinateur, et aussi celle
+     * du secrétariat si $avecSecretariat.
+     */
+    private function resetValidations(string $numEtu, bool $avecSecretariat): bool
+    {
+        $ok = $this->dossierRepo->setAvisChef($numEtu, null);
+        $ok = $this->dossierRepo->setValideCoordinateur($numEtu, false) && $ok;
+        if ($avecSecretariat) {
+            $ok = $this->dossierRepo->setValideAdmin($numEtu, false) && $ok;
+        }
+        return $ok;
+    }
+
+    /**
+     * Contrôles communs : action connue, rôle autorisé, dossier existant.
+     *
+     * @return array{error: string|null, current: int}
+     */
+    private function checkEtape(string $numEtu, string $action, string $role): array
+    {
+        if (!isset(self::ETAPE_ACTIONS[$action]))       return ['error' => 'unknown_action', 'current' => -1];
+        if (!self::peutAgirSurEtape($action, $role))    return ['error' => 'forbidden',      'current' => -1];
+
+        $row = $this->dossierRepo->findByNumEtu($numEtu);
+        if ($row === null)                              return ['error' => 'not_found',      'current' => -1];
+
+        return ['error' => null, 'current' => WorkflowStep::index(WorkflowStep::fromRow($row))];
     }
 
     /**

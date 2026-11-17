@@ -182,6 +182,30 @@ interface FolderRepositoryInterface
      */
     public function getZoneStats(?string $mobilite = null): array;
 
+        /**
+     * Calculates the 5-stage validation workflow statistics.
+     * @param string|null $mobilite Mobility type filter.
+     * @param string|null $departement Department code filter.
+     * @return \Model\Entity\WorkflowStats
+     */
+    public function getWorkflowStats(?string $mobilite = null, ?string $departement = null): \Model\Entity\WorkflowStats;
+
+    /**
+     * Records (or resets) the admin/secretariat validation of a folder.
+     * @param string $numEtu Student number.
+     * @param bool $value True to validate, false to reset.
+     * @return bool True on success.
+     */
+    public function setValideAdmin(string $numEtu, bool $value): bool;
+
+    /**
+     * Records (or resets) the coordinator validation of a folder.
+     * @param string $numEtu Student number.
+     * @param bool $value True to validate, false to reset.
+     * @return bool True on success.
+     */
+    public function setValideCoordinateur(string $numEtu, bool $value): bool;
+
     // ---------------------------------------------------------------
     // Document validation
     // ---------------------------------------------------------------

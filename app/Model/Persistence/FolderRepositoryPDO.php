@@ -6,6 +6,8 @@ use PDO;
 use Database;
 use Model\Entity\FolderStats;
 use Model\Entity\GenderStats;
+use Model\Entity\WorkflowStats;
+use Model\Entity\WorkflowStep;
 
 /**
  * Class FolderRepositoryPDO
@@ -66,7 +68,8 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         }
         $keyword = $hasExistingWhere ? 'AND' : 'WHERE';
         return [
-            'clause'   => "$keyword CodeDepartement = :departement",
+            // Espace en tête : cette clause est concaténée juste après celle de la mobilité
+            'clause'   => " $keyword CodeDepartement = :departement",
             'bindings' => ['departement' => $departement],
         ];
     }
@@ -128,6 +131,106 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             return new FolderStats(0, 0);
         }
     }
+
+
+
+    /**
+     * Calculates the 5-stage validation workflow statistics.
+     * * @param string|null $mobilite
+     * @param string|null $departement
+     * @return WorkflowStats
+     */
+    public function getWorkflowStats(?string $mobilite = null, ?string $departement = null): WorkflowStats
+    {
+        try {
+            ['clause' => $where,  'bindings' => $bindings]  = $this->mobiliteWhere($mobilite);
+            ['clause' => $where2, 'bindings' => $bindings2] = $this->departementWhere($departement, !empty($where));
+            $where    .= $where2;
+            $bindings  = array_merge($bindings, $bindings2);
+
+            // Chaque dossier est rangé dans UNE seule étape (cf. WorkflowStep::sqlCase),
+            // donc la somme des 5 cases est toujours égale au total.
+            $stmt = $this->run("
+                SELECT " . WorkflowStep::sqlCase() . " AS etape, COUNT(*) AS nb
+                FROM dossiers
+                $where
+                GROUP BY etape
+            ", $bindings);
+
+            $counts = array_fill_keys(WorkflowStep::ORDER, 0);
+            $rows   = $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+            foreach ($rows as $row) {
+                $etape = is_array($row) ? strval($row['etape'] ?? '') : '';
+                if (isset($counts[$etape]) && is_numeric($row['nb'] ?? null)) {
+                    $counts[$etape] = (int) $row['nb'];
+                }
+            }
+
+            return new WorkflowStats(
+                total:                         array_sum($counts),
+                incomplete:                    $counts[WorkflowStep::INCOMPLET],
+                awaitingAdmin:                 $counts[WorkflowStep::A_VALIDER],
+                validatedAdmin:                $counts[WorkflowStep::VALIDE_SECRETARIAT],
+                validatedAdminAndCoordinateur: $counts[WorkflowStep::VALIDE_COORDINATEUR],
+                validatedChefDepartement:      $counts[WorkflowStep::VALIDE_CHEF],
+            );
+        } catch (\PDOException $e) {
+            error_log("getWorkflowStats Error: " . $e->getMessage());
+            return new WorkflowStats(0, 0, 0, 0, 0, 0);
+        }
+    }
+
+    /**
+     * Records or resets the admin/secretariat validation of a folder.
+     * * @param string $numEtu
+     * @param bool $value
+     * @return bool
+     */
+    public function setValideAdmin(string $numEtu, bool $value): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE dossiers
+                SET valide_admin = :val, date_validation_admin = :date
+                WHERE NumEtu = :numetu
+            ");
+            return $stmt->execute([
+                ':val'    => $value ? 1 : 0,
+                ':date'   => $value ? date('Y-m-d H:i:s') : null,
+                ':numetu' => $numEtu,
+            ]);
+        } catch (\PDOException $e) {
+            error_log("setValideAdmin Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Records or resets the coordinator validation of a folder.
+     * * @param string $numEtu
+     * @param bool $value
+     * @return bool
+     */
+    public function setValideCoordinateur(string $numEtu, bool $value): bool
+    {
+        try {
+            $stmt = $this->db->prepare("
+                UPDATE dossiers
+                SET valide_coordinateur = :val, date_validation_coordinateur = :date
+                WHERE NumEtu = :numetu
+            ");
+            return $stmt->execute([
+                ':val'    => $value ? 1 : 0,
+                ':date'   => $value ? date('Y-m-d H:i:s') : null,
+                ':numetu' => $numEtu,
+            ]);
+        } catch (\PDOException $e) {
+            error_log("setValideCoordinateur Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+
 
     /**
      * Calculates gender-based statistics.
@@ -442,11 +545,13 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         try {
             $stmt = $this->db->prepare("
             SELECT NumEtu, Nom, Prenom, DateNaissance, Sexe, Adresse, CodePostal, Ville,
-                   EmailPersonnel, EmailAMU, Telephone, CodeDepartement, Composante, Type, Zone, Pays,
-                   Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
-                   DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
-                   StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
-                   avis_chef_departement, Mobilite, Destination, Continent, valide_admin
+       EmailPersonnel, EmailAMU, Telephone, CodeDepartement, Composante, Type, Zone, Pays,
+       Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
+       DateDebut, MobiliteAnterieure, IsComplete, PiecesJustificatives, status,
+       StatutDocuments, DateLimite, CommentaireAdmin, ModifiePar, ModifieLe,
+       avis_chef_departement, Mobilite, Destination, Continent,
+       valide_admin, date_validation_admin,
+       valide_coordinateur, date_validation_coordinateur
             FROM dossiers WHERE NumEtu = :numetu LIMIT 1
         ");
             $stmt->execute([':numetu' => $numEtu]);
@@ -714,6 +819,11 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $where .= " AND LOWER(CodeDepartement) = LOWER(:departement)";
             $params['departement'] = $filters['departement'];
         }
+        // Étape du circuit : même calcul que les stats de l'accueil
+        if (!empty($filters['etape']) && is_string($filters['etape']) && WorkflowStep::isValid($filters['etape'])) {
+            $where .= " AND " . WorkflowStep::sqlCase() . " = :etape";
+            $params['etape'] = $filters['etape'];
+        }
 
         $totalCount = 0;
         try {
@@ -729,7 +839,8 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         $sql = "SELECT NumEtu, Nom, Prenom, EmailPersonnel as email, Telephone, Type, Zone, Pays,
                        Campus, Discipline, NiveauEtude, Formation, MoyenneBac, MoyenneSansBac, AvisDRI,
                        DateDebut, MobiliteAnterieure, DateNaissance, Sexe, Adresse, CodePostal, Ville,
-                       EmailAMU, CodeDepartement, Composante, IsComplete, PiecesJustificatives, status, Mobilite
+                       EmailAMU, CodeDepartement, Composante, IsComplete, PiecesJustificatives, status, Mobilite,
+                       " . WorkflowStep::sqlCase() . " AS etape
                 FROM dossiers" . $where . " ORDER BY Nom ASC, Prenom ASC" . $limitClause;
 
         try {
@@ -931,6 +1042,47 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     // ===========================================================
 
     /**
+     * Liste des pièces obligatoires d'un dossier, selon le type et la mobilité.
+     *
+     * - Toujours : photo, CV, attestation de langues
+     * - Sortant en STAGE           : + convention de stage
+     * - Sortant en ÉTUDES          : rien de plus (pas de convention de stage)
+     * - Entrant                    : + lettre de motivation
+     * - Sortant, mobilité inconnue : + convention (règle d'origine, par prudence)
+     * - Type inconnu               : règle d'origine (selon les pièces déjà déposées)
+     *
+     * À compléter quand la liste exacte par type de mobilité sera connue (fichier Excel / prof).
+     *
+     * @param array<mixed> $pieces Contenu décodé de PiecesJustificatives
+     * @return array<int, string>
+     */
+    public static function piecesRequises(?string $type, ?string $mobilite, array $pieces): array
+    {
+        $type     = strtolower(trim($type ?? ''));
+        $mobilite = strtolower(trim($mobilite ?? ''));
+
+        $requises = ['photo', 'cv'];
+
+        if ($type === 'sortant') {
+            if ($mobilite !== 'etude' && $mobilite !== 'etudes') {
+                $requises[] = 'convention';
+            }
+        } elseif ($type === 'entrant') {
+            $requises[] = 'lettre_motivation';
+        } elseif (!empty($pieces['convention'])) {
+            $requises[] = 'convention';
+        } elseif (!empty($pieces['lettre_motivation'])) {
+            $requises[] = 'lettre_motivation';
+        } else {
+            $requises[] = 'convention';
+            $requises[] = 'lettre_motivation';
+        }
+
+        $requises[] = 'langues';
+        return $requises;
+    }
+
+    /**
      * Checks which required documents are missing or present.
      * * @param string $numetu
      * @return array{manquants: array<int, string>, presents: array<int, string>, statuts: array<string, string>}
@@ -939,7 +1091,7 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     {
         try {
             $stmt = $this->db->prepare("
-                SELECT PiecesJustificatives, StatutDocuments, Type
+                SELECT PiecesJustificatives, StatutDocuments, Type, Mobilite
                 FROM dossiers
                 WHERE NumEtu = :numetu
                 LIMIT 1
@@ -955,24 +1107,20 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $pieces     = json_decode($piecesJson, true) ?? [];
             if (!is_array($pieces)) $pieces = [];
 
-            $documentsRequis = ['photo', 'cv'];
-            $type = strtolower(trim(is_string($result['Type'] ?? null) ? $result['Type'] : ''));
-
-            if (!empty($pieces['convention']) || $type === 'sortant') {
-                $documentsRequis[] = 'convention';
-            } elseif (!empty($pieces['lettre_motivation']) || $type === 'entrant') {
-                $documentsRequis[] = 'lettre_motivation';
-            } else {
-                if (empty($pieces['convention']))        $documentsRequis[] = 'convention';
-                if (empty($pieces['lettre_motivation'])) $documentsRequis[] = 'lettre_motivation';
-            }
-
-            $documentsRequis[] = 'langues';
+            $documentsRequis = self::piecesRequises(
+                is_string($result['Type'] ?? null) ? $result['Type'] : null,
+                is_string($result['Mobilite'] ?? null) ? $result['Mobilite'] : null,
+                $pieces
+            );
 
             $manquants = [];
             $presents  = [];
             foreach ($documentsRequis as $doc) {
-                if (empty($pieces[$doc])) {
+                // Présente = un fichier non vide, que la pièce soit stockée en texte ("cv": "...")
+                // ou en objet ("cv": {"file": "...", ...}). Même règle que l'affichage (_doc_review).
+                $piece   = $pieces[$doc] ?? null;
+                $fichier = is_array($piece) ? ($piece['file'] ?? '') : $piece;
+                if (empty($fichier)) {
                     $manquants[] = $doc;
                 } else {
                     $presents[] = $doc;
@@ -990,6 +1138,16 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                     if (is_scalar($key) && is_scalar($val)) {
                         $statuts[(string)$key] = (string)$val;
                     }
+                }
+            }
+
+            // Certains statuts ne sont enregistrés que dans PiecesJustificatives ({"cv": {"status": "accepted"}})
+            // et pas dans StatutDocuments. La page dossier les affiche quand même (_doc_review :
+            // StatutDocuments d'abord, sinon le statut de la pièce) : on applique la même règle ici,
+            // sinon une pièce affichée « Acceptée » n'est pas comptée.
+            foreach ($pieces as $key => $val) {
+                if (is_string($key) && !isset($statuts[$key]) && is_array($val) && is_scalar($val['status'] ?? null)) {
+                    $statuts[$key] = (string) $val['status'];
                 }
             }
 

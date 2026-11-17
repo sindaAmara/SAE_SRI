@@ -84,6 +84,11 @@ class DepartmentHeadController implements ControllerInterface
         if (in_array($role, $rolesAvecDepartement, true) && !empty($_SESSION['departement'])) {
             $userDepartement = trim((string) $_SESSION['departement']);
         }
+        // CDC §7.2 : un profil Département ne voit que son département. Sans département sur le compte,
+        // on n'affiche rien (avant : le filtre de l'URL, donc potentiellement tous les départements).
+        if (in_array($role, $rolesAvecDepartement, true) && $userDepartement === null) {
+            $userDepartement = '__aucun_departement__';
+        }
 
         // Translation helper
         $t = function (array $translations) use ($lang): string {
@@ -103,8 +108,23 @@ class DepartmentHeadController implements ControllerInterface
             $numetu = trim(strval($_POST['numetu'] ?? ''));
             $avis   = trim(strval($_POST['avis']   ?? ''));
 
-            if ($numetu !== '' && in_array($avis, ['accepte', 'refuse'], true)) {
-                $this->folderUseCase->setAvisChef($numetu, $avis);
+            // CDC §7.2 : le chef ne décide que pour les dossiers de son département
+            $dossierChef = $numetu !== '' ? $this->folderUseCase->getStudentDetails($numetu) : null;
+            $memeDept    = $userDepartement === null || (is_array($dossierChef)
+                    && strcasecmp(trim(strval($dossierChef['CodeDepartement'] ?? '')), $userDepartement) === 0);
+
+            if (!$memeDept) {
+                $_SESSION['message'] = $lang === 'en'
+                    ? 'This folder belongs to another department.'
+                    : "Ce dossier appartient à un autre département.";
+            } elseif ($numetu !== '' && in_array($avis, ['accepte', 'refuse'], true)) {
+                $ok = $this->folderUseCase->setAvisChef($numetu, $avis);
+                if (!$ok) {
+                    // setAvisChef refuse tant que le coordinateur n'a pas validé (étape 4)
+                    $_SESSION['message'] = $lang === 'en'
+                        ? 'Not possible: the folder must first be validated by the admin office and the coordinator.'
+                        : "Impossible : le dossier doit d'abord être validé par le secrétariat puis par le coordinateur.";
+                }
             }
 
             $this->redirect(
@@ -120,6 +140,14 @@ class DepartmentHeadController implements ControllerInterface
         // Display details of a specific student folder
         if ($action === 'view' && !empty($_GET['numetu'])) {
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
+            // CDC §7.2 : pas d'accès aux dossiers d'un autre département
+            if (is_array($studentData) && $userDepartement !== null
+                && strcasecmp(trim(strval($studentData['CodeDepartement'] ?? '')), $userDepartement) !== 0) {
+                $_SESSION['message'] = $lang === 'en'
+                    ? 'This folder belongs to another department.'
+                    : "Ce dossier appartient à un autre département.";
+                $this->redirect('index.php?page=chef-departement&lang=' . $lang); // retour à la liste, avec le message
+            }
         }
 
         // Filters used to search student folders
@@ -128,8 +156,9 @@ class DepartmentHeadController implements ControllerInterface
             'zone'        => $_GET['zone']    ?? 'all',
             'complet'     => $_GET['complet'] ?? 'all',
             'search'      => $_GET['search']  ?? '',
-            'mobilite'    => 'all',
+            'mobilite'    => in_array($_GET['mobilite'] ?? '', ['etude', 'stage'], true) ? strval($_GET['mobilite']) : 'all',
             'departement' => $userDepartement ?? ($_GET['departement'] ?? 'all'),
+            'etape'       => $_GET['etape'] ?? 'all', // cases « Mes dossiers » de l'accueil
         ];
 
         // Pagination parameters

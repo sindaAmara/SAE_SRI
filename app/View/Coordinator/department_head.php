@@ -59,10 +59,11 @@ $EDITABLE = ['niveau_etude', 'moyenne_sans_bac'];
 $userRole = $_SESSION['role'] ?? 'chef_departement';
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
-    || (strval($filters['zone']       ?? 'all')) !== 'all'
-    || (strval($filters['complet']    ?? 'all')) !== 'all'
-    || (strval($filters['composante'] ?? 'all')) !== 'all'
-    || !empty($filters['search']);
+        || (strval($filters['zone']       ?? 'all')) !== 'all'
+        || (strval($filters['complet']    ?? 'all')) !== 'all'
+        || (strval($filters['composante'] ?? 'all')) !== 'all'
+        || !empty($filters['search'])
+        || (strval($filters['etape'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -85,7 +86,11 @@ ob_start();
         $globalStatus  = strval($studentData['status'] ?? 'depot');
         ?>
 
-        <h1><?= $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
+        <?php // Titre : « Dossier Prénom Nom » (repli sur « Dossier étudiant » si le nom est vide)
+        $nomCompletEtudiant = trim(strval($studentData['Prenom'] ?? '') . ' ' . strval($studentData['Nom'] ?? '')); ?>
+        <h1><?= $nomCompletEtudiant !== ''
+                    ? $t(['fr' => 'Dossier', 'en' => 'Folder:']) . ' ' . htmlspecialchars($nomCompletEtudiant)
+                    : $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
         <div class="form-back-button">
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => $PAGE]) ?>'" class="btn-secondary">
                 <?= $t(['fr' => 'Retour à la liste', 'en' => 'Back to List']) ?>
@@ -98,6 +103,8 @@ ob_start();
 
         <!-- Bannière décision : reçoit $currentStatus = avis_chef_departement -->
         <?php include __DIR__ . '/../Partials/_banniere_decision.php'; ?>
+
+        <?php include __DIR__ . '/../Partials/_workflow_steps.php'; ?>
 
         <?php
         $redirectPage = $PAGE;
@@ -122,10 +129,7 @@ ob_start();
                 ?>
             </div>
 
-            <?php
-            $currentStatus = $globalStatus;
-            include __DIR__ . '/../Partials/_global_status.php';
-            ?>
+            <?php /* « Statut global » retiré : l'état du dossier est donné par la frise du circuit (en haut). */ ?>
 
             <div class="form-actions">
                 <button type="submit" class="btn-secondary">
@@ -166,6 +170,7 @@ ob_start();
         <?php
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = false;
+        $showEtapeFilter  = true; // filtre « Étape » (cases « Mes dossiers » de l'accueil)
         $viewPage         = $PAGE;
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';
@@ -178,7 +183,7 @@ ob_start();
 $content = ob_get_clean();
 
 $title           = $t(['fr' => 'Chef de département - Relations Internationales AMU', 'en' => 'Department Head - International Relations AMU']);
-$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css'];
+$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/workflow.css'];
 $scripts         = ['js/folders.js'];
 $activeMenu      = $PAGE;
 $metaDescription = $t(['fr' => 'Espace chef de département — gestion des mobilités étudiantes.', 'en' => 'Department head space — student mobility management.']);
