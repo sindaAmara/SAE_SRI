@@ -724,7 +724,7 @@ class FoldersControllersTest extends TestCase
 
         try { $controller->control(); } catch (\RuntimeException $e) {}
 
-        $this->assertSame('Folder mis à jour', $_SESSION['message'] ?? '');
+        $this->assertSame('Dossier mis à jour', $_SESSION['message'] ?? '');
     }
 
     /**
@@ -1174,7 +1174,7 @@ class FoldersControllersTest extends TestCase
 
         try { $controller->control(); } catch (\RuntimeException $e) {}
 
-        $this->assertSame('Folder mis à jour avec succès.', $_SESSION['message'] ?? '');
+        $this->assertSame('Dossier mis à jour avec succès.', $_SESSION['message'] ?? '');
     }
 
     /**

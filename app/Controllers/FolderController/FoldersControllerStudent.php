@@ -267,7 +267,7 @@ class FoldersControllerStudent implements ControllerInterface
             if ($dateObj && $dateObj < $aujourdhui) {
                 $success = $this->folderUseCase->updateDossier($data);
                 $_SESSION['message'] = $success
-                    ? ($lang === 'fr' ? 'Folder mis à jour (fichiers refusés : date limite dépassée).' : 'Folder updated (files rejected: deadline passed).')
+                    ? ($lang === 'fr' ? 'Dossier mis à jour (fichiers refusés : date limite dépassée).' : 'Folder updated (files rejected: deadline passed).')
                     : ($lang === 'fr' ? 'Erreur lors de la mise à jour.' : 'Error updating folder.');
                 $this->redirect('index.php?page=folders-student&lang=' . $lang);
             }
@@ -315,7 +315,7 @@ class FoldersControllerStudent implements ControllerInterface
         }
 
         $_SESSION['message'] = $success
-            ? ($lang === 'fr' ? 'Folder mis à jour avec succès.'         : 'Folder updated successfully.')
+            ? ($lang === 'fr' ? 'Dossier mis à jour avec succès.'         : 'Folder updated successfully.')
             : ($lang === 'fr' ? 'Erreur lors de la mise à jour du dossier.' : 'Error updating folder.');
 
         $this->redirect('index.php?page=folders-student&lang=' . $lang);

@@ -803,7 +803,7 @@ class FoldersControllerAdmin
         }
 
         $_SESSION['message'] = $success
-            ? (($lang === 'fr') ? 'Folder mis à jour' : 'Folder updated')
+            ? (($lang === 'fr') ? 'Dossier mis à jour' : 'Folder updated')
             : (($lang === 'fr') ? 'Erreur lors de la mise à jour' : 'Error updating folder');
 
         $this->redirect('index.php?page=' . $redirectTo . '&action=view&numetu=' . urlencode($numetu) . '&lang=' . $lang);
