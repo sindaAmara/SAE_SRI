@@ -86,7 +86,11 @@ ob_start();
         $globalStatus  = strval($studentData['status'] ?? 'depot');
         ?>
 
-        <h1><?= $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
+        <?php // Titre : « Dossier Prénom Nom » (repli sur « Dossier étudiant » si le nom est vide)
+        $nomCompletEtudiant = trim(strval($studentData['Prenom'] ?? '') . ' ' . strval($studentData['Nom'] ?? '')); ?>
+        <h1><?= $nomCompletEtudiant !== ''
+                    ? $t(['fr' => 'Dossier', 'en' => 'Folder:']) . ' ' . htmlspecialchars($nomCompletEtudiant)
+                    : $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
         <div class="form-back-button">
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => $PAGE]) ?>'" class="btn-secondary">
                 <?= $t(['fr' => 'Retour à la liste', 'en' => 'Back to List']) ?>
