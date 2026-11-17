@@ -307,6 +307,51 @@ class ManageFolderUseCase
     }
 
     /**
+     * Recalcule « complet / incomplet » pour TOUS les dossiers (même règle que synchroniserComplet).
+     *
+     * Sert à corriger en une fois les anciens dossiers, marqués complets avant que le calcul
+     * soit automatique. Utilisé par cron/recalcul_complet.php.
+     *
+     * @param bool $simulation true = ne modifie rien, indique seulement ce qui changerait
+     * @return array<int, array{numEtu: string, nom: string, avant: string, apres: string, pieces: string, validationsAnnulees: bool}>
+     */
+    public function synchroniserTous(bool $simulation = false): array
+    {
+        $changements = [];
+
+        foreach ($this->dossierRepo->findAll() as $dossier) {
+            $numEtu = strval($dossier['NumEtu'] ?? '');
+            if ($numEtu === '') continue;
+
+            $row = $this->dossierRepo->findByNumEtu($numEtu);
+            if ($row === null) continue;
+
+            $progress     = $this->progressionPieces($numEtu);
+            $complet      = $progress['total'] > 0 && $progress['acceptees'] === $progress['total'];
+            $etaitComplet = !empty($row['IsComplete']);
+            if ($complet === $etaitComplet) continue;
+
+            $avaitValidations = !$complet && (!empty($row['valide_admin']) || !empty($row['valide_coordinateur'])
+                    || !empty($row['avis_chef_departement']));
+
+            if (!$simulation) {
+                $this->synchroniserComplet($numEtu);
+            }
+
+            $changements[] = [
+                'numEtu'              => $numEtu,
+                'nom'                 => trim(strval($dossier['Prenom'] ?? '') . ' ' . strval($dossier['Nom'] ?? '')),
+                'avant'               => $etaitComplet ? 'complet' : 'incomplet',
+                'apres'               => $complet ? 'complet' : 'incomplet',
+                'pieces'              => $progress['acceptees'] . '/' . $progress['total'],
+                'validationsAnnulees' => $avaitValidations,
+            ];
+        }
+
+        return $changements;
+    }
+
+    /**
      * Nombre de pièces requises et nombre de pièces acceptées pour ce dossier.
      * La liste des pièces requises vient de analyserDocuments() (dépend du type de mobilité).
      *
