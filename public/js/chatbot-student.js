@@ -1,10 +1,10 @@
 /**
- * Chatbot Bob
+ * Bob chatbot (student interface)
  *
- * 3 classes, chacune avec un seul rôle :
- *   ChatStorage — mémoire locale de la conversation (localStorage)
- *   BobApi      — appel au serveur (index.php?page=api/bob)
- *   BobChatbot  — affichage et interactions (DOM)
+ * 3 classes, each with a single responsibility:
+ *   ChatStorage — local persistence of the conversation (localStorage)
+ *   BobApi      — server calls (index.php?page=api/bob)
+ *   BobChatbot  — rendering and user interactions (DOM)
  *
  * Uses existing CSS classes: chat-popup, chat-messages, chat-input-area,
  * quick-actions, bot-message, user-message, help-popup-header
@@ -16,15 +16,15 @@ class ChatStorage {
     static #PREFIX = 'bob_chat_';
 
     /**
-     * @param {string} sessionToken Jeton qui change à chaque connexion (fourni par PHP).
-     *   S'il est différent de celui en mémoire, c'est une nouvelle connexion :
-     *   on efface l'ancienne conversation.
+     * @param {string} sessionToken Token regenerated at each login (provided by PHP).
+     *   If it differs from the stored one, this is a new login:
+     *   the previous conversation is cleared.
      */
     constructor(sessionToken) {
         const isNewLogin = sessionToken && this.#get('session') !== sessionToken;
 
-        // Nouvelle connexion ou page rafraîchie (F5) : on repart d'une conversation vide.
-        // Une navigation normale entre les pages garde la conversation.
+        // New login or page reload (F5): start from an empty conversation.
+        // Normal navigation between pages keeps the conversation.
         if (isNewLogin || ChatStorage.#isPageReload()) {
             this.clear();
         }
@@ -33,7 +33,10 @@ class ChatStorage {
         }
     }
 
-    /** true si la page a été rechargée (F5 / bouton actualiser), false pour une navigation normale. */
+    /**
+     * Tells whether the current page was reloaded (F5 / refresh button).
+     * @returns {boolean} true on reload, false on normal navigation
+     */
     static #isPageReload() {
         try {
             const nav = performance.getEntriesByType('navigation')[0];
@@ -89,8 +92,11 @@ class BobApi {
     }
 
     /**
-     * Envoie l'historique au serveur et renvoie la réponse de Bob.
-     * Le prompt système et le dossier de l'étudiant sont ajoutés côté serveur.
+     * Sends the conversation history to the server and returns Bob's reply.
+     * The system prompt and the student's folder are added server-side.
+     * @param {Array<{role: string, content: string}>} history
+     * @returns {Promise<string>} Bob's reply
+     * @throws {Error} When the server answers with an error
      */
     async send(history) {
         const res = await fetch(this.endpoint, {
@@ -99,7 +105,7 @@ class BobApi {
             body:    JSON.stringify({ messages: history })
         });
         if (!res.ok) {
-            // On récupère le message d'erreur du serveur pour l'afficher dans la console
+            // Read the server's error message so it shows up in the console
             let detail = '';
             try { detail = (await res.json()).error ?? ''; } catch (e) {}
             throw new Error(`HTTP ${res.status}${detail ? ' — ' + detail : ''}`);
@@ -130,9 +136,9 @@ class BobChatbot {
     };
 
     /**
-     * @param {ChatStorage} storage
-     * @param {BobApi} api
-     * @param {string} lang
+     * @param {ChatStorage} storage Conversation persistence
+     * @param {BobApi} api           Server client
+     * @param {string} lang          Interface language ('fr' or 'en')
      */
     constructor(storage, api, lang = 'fr') {
         this.storage = storage;
@@ -152,8 +158,9 @@ class BobChatbot {
         this.#restore();
     }
 
-    // ── Actions publiques ────────────────────────────────────────────────────
+    // ── Public actions ───────────────────────────────────────────────────────
 
+    /** Opens or closes the chat popup. */
     toggle() {
         if (!this.popup) return;
         const willOpen = window.getComputedStyle(this.popup).display === 'none';
@@ -167,11 +174,13 @@ class BobChatbot {
         requestAnimationFrame(() => this.#scrollToBottom());
     }
 
+    /** Closes the chat popup. */
     close() {
         if (this.popup) this.popup.style.display = 'none';
         this.storage.setPopupOpen(false);
     }
 
+    /** Deletes the stored conversation. */
     clearHistory() {
         this.storage.clear();
         this.history = [];
@@ -190,7 +199,7 @@ class BobChatbot {
             }
         });
 
-        // En plus du jeton de session : on vide aussi au clic sur "Déconnexion"
+        // In addition to the session token: also clear on "Log out" click
         document
             .querySelector('a[href*="logout"], a[href*="deconnexion"], .logout-btn')
             ?.addEventListener('click', () => this.storage.clear());
@@ -257,7 +266,7 @@ class BobChatbot {
             console.error('Bob error:', err);
         } finally {
             this.#setLoading(false);
-            // On garde le message de l'étudiant en haut plutôt que de descendre en bas de la réponse
+            // Keep the student's message at the top instead of scrolling to the end of the reply
             this.#scrollTo(userMsgEl);
         }
     }
@@ -300,7 +309,7 @@ class BobChatbot {
         if (this.chatContainer) this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
     }
 
-    // Double requestAnimationFrame : le scroll s'applique après le reflow du navigateur
+    // Double requestAnimationFrame: the scroll is applied after the browser reflow
     #scrollTo(el) {
         if (!el || !this.chatContainer) return;
         requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -308,13 +317,13 @@ class BobChatbot {
         }));
     }
 
-    // ── Texte ────────────────────────────────────────────────────────────────
+    // ── Text ─────────────────────────────────────────────────────────────────
 
     #escape(text) {
         return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    /** Échappe le HTML, retire le markdown et les emojis, garde les retours à la ligne. */
+    /** Escapes HTML, strips markdown and emojis, keeps line breaks. */
     #format(text) {
         return this.#escape(text)
             .replace(/\*\*(.*?)\*\*/g, '$1')
@@ -326,15 +335,15 @@ class BobChatbot {
     }
 }
 
-/* ─────────────────────────────── Démarrage ─────────────────────────────── */
+/* ─────────────────────────────── Bootstrap ─────────────────────────────── */
 
 document.addEventListener('DOMContentLoaded', () => {
     const config = document.getElementById('app-config')?.dataset ?? {};
-    // Jeton régénéré à chaque connexion (AuthController -> Layout/chatbot.php)
+    // Token regenerated at each login (AuthController -> Layout/chatbot.php)
     const token  = document.getElementById('help-popup')?.dataset.chatSession || config.numetu || '';
 
     window.chatbot = new BobChatbot(new ChatStorage(token), new BobApi(), config.lang ?? 'fr');
 
-    // Compatibilité avec les anciens <div onclick="toggleHelpPopup()">
+    // Backward compatibility with legacy <div onclick="toggleHelpPopup()">
     window.toggleHelpPopup = () => window.chatbot.toggle();
 });
