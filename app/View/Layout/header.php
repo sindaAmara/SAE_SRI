@@ -52,7 +52,8 @@
  *   - 'student' adds a Contact item.
  *   Page URLs use a $suffix ('-admin' or '-student') appended to the menu key.
  *   The active state is true when $activeMenu equals the key or key+suffix.
- *   - 'student' has no Destinations (partners) item.
+ *   The 'partners' item for students is rendered as a drop-down (.dropdown)
+ *   with two sub-links: ?partner=amu and ?partner=iut.
  *
  * @var string|null   $lang        Current language code; falls back to $_SESSION['lang'] or 'fr'
  * @var string|null   $activeMenu  Identifier of the current active nav item for highlighting
@@ -186,8 +187,8 @@ $userRole === 'admin'        ? 'home-admin'        :
                     'en' => 'Home',
                 ],
                 'dashboard' => [
-                    'fr' => ($userRole === 'admin' ? 'Tableau de bord' : 'Mon Tableau de bord'),
-                    'en' => ($userRole === 'admin' ? 'Dashboard' : 'My Dashboard'),
+                    'fr' => ($userRole === 'admin' ? 'Formulaires' : 'Mon Tableau de bord'),
+                    'en' => ($userRole === 'admin' ? 'Forms' : 'My Dashboard'),
                 ],
                 'partners' => [
                     'fr' => 'Destinations',
@@ -210,16 +211,15 @@ $userRole === 'admin'        ? 'home-admin'        :
 
             foreach ($menus as $key => $labels):
                 $isActive = $activeMenu === $key || $activeMenu === $key . $suffix;
-                $page     = $key . $suffix;
+                $page     = ($key === 'dashboard' && $userRole === 'admin') ? 'stage-form-admin' : $key . $suffix;
                 $url      = 'index.php?page=' . urlencode($page) . '&lang=' . urlencode($lang);
                 ?>
                 <button
-                    <?= $isActive ? 'class="active"' : '' ?>
+                        <?= $isActive ? 'class="active"' : '' ?>
                         onclick="window.location.href='<?= htmlspecialchars($url) ?>'">
                     <?= $t($labels) ?>
                 </button>
             <?php endforeach; ?>
-
         <?php endif; ?>
 
     </nav>
