@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ruleset name="SAE_SRI">
+    <description>Règles de style du projet SAE SRI (PSR-12)</description>
+
+    <!-- Dossiers analysés -->
+    <file>app</file>
+    <file>Tests</file>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <!-- Les warnings (lignes > 120 caractères) sont affichés mais ne font pas échouer la CI -->
+    <config name="ignore_warnings_on_exit" value="1"/>
+
+    <rule ref="PSR12"/>
+
+    <!-- Tests : les noms en test_snake_case sont une convention courante pour PHPUnit -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>*/Tests/*</exclude-pattern>
+    </rule>
+
+    <!-- Database est dans l'espace de noms global : tout le projet l'appelle avec Database::getInstance() -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>*/app/Core/Database.php</exclude-pattern>
+    </rule>
+</ruleset>
