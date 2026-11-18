@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: Chatbot / Assistant Widget
  *
@@ -22,8 +23,14 @@
  *
  * data-chat-session carries $_SESSION['bob_token'], regenerated at each login
  * (AuthController): when it changes, chatbot-student.js clears the old conversation.
+ *
  * @var Closure(array<string, string>): string $t Translation callable — used for the "Assistant" header label
  */
+
+// The including layout usually sets $userRole; fall back to the session otherwise
+$userRole = isset($userRole) && is_string($userRole)
+    ? $userRole
+    : (is_string($_SESSION['role'] ?? null) ? $_SESSION['role'] : '');
 ?>
 <div id="help-bubble">💬</div>
 

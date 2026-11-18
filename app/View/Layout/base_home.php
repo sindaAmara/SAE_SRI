@@ -87,9 +87,9 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
 
 
 <script src="js/main.js"></script>
-<?php if (($userRole ?? '') === 'admin') : ?>
+<?php if ($userRole === 'admin') : ?>
     <script src="js/chatbot-admin.js"></script>
-<?php elseif (($userRole ?? '') === 'student') : ?>
+<?php elseif ($userRole === 'student') : ?>
     <script src="js/chatbot-student.js?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/js/chatbot-student.js') ?>"></script>
 <?php endif; ?>
 <?php foreach ($scripts as $script) : ?>

@@ -138,7 +138,8 @@ class SuperAdminService
 
         $success = mail($email, $subject, $body, "From: noreply@univ-amu.fr");
         if (!$success) {
-            $errorMessage = error_get_last()['message'];
+            $lastError    = error_get_last();
+            $errorMessage = $lastError !== null ? $lastError['message'] : 'erreur inconnue';
             var_dump("Erreur lors de l'envoi de l'email : $errorMessage");
         }
     }

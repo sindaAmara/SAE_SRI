@@ -13,6 +13,12 @@
 </p>
 
 <?php
+// Reads a field of a form response as a string ($default when missing)
+$responseField = static function (?array $response, string $field, string $default = ''): string {
+    $value = $response[$field] ?? $default;
+    return is_scalar($value) ? (string) $value : $default;
+};
+
 $groupedData = [];
 foreach ($paginatedData as $etudiant) {
     $comp = strval($etudiant['Composante'] ?? '');
@@ -47,7 +53,7 @@ foreach ($paginatedData as $etudiant) {
                     <tbody>
                     <?php foreach ($students as $etudiant) : ?>
                         <?php
-                        $response = $etudiant['form_response'] ?? null;
+                        $response = is_array($etudiant['form_response'] ?? null) ? $etudiant['form_response'] : null;
                         $eNumEtu  = strval($etudiant['NumEtu'] ?? '');
                         $eType    = strval($etudiant['Type'] ?? '');
                         $rowUrl   = $buildUrl('index.php', ['page' => 'folders-admin', 'action' => 'view', 'numetu' => $eNumEtu]);
@@ -62,10 +68,11 @@ foreach ($paginatedData as $etudiant) {
                                     ? $t(['fr' => '✅ Soumis', 'en' => '✅ Submitted'])
                                     : $t(['fr' => '⏳ En attente', 'en' => '⏳ Pending']) ?>
                             </td>
-                            <td><?= htmlspecialchars(strval($response['host_institution'] ?? '—')) ?></td>
+                            <td><?= htmlspecialchars($responseField($response, 'host_institution', '—')) ?></td>
                             <td>
                                 <?= $response
-                                    ? htmlspecialchars($response['start_date']) . ' → ' . htmlspecialchars($response['end_date'])
+                                    ? htmlspecialchars($responseField($response, 'start_date')) . ' → '
+                                        . htmlspecialchars($responseField($response, 'end_date'))
                                     : '—' ?>
                             </td>
                             <td class="eval-toggle-cell">
@@ -78,8 +85,8 @@ foreach ($paginatedData as $etudiant) {
                             <td colspan="8">
                                 <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
                                 <div class="eval-full">
-                                    <?php if ($response && !empty($response['evaluation'])) : ?>
-                                        <?= nl2br(htmlspecialchars($response['evaluation'])) ?>
+                                    <?php if ($responseField($response, 'evaluation') !== '') : ?>
+                                        <?= nl2br(htmlspecialchars($responseField($response, 'evaluation'))) ?>
                                     <?php else : ?>
                                         <?= $t(['fr' => 'Aucune évaluation disponible.', 'en' => 'No evaluation available.']) ?>
                                     <?php endif; ?>

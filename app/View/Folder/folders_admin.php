@@ -81,6 +81,12 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
 
 $PAGE = 'folders-admin';
 
+// Reads a field of the end-of-internship form response as a string ('' when missing)
+$stageField = static function (string $field) use ($stageFormResponse): string {
+    $value = $stageFormResponse[$field] ?? '';
+    return is_scalar($value) ? (string) $value : '';
+};
+
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
         || (strval($filters['zone']       ?? 'all')) !== 'all'
         || (strval($filters['complet']    ?? 'all')) !== 'all'
@@ -195,28 +201,28 @@ ob_start();
                 <?php else : ?>
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?></strong>
-                        <div><?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></div>
+                        <div><?= htmlspecialchars($stageField('host_institution')) ?></div>
                     </div>
 
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?></strong>
                         <div>
-                            <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
-                            <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?>
+                            <?= htmlspecialchars($stageField('start_date')) ?> →
+                            <?= htmlspecialchars($stageField('end_date')) ?>
                         </div>
                     </div>
 
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
                         <div class="stage-form-evaluation">
-                            <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                            <?= nl2br(htmlspecialchars($stageField('evaluation'))) ?>
                         </div>
                     </div>
 
                     <div class="stage-form-field">
                         <small>
                             <?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
-                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?>
+                            <?= htmlspecialchars($stageField('submitted_at')) ?>
                         </small>
                     </div>
                 <?php endif; ?>
