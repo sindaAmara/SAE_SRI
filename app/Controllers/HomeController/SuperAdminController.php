@@ -150,27 +150,22 @@ class SuperAdminController implements ControllerInterface
                 $error = $lang === 'fr'
                     ? 'Veuillez remplir tous les champs correctement.'
                     : 'Please fill in all fields correctly.';
-
             } elseif (!preg_match('/^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{12,}$/', $password)) {
                 $error = $lang === 'fr'
                     ? 'Le mot de passe doit contenir au moins 12 caractères, dont une majuscule et un caractère spécial.'
                     : 'Password must contain at least 12 characters, including one uppercase letter and one special character.';
-
             } elseif ($isCoord && $departement === '') {
                 $error = $lang === 'fr'
                     ? 'Veuillez sélectionner un département pour le coordinateur.'
                     : 'Please select a department for the coordinator.';
-
             } elseif ($role === 'admin' && $site === '') {
                 $error = $lang === 'fr'
                     ? 'Veuillez sélectionner un site pour le secrétaire.'
                     : 'Please select a site for the secretary.';
-
             } elseif (!filter_var($login, FILTER_VALIDATE_EMAIL)) {
                 $error = $lang === 'fr'
                     ? 'Le login doit être une adresse email valide.'
                     : 'Login must be a valid email address.';
-
             } else {
                 try {
                     $service->createAccount(

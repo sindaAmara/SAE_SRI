@@ -56,7 +56,7 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?php if ($metaDescription !== null): ?>
+    <?php if ($metaDescription !== null) : ?>
         <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
     <?php endif; ?>
 
@@ -66,14 +66,14 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
     <link rel="stylesheet" href="styles/chatbot.css">
     <link rel="icon" type="image/png" href="img/favicon.webp"/>
 
-    <?php foreach ($styles as $style): ?>
+    <?php foreach ($styles as $style) : ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style) ?>">
     <?php endforeach; ?>
 </head>
 
 <body class="<?= $isTritanopia ? 'tritanopie' : '' ?> home-page">
 
-<?php if (isset($_SESSION['message'])): ?>
+<?php if (isset($_SESSION['message'])) : ?>
     <div class="message" style="max-width: 1200px; margin: 20px auto;">
         <?= htmlspecialchars((string) $_SESSION['message']); ?>
         <?php unset($_SESSION['message']); ?>
@@ -87,12 +87,12 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
 
 
 <script src="js/main.js"></script>
-<?php if (($userRole ?? '') === 'admin'): ?>
+<?php if (($userRole ?? '') === 'admin') : ?>
     <script src="js/chatbot-admin.js"></script>
-<?php elseif (($userRole ?? '') === 'student'): ?>
+<?php elseif (($userRole ?? '') === 'student') : ?>
     <script src="js/chatbot-student.js?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/js/chatbot-student.js') ?>"></script>
 <?php endif; ?>
-<?php foreach ($scripts as $script): ?>
+<?php foreach ($scripts as $script) : ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>
 <?php endforeach; ?>
 

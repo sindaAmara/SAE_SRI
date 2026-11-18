@@ -1,4 +1,5 @@
 <?php
+
 namespace Model\Persistence;
 
 use Model\Repository\FolderRepositoryInterface;
@@ -296,7 +297,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 ORDER BY count DESC
                 LIMIT :limit
             ");
-            foreach ($bindings as $key => $value) { $stmt->bindValue(":$key", $value); }
+            foreach ($bindings as $key => $value) {
+                $stmt->bindValue(":$key", $value);
+            }
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -333,7 +336,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 ORDER BY count DESC
                 LIMIT :limit
             ");
-            foreach ($bindings as $key => $value) { $stmt->bindValue(":$key", $value); }
+            foreach ($bindings as $key => $value) {
+                $stmt->bindValue(":$key", $value);
+            }
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -363,9 +368,13 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 FROM dossiers
                 $where
             ", $bindings);
-            if ($stmt === false) return ['incoming' => 0, 'outgoing' => 0];
+            if ($stmt === false) {
+                return ['incoming' => 0, 'outgoing' => 0];
+            }
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!is_array($result)) return ['incoming' => 0, 'outgoing' => 0];
+            if (!is_array($result)) {
+                return ['incoming' => 0, 'outgoing' => 0];
+            }
             return [
                 'incoming' => isset($result['incoming']) && is_numeric($result['incoming']) ? (int) $result['incoming'] : 0,
                 'outgoing' => isset($result['outgoing']) && is_numeric($result['outgoing']) ? (int) $result['outgoing'] : 0,
@@ -401,7 +410,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 GROUP BY Continent
                 ORDER BY count DESC
             ", $bindings);
-            if ($stmt === false) return [];
+            if ($stmt === false) {
+                return [];
+            }
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
             return array_map(fn($r) => [
                 'name'  => isset($r['name'])  && is_string($r['name'])   ? $r['name']        : '',
@@ -438,9 +449,13 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 $mobiliteClause
                 $deptClause
             ", $bindings);
-            if ($stmt === false) return ['europe_countries' => 0, 'non_europe_countries' => 0];
+            if ($stmt === false) {
+                return ['europe_countries' => 0, 'non_europe_countries' => 0];
+            }
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!is_array($result)) return ['europe_countries' => 0, 'non_europe_countries' => 0];
+            if (!is_array($result)) {
+                return ['europe_countries' => 0, 'non_europe_countries' => 0];
+            }
             return [
                 'europe_countries'     => isset($result['europe_countries'])     && is_numeric($result['europe_countries'])     ? (int) $result['europe_countries']     : 0,
                 'non_europe_countries' => isset($result['non_europe_countries']) && is_numeric($result['non_europe_countries']) ? (int) $result['non_europe_countries'] : 0,
@@ -476,7 +491,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 GROUP BY Zone
                 ORDER BY count DESC
             ", $bindings);
-            if ($stmt === false) return [];
+            if ($stmt === false) {
+                return [];
+            }
             $results = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
             return array_map(fn($r) => [
                 'name'  => isset($r['name'])  && is_string($r['name'])   ? $r['name']        : '',
@@ -496,7 +513,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
      */
     public function inferContinent(string $pays, string $zone): ?string
     {
-        if (strtolower($zone) === 'europe') return 'Europe';
+        if (strtolower($zone) === 'europe') {
+            return 'Europe';
+        }
         $mapping = [
             'Amérique'     => ['Canada', 'États-Unis', 'Mexique', 'Brésil', 'Argentine', 'Colombie', 'Chili', 'Pérou', 'Venezuela', 'Cuba'],
             'Asie'         => ['Japon', 'Chine', 'Corée du Sud', 'Inde', 'Thaïlande', 'Vietnam', 'Indonésie', 'Singapour', 'Malaisie', 'Philippines', 'Bangladesh', 'Pakistan'],
@@ -505,7 +524,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             'Moyen-Orient' => ['Turquie', 'Liban', 'Jordanie', 'Égypte', 'Arabie Saoudite', 'Émirats Arabes Unis', 'Qatar', 'Koweït', 'Israël', 'Iran', 'Irak'],
         ];
         foreach ($mapping as $continent => $countries) {
-            if (in_array($pays, $countries, true)) return $continent;
+            if (in_array($pays, $countries, true)) {
+                return $continent;
+            }
         }
         return null;
     }
@@ -680,7 +701,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     public function setAvisChef(string $numEtu, ?string $avis): bool
     {
         $allowed = ['accepte', 'refuse', null];
-        if (!in_array($avis, $allowed, true)) return false;
+        if (!in_array($avis, $allowed, true)) {
+            return false;
+        }
         try {
             $stmt = $this->db->prepare("
                 UPDATE dossiers
@@ -709,7 +732,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $stmt = $this->db->prepare("SELECT IsComplete FROM dossiers WHERE NumEtu = :numetu");
             $stmt->execute([':numetu' => $numEtu]);
             $current = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!is_array($current)) return false;
+            if (!is_array($current)) {
+                return false;
+            }
             $newStatus = (($current['IsComplete'] ?? 0) == 1) ? 0 : 1;
             $stmt = $this->db->prepare("UPDATE dossiers SET IsComplete = :status WHERE NumEtu = :numetu");
             return $stmt->execute([':status' => $newStatus, ':numetu' => $numEtu]);
@@ -735,7 +760,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
     public function setStatus(string $numEtu, string $status): bool
     {
         $allowed = ['depot', 'instruction', 'accepte', 'refuse'];
-        if (!in_array($status, $allowed, true)) return false;
+        if (!in_array($status, $allowed, true)) {
+            return false;
+        }
         try {
             $stmt = $this->db->prepare("UPDATE dossiers SET status = :status WHERE NumEtu = :numetu");
             return $stmt->execute([':status' => $status, ':numetu' => $numEtu]);
@@ -755,7 +782,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $stmt = $this->db->prepare("SELECT status FROM dossiers WHERE NumEtu = :numetu");
             $stmt->execute([':numetu' => $numEtu]);
             $current = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!is_array($current)) return false;
+            if (!is_array($current)) {
+                return false;
+            }
             $statuses      = ['depot', 'instruction', 'accepte', 'refuse'];
             $currentStatus = strtolower(trim(is_string($current['status'] ?? null) ? $current['status'] : 'depot'));
             $currentIndex  = array_search($currentStatus, $statuses, true);
@@ -813,7 +842,10 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         if (!empty($filters['search'])) {
             $s = $filters['search'] . '%';
             $where .= " AND (Nom LIKE :s1 OR Prenom LIKE :s2 OR NumEtu LIKE :s3 OR EmailPersonnel LIKE :s4)";
-            $params['s1'] = $s; $params['s2'] = $s; $params['s3'] = $s; $params['s4'] = $s;
+            $params['s1'] = $s;
+            $params['s2'] = $s;
+            $params['s3'] = $s;
+            $params['s4'] = $s;
         }
         if (!empty($filters['departement']) && $filters['departement'] !== 'all') {
             $where .= " AND LOWER(CodeDepartement) = LOWER(:departement)";
@@ -828,11 +860,14 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
         $totalCount = 0;
         try {
             $countStmt = $this->db->prepare("SELECT COUNT(*) as total FROM dossiers" . $where);
-            foreach ($params as $key => $value) $countStmt->bindValue(':' . $key, $value);
+            foreach ($params as $key => $value) {
+                $countStmt->bindValue(':' . $key, $value);
+            }
             $countStmt->execute();
             $row = $countStmt->fetch(PDO::FETCH_ASSOC);
             $totalCount = (is_array($row) && isset($row['total']) && is_numeric($row['total'])) ? (int) $row['total'] : 0;
-        } catch (\PDOException $e) {}
+        } catch (\PDOException $e) {
+        }
 
         $limitClause = $perPage > 0 ? " LIMIT :limit OFFSET :offset" : "";
 
@@ -845,9 +880,11 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
 
         try {
             $stmt = $this->db->prepare($sql);
-            foreach ($params as $key => $value) { $stmt->bindValue(":$key", $value); }
+            foreach ($params as $key => $value) {
+                $stmt->bindValue(":$key", $value);
+            }
             if ($perPage > 0) {
-                $stmt->bindValue(':limit',  $perPage,               PDO::PARAM_INT);
+                $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
                 $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
             }
             $stmt->execute();
@@ -875,7 +912,6 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
 
             $totalPages = ($perPage > 0 && $totalCount > 0) ? (int) ceil($totalCount / $perPage) : 1;
             return ['data' => $data, 'total' => $totalCount, 'totalPages' => $totalPages];
-
         } catch (\PDOException $e) {
             error_log("SQL Error searchWithPagination : " . $e->getMessage() . " | SQL: " . $sql);
             return ['data' => [], 'total' => 0, 'totalPages' => 0];
@@ -1007,7 +1043,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             $pdo->commit();
             return $count;
         } catch (\PDOException $e) {
-            if ($pdo->inTransaction()) { $pdo->rollBack(); }
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             error_log("DB Upsert Error: " . $e->getMessage());
             return 0;
         }
@@ -1026,7 +1064,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             ORDER BY CodeDepartement ASC";
 
         $stmt = $this->db->query($sql);
-        if ($stmt === false) return [];
+        if ($stmt === false) {
+            return [];
+        }
 
         $departments = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -1105,7 +1145,9 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
 
             $piecesJson = $result['PiecesJustificatives'] ?? '{}';
             $pieces     = json_decode($piecesJson, true) ?? [];
-            if (!is_array($pieces)) $pieces = [];
+            if (!is_array($pieces)) {
+                $pieces = [];
+            }
 
             $documentsRequis = self::piecesRequises(
                 is_string($result['Type'] ?? null) ? $result['Type'] : null,
@@ -1152,7 +1194,6 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
             }
 
             return ['manquants' => $manquants, 'presents' => $presents, 'statuts' => $statuts];
-
         } catch (\PDOException $e) {
             error_log("analyserDocuments Error: " . $e->getMessage());
             return ['manquants' => [], 'presents' => [], 'statuts' => []];
@@ -1199,7 +1240,6 @@ class FolderRepositoryPDO implements FolderRepositoryInterface
                 ':statuts'     => json_encode($statutsDocuments),
                 ':numetu'      => $numetu,
             ]);
-
         } catch (\PDOException $e) {
             error_log("enregistrerValidation Error: " . $e->getMessage());
             return false;

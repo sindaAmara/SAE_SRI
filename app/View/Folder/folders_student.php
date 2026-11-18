@@ -52,12 +52,12 @@
  */
 
 if (!isset($t)) {
-    $t = function(array $translations) use ($lang) {
+    $t = function (array $translations) use ($lang) {
         return $translations[$lang] ?? $translations['fr'] ?? '';
     };
 }
 
-$buildUrl = function(string $path, array $params = []) use ($lang): string {
+$buildUrl = function (string $path, array $params = []) use ($lang): string {
     $params['lang'] = $lang;
     $separator = (strpos($path, '?') === false) ? '?' : '&';
     return $path . $separator . http_build_query($params);
@@ -97,7 +97,7 @@ $valMoyenneBac        = htmlspecialchars(strval($dossier['MoyenneBac'] ?? ''));
 $valMoyenneSansBac    = htmlspecialchars(strval($dossier['MoyenneSansBac'] ?? ''));
 $valAvisDRI           = htmlspecialchars(strval($dossier['AvisDRI'] ?? ''));
 $valDateDebut         = htmlspecialchars(strval($dossier['DateDebut'] ?? ''));
-$valMobiliteAnterieure= htmlspecialchars(strval($dossier['MobiliteAnterieure'] ?? ''));
+$valMobiliteAnterieure = htmlspecialchars(strval($dossier['MobiliteAnterieure'] ?? ''));
 $valPays              = htmlspecialchars(strval($dossier['Pays'] ?? ''));
 $valType              = strval($dossier['Type'] ?? '');
 $valZone              = strval($dossier['Zone'] ?? '');
@@ -192,7 +192,7 @@ endif;
                     class="<?= $clsReadonly ?>">
                 <option value="M"    <?= $valSexe === 'M'    ? 'selected' : '' ?>><?= $t(['fr' => 'Masculin', 'en' => 'Male']) ?></option>
                 <option value="F"    <?= $valSexe === 'F'    ? 'selected' : '' ?>><?= $t(['fr' => 'Féminin',  'en' => 'Female']) ?></option>
-                <option value="Autre"<?= $valSexe === 'Autre'? 'selected' : '' ?>><?= $t(['fr' => 'Autre',    'en' => 'Other']) ?></option>
+                <option value="Autre"<?= $valSexe === 'Autre' ? 'selected' : '' ?>><?= $t(['fr' => 'Autre',    'en' => 'Other']) ?></option>
             </select>
 
             <label><?= $t(['fr' => 'Adresse', 'en' => 'Address']) ?></label>
@@ -277,7 +277,7 @@ endif;
                     class="<?= $clsReadonly ?>">
                 <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
                 <option value="europe"     <?= $valZone === 'europe'     ? 'selected' : '' ?>><?= $t(['fr' => 'Europe',      'en' => 'Europe']) ?></option>
-                <option value="hors_europe"<?= $valZone === 'hors_europe'? 'selected' : '' ?>><?= $t(['fr' => 'Hors Europe', 'en' => 'Non-Europe']) ?></option>
+                <option value="hors_europe"<?= $valZone === 'hors_europe' ? 'selected' : '' ?>><?= $t(['fr' => 'Hors Europe', 'en' => 'Non-Europe']) ?></option>
             </select>
 
             <label for="mobilite_type"><?= $t(['fr' => 'Type de mobilité', 'en' => 'Mobility Type']) ?></label>
@@ -299,7 +299,7 @@ endif;
                     'photo'            => ['label' => $t(['fr' => 'Photo',                    'en' => 'Photo']),               'id' => 'doc_photo',              'name' => 'photo',             'accept' => 'image/*'],
                     'cv'               => ['label' => $t(['fr' => 'CV',                        'en' => 'CV']),                  'id' => 'doc_cv',                 'name' => 'cv',                'accept' => '.pdf,.doc,.docx'],
                     'convention'       => ['label' => $t(['fr' => 'Convention de stage',       'en' => 'Internship Agreement']),'id' => 'justificatif_convention','name' => 'convention',        'accept' => '.pdf,.doc,.docx'],
-                    'lettre_motivation'=> ['label' => $t(['fr' => 'Lettre de motivation',      'en' => 'Motivation Letter']),   'id' => 'lettre_motivation',      'name' => 'lettre_motivation', 'accept' => '.pdf,.doc,.docx'],
+                    'lettre_motivation' => ['label' => $t(['fr' => 'Lettre de motivation',      'en' => 'Motivation Letter']),   'id' => 'lettre_motivation',      'name' => 'lettre_motivation', 'accept' => '.pdf,.doc,.docx'],
                     'langues'          => ['label' => $t(['fr' => 'Attestation de langues',    'en' => 'Language Certificate']),'id' => 'doc_langues',            'name' => 'langues_file',      'accept' => '.pdf,.doc,.docx,.jpg,.png'],
             ];
 

@@ -76,10 +76,10 @@ class RelanceRepositoryPDOTest extends TestCase
         $result = $this->repo->wasRecentlySent('12345678', 7);
 
         $this->assertTrue($result);
-        $this->assertSame(':id',          $calls[0][0]);
-        $this->assertSame('12345678',     $calls[0][1]);
-        $this->assertSame(':days',        $calls[1][0]);
-        $this->assertSame(7,              $calls[1][1]);
+        $this->assertSame(':id', $calls[0][0]);
+        $this->assertSame('12345678', $calls[0][1]);
+        $this->assertSame(':days', $calls[1][0]);
+        $this->assertSame(7, $calls[1][1]);
         $this->assertSame(PDO::PARAM_INT, $calls[1][2]); // days must be bound as integer
     }
 
@@ -121,10 +121,10 @@ class RelanceRepositoryPDOTest extends TestCase
 
         $this->repo->wasRecentlySent('99999999', 14);
 
-        $this->assertSame(':id',      $calls[0][0]);
+        $this->assertSame(':id', $calls[0][0]);
         $this->assertSame('99999999', $calls[0][1]);
-        $this->assertSame(':days',    $calls[1][0]);
-        $this->assertSame(14,         $calls[1][1]);
+        $this->assertSame(':days', $calls[1][0]);
+        $this->assertSame(14, $calls[1][1]);
     }
 
     /**

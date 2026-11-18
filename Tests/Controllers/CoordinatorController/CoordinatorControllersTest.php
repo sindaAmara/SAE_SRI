@@ -35,7 +35,7 @@ class CoordinatorControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(ManageFolderUseCase::class);
 
-        $controller = new class($useCaseMock) extends DepartmentHeadController {
+        $controller = new class ($useCaseMock) extends DepartmentHeadController {
             public function __construct(ManageFolderUseCase $useCase)
             {
                 $ref  = new \ReflectionClass(DepartmentHeadController::class);
@@ -44,7 +44,9 @@ class CoordinatorControllersTest extends TestCase
                 $prop->setValue($this, $useCase);
             }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -52,7 +54,9 @@ class CoordinatorControllersTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $useCaseMock];
@@ -67,7 +71,7 @@ class CoordinatorControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(ManageFolderUseCase::class);
 
-        $controller = new class($useCaseMock) extends InternershipCoordinatorController {
+        $controller = new class ($useCaseMock) extends InternershipCoordinatorController {
             public function __construct(ManageFolderUseCase $useCase)
             {
                 $ref  = new \ReflectionClass(InternershipCoordinatorController::class);
@@ -76,7 +80,9 @@ class CoordinatorControllersTest extends TestCase
                 $prop->setValue($this, $useCase);
             }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -84,7 +90,9 @@ class CoordinatorControllersTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $useCaseMock];
@@ -99,7 +107,7 @@ class CoordinatorControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(ManageFolderUseCase::class);
 
-        $controller = new class($useCaseMock) extends StudyCoordinatorController {
+        $controller = new class ($useCaseMock) extends StudyCoordinatorController {
             public function __construct(ManageFolderUseCase $useCase)
             {
                 $ref  = new \ReflectionClass(StudyCoordinatorController::class);
@@ -108,7 +116,9 @@ class CoordinatorControllersTest extends TestCase
                 $prop->setValue($this, $useCase);
             }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -116,7 +126,9 @@ class CoordinatorControllersTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $useCaseMock];
@@ -143,9 +155,9 @@ class CoordinatorControllersTest extends TestCase
 
     public function test_dept_support_returns_false_for_other_pages(): void
     {
-        $this->assertFalse(DepartmentHeadController::support('home',                 'GET'));
-        $this->assertFalse(DepartmentHeadController::support('coordinateur-stage',  'GET'));
-        $this->assertFalse(DepartmentHeadController::support('',                    'GET'));
+        $this->assertFalse(DepartmentHeadController::support('home', 'GET'));
+        $this->assertFalse(DepartmentHeadController::support('coordinateur-stage', 'GET'));
+        $this->assertFalse(DepartmentHeadController::support('', 'GET'));
     }
 
     // =========================================================================
@@ -218,7 +230,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeDeptController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -230,7 +245,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeDeptController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -253,7 +271,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(['CodeDepartement' => 'INFO']);
         $useCaseMock->expects($this->once())->method('setAvisChef')->with('ETU001', 'accepte');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     public function test_dept_post_set_avis_chef_refused_for_other_department(): void
@@ -269,7 +290,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(['CodeDepartement' => 'GEA']);
         $useCaseMock->expects($this->never())->method('setAvisChef');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
         $this->assertStringContainsString('autre département', strval($_SESSION['message'] ?? ''));
     }
 
@@ -293,7 +317,7 @@ class CoordinatorControllersTest extends TestCase
 
         $this->assertNotNull($redirectUrl);
         $this->assertStringContainsString('chef-departement', $redirectUrl);
-        $this->assertStringContainsString('ETU001',           $redirectUrl);
+        $this->assertStringContainsString('ETU001', $redirectUrl);
     }
 
     public function test_dept_post_set_avis_chef_does_not_call_setAvisChef_when_numetu_empty(): void
@@ -307,7 +331,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeDeptController();
         $useCaseMock->expects($this->never())->method('setAvisChef');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     public function test_dept_post_set_avis_chef_does_not_call_setAvisChef_when_avis_invalid(): void
@@ -321,7 +348,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeDeptController();
         $useCaseMock->expects($this->never())->method('setAvisChef');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     // =========================================================================
@@ -338,7 +368,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->once())->method('getStudentDetails')->with('ETU042')->willReturn([]);
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_dept_view_action_does_not_call_getStudentDetails_when_numetu_missing(): void
@@ -350,7 +383,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->never())->method('getStudentDetails');
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -366,7 +402,10 @@ class CoordinatorControllersTest extends TestCase
             ->method('rechercherAvecPagination')
             ->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_dept_filter_departement_comes_from_session_for_chef(): void
@@ -383,7 +422,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('Informatique', $capturedFilters['departement'] ?? null);
     }
@@ -401,7 +443,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame(1, $capturedPage);
     }
@@ -417,9 +462,9 @@ class CoordinatorControllersTest extends TestCase
 
     public function test_intern_support_returns_false_for_other_pages(): void
     {
-        $this->assertFalse(InternershipCoordinatorController::support('chef-departement',   'GET'));
+        $this->assertFalse(InternershipCoordinatorController::support('chef-departement', 'GET'));
         $this->assertFalse(InternershipCoordinatorController::support('coordinateur-etude', 'GET'));
-        $this->assertFalse(InternershipCoordinatorController::support('',                   'GET'));
+        $this->assertFalse(InternershipCoordinatorController::support('', 'GET'));
     }
 
     // =========================================================================
@@ -493,7 +538,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('stage', $capturedFilters['mobilite'] ?? null);
     }
@@ -512,7 +560,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->once())->method('getStudentDetails')->with('ETU007')->willReturn([]);
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_intern_list_action_does_not_call_getStudentDetails(): void
@@ -523,7 +574,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->never())->method('getStudentDetails');
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -537,7 +591,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeInternController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -549,7 +606,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeInternController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -565,9 +625,9 @@ class CoordinatorControllersTest extends TestCase
 
     public function test_study_support_returns_false_for_other_pages(): void
     {
-        $this->assertFalse(StudyCoordinatorController::support('chef-departement',  'GET'));
-        $this->assertFalse(StudyCoordinatorController::support('coordinateur-stage','GET'));
-        $this->assertFalse(StudyCoordinatorController::support('',                  'GET'));
+        $this->assertFalse(StudyCoordinatorController::support('chef-departement', 'GET'));
+        $this->assertFalse(StudyCoordinatorController::support('coordinateur-stage', 'GET'));
+        $this->assertFalse(StudyCoordinatorController::support('', 'GET'));
     }
 
     // =========================================================================
@@ -641,7 +701,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('etude', $capturedFilters['mobilite'] ?? null);
     }
@@ -660,7 +723,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->once())->method('getStudentDetails')->with('ETU099')->willReturn([]);
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_study_list_action_does_not_call_getStudentDetails(): void
@@ -671,7 +737,10 @@ class CoordinatorControllersTest extends TestCase
         $useCaseMock->expects($this->never())->method('getStudentDetails');
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -685,7 +754,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeStudyController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -697,7 +769,10 @@ class CoordinatorControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeStudyController();
         $useCaseMock->method('rechercherAvecPagination')->willReturn($this->emptyPaginationResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -720,7 +795,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame(3, $capturedPage);
     }
@@ -739,7 +817,10 @@ class CoordinatorControllersTest extends TestCase
                 return $this->emptyPaginationResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame(1, $capturedPage);
     }
@@ -759,7 +840,7 @@ class CoordinatorControllersTest extends TestCase
         };
 
         $result = $buildUrl('index.php', ['page' => 'chef-departement']);
-        $this->assertStringContainsString('lang=en',             $result);
+        $this->assertStringContainsString('lang=en', $result);
         $this->assertStringContainsString('page=chef-departement', $result);
     }
 
@@ -774,8 +855,8 @@ class CoordinatorControllersTest extends TestCase
         };
 
         $result = $buildUrl('index.php', ['action' => 'view', 'numetu' => 'ETU001']);
-        $this->assertStringContainsString('lang=fr',      $result);
-        $this->assertStringContainsString('action=view',  $result);
+        $this->assertStringContainsString('lang=fr', $result);
+        $this->assertStringContainsString('action=view', $result);
         $this->assertStringContainsString('numetu=ETU001', $result);
     }
 }

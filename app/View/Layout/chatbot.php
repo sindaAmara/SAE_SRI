@@ -35,7 +35,7 @@
     </div>
     <div id="chat-messages" class="chat-messages"></div>
     <div id="quick-actions" class="quick-actions"></div>
-    <?php if ($userRole === 'student'): ?>
+    <?php if ($userRole === 'student') : ?>
         <div class="chat-input-area">
             <input type="text" placeholder="<?= $t(['fr' => 'Pose ta question...', 'en' => 'Ask a question...']) ?>">
             <button>➤</button>

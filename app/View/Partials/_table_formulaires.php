@@ -78,9 +78,9 @@ foreach ($paginatedData as $etudiant) {
                             <td colspan="8">
                                 <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
                                 <div class="eval-full">
-                                    <?php if ($response && !empty($response['evaluation'])): ?>
+                                    <?php if ($response && !empty($response['evaluation'])) : ?>
                                         <?= nl2br(htmlspecialchars($response['evaluation'])) ?>
-                                    <?php else: ?>
+                                    <?php else : ?>
                                         <?= $t(['fr' => 'Aucune évaluation disponible.', 'en' => 'No evaluation available.']) ?>
                                     <?php endif; ?>
                                 </div>

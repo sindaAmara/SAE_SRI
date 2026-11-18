@@ -18,7 +18,8 @@ class CronReminderService
     public function __construct(
         private FolderRepositoryInterface $folderRepo,
         private RelanceRepositoryInterface $relanceRepo
-    ) {}
+    ) {
+    }
 
     /**
      * Iterates through incomplete folders and sends a reminder if none were sent recently.
@@ -31,11 +32,10 @@ class CronReminderService
         $folders = $this->folderRepo->findIncompleteFolders();
 
         foreach ($folders as $folder) {
-
             $numEtu = isset($folder['NumEtu']) ? strval($folder['NumEtu']) : '';
             $emailAmu = isset($folder['EmailAMU']) ? strval($folder['EmailAMU']) : '';
             $emailPerso = isset($folder['EmailPersonnel']) ? strval($folder['EmailPersonnel']) : '';
-            
+
             // Priority to AMU email, fallback to personal
             $email = $emailAmu !== '' ? $emailAmu : $emailPerso;
 

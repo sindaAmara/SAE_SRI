@@ -124,8 +124,12 @@ class SuperAdminService
         $greeting = $fullName !== '' ? "Bonjour $fullName," : "Bonjour,";
 
         $extra = '';
-        if ($departement) $extra .= " (Département : $departement)";
-        if ($site)        $extra .= " (Site : $site)";
+        if ($departement) {
+            $extra .= " (Département : $departement)";
+        }
+        if ($site) {
+            $extra .= " (Site : $site)";
+        }
 
         $subject = "Votre accès à la plateforme AMU Relations Internationales";
         $body    = "$greeting\n\nVotre compte a été créé.\n"

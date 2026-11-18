@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: Folder validation modal
  *

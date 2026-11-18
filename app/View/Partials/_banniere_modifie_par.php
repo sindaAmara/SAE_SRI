@@ -22,7 +22,7 @@
                 <strong><?= htmlspecialchars(date('d/m/Y', (int) strtotime($modifieLe))) ?></strong>
                 <?= $t(['fr' => 'à', 'en' => 'at']) ?>
                 <strong><?= htmlspecialchars(date('H:i', (int) strtotime($modifieLe))) ?></strong>
-            <?php endif; ?>
+                    <?php endif; ?>
         <?php else : ?>
             <?= $t(['fr' => 'Dossier jamais modifié', 'en' => 'Folder never modified']) ?>
         <?php endif; ?>

@@ -39,7 +39,7 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?php if (!empty($metaDescription)): ?>
+    <?php if (!empty($metaDescription)) : ?>
         <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
     <?php endif; ?>
 
@@ -51,7 +51,7 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
     <link rel="icon" type="image/png" href="img/favicon.webp"/>
 
     <!-- Styles additionnels -->
-    <?php foreach ($styles as $style): ?>
+    <?php foreach ($styles as $style) : ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style) ?>">
     <?php endforeach; ?>
 </head>
@@ -65,7 +65,7 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
 </header>
 
 <main>
-    <?php if (isset($_SESSION['message'])): ?>
+    <?php if (isset($_SESSION['message'])) : ?>
         <div class="message">
             <?= htmlspecialchars((string) $_SESSION['message']); ?>
             <?php unset($_SESSION['message']); ?>
@@ -81,7 +81,7 @@ $isTritanopia = isset($_SESSION['tritanopia']) && $_SESSION['tritanopia'] === tr
 <script src="js/main.js"></script>
 
 <!-- Scripts additionnels -->
-<?php foreach ($scripts as $script): ?>
+<?php foreach ($scripts as $script) : ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>
 <?php endforeach; ?>
 

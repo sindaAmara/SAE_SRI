@@ -49,11 +49,11 @@ class PartnerRepositoryPDOTest extends TestCase
      * individual arguments to test other scenarios.
      */
     private function makePartner(
-        string $continent   = 'Europe',
-        string $country     = 'Allemagne',
-        string $city        = 'Berlin',
+        string $continent = 'Europe',
+        string $country = 'Allemagne',
+        string $city = 'Berlin',
         string $institution = 'TU Berlin',
-        string $type        = 'université'
+        string $type = 'université'
     ): Partner {
         $p = $this->createMock(Partner::class);
         $p->method('getContinent')->willReturn($continent);

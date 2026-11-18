@@ -69,7 +69,6 @@ ob_start();
 ?>
 
 <?php if ($action === 'view') : ?>
-
     <?php if (!$studentData) : ?>
         <p><?= $t(['fr' => 'Étudiant non trouvé', 'en' => 'Student not found']) ?></p>
     <?php else : ?>
@@ -147,7 +146,6 @@ ob_start();
     <?php endif; ?>
 
 <?php else : ?>
-
     <h1><?= $t(['fr' => 'Étudiants en mobilité d\'étude et de stage', 'en' => 'Students on study and internship mobility programs']) ?></h1>
 
     <?php if (!empty($message)) : ?>

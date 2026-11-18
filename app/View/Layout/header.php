@@ -67,7 +67,7 @@ if (empty($userRole) && !empty($_SESSION['role'])) {
 
 if (!isset($t) || !is_callable($t)) {
     $lang = $lang ?? $_SESSION['lang'] ?? 'fr';
-    $t = function(array $frEn) use ($lang): string {
+    $t = function (array $frEn) use ($lang): string {
         return $frEn[$lang] ?? $frEn['fr'] ?? '';
     };
 }
@@ -99,12 +99,12 @@ $userRole === 'admin'        ? 'home-admin'        :
             $isHomePage = in_array($activeMenu, ['home', 'home-coordinateur'], true);
             ?>
 
-            <?php if ($isHomePage): ?>
-                <?php if (isset($_SESSION['role'])): ?>
+            <?php if ($isHomePage) : ?>
+                <?php if (isset($_SESSION['role'])) : ?>
                     <button onclick="window.location.href='index.php?page=logout&lang=<?= urlencode($lang) ?>'">
                         <?= $t(['fr' => 'Se déconnecter', 'en' => 'Log out']) ?>
                     </button>
-                <?php else: ?>
+                <?php else : ?>
                     <button onclick="window.location.href='index.php?page=login&lang=<?= urlencode($lang) ?>'">
                         <?= $t(['fr' => 'Se connecter', 'en' => 'Log in']) ?>
                     </button>
@@ -120,7 +120,6 @@ $userRole === 'admin'        ? 'home-admin'        :
     <nav class="menu">
 
         <?php if ($userRole === 'coordinateur') : ?>
-
             <button
                 <?= $activeMenu === 'home-coordinateur' ? 'class="active"' : '' ?>
                     onclick="window.location.href='index.php?page=home-coordinateur&lang=<?= urlencode($lang) ?>'">
@@ -138,7 +137,6 @@ $userRole === 'admin'        ? 'home-admin'        :
             </button>
 
         <?php elseif ($userRole === 'coordinateur_etude') : ?>
-
             <button
                 <?= $activeMenu === 'home-coordinateur' ? 'class="active"' : '' ?>
                     onclick="window.location.href='index.php?page=home-coordinateur&lang=<?= urlencode($lang) ?>'">
@@ -151,7 +149,6 @@ $userRole === 'admin'        ? 'home-admin'        :
             </button>
 
         <?php elseif ($userRole === 'coordinateur_stage') : ?>
-
             <button
                 <?= $activeMenu === 'home-coordinateur' ? 'class="active"' : '' ?>
                     onclick="window.location.href='index.php?page=home-coordinateur&lang=<?= urlencode($lang) ?>'">
@@ -164,7 +161,6 @@ $userRole === 'admin'        ? 'home-admin'        :
             </button>
 
         <?php elseif ($userRole === 'chef_departement') : ?>
-
             <button
                 <?= $activeMenu === 'home-coordinateur' ? 'class="active"' : '' ?>
                     onclick="window.location.href='index.php?page=home-coordinateur&lang=<?= urlencode($lang) ?>'">
@@ -177,7 +173,6 @@ $userRole === 'admin'        ? 'home-admin'        :
             </button>
 
         <?php else : ?>
-
             <?php
             $suffix = $userRole === 'admin' ? '-admin' : '-student';
 
@@ -209,7 +204,7 @@ $userRole === 'admin'        ? 'home-admin'        :
                 $menus['contact'] = ['fr' => 'Contact', 'en' => 'Contact'];
             }
 
-            foreach ($menus as $key => $labels):
+            foreach ($menus as $key => $labels) :
                 $isActive = $activeMenu === $key || $activeMenu === $key . $suffix;
                 $page     = ($key === 'dashboard' && $userRole === 'admin') ? 'stage-form-admin' : $key . $suffix;
                 $url      = 'index.php?page=' . urlencode($page) . '&lang=' . urlencode($lang);

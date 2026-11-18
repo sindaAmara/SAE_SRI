@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: Quick-decision banner (department head only)
  *

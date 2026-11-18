@@ -81,7 +81,7 @@ class PartnersControllerStudent implements ControllerInterface
         $partner = isset($_GET['partner']) && $_GET['partner'] === 'iut' ? 'iut' : 'amu';
 
         // Set page title based on partner and language
-        $titre = match(true) {
+        $titre = match (true) {
             $partner === 'amu' && $lang === 'fr' => 'Universités Destinations AMU',
             $partner === 'amu' && $lang === 'en' => 'AMU Destinations Universities',
             $partner === 'iut' && $lang === 'fr' => 'Universités Destinations IUT',

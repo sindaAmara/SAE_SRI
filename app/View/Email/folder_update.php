@@ -48,22 +48,22 @@ $autresLignes = $autresLignes ?? [];
         <p>Votre dossier a été examiné par l'administration. Voici le récapitulatif :</p>
 
         <div class="email-summary">
-            <?php if (!empty($sectionAcceptees)): ?>
+            <?php if (!empty($sectionAcceptees)) : ?>
                 <p class="summary-title--green">✅ Documents validés :</p>
                 <ul><?= $sectionAcceptees ?></ul>
             <?php endif; ?>
 
-            <?php if (!empty($sectionRefusees)): ?>
+            <?php if (!empty($sectionRefusees)) : ?>
                 <p class="summary-title--red">❌ Documents non validés :</p>
                 <ul><?= $sectionRefusees ?></ul>
             <?php endif; ?>
 
-            <?php foreach ($autresLignes as $ligne): ?>
+            <?php foreach ($autresLignes as $ligne) : ?>
                 <p class="summary-line"><?= $ligne ?></p>
             <?php endforeach; ?>
         </div>
 
-        <?php if (!empty($statutGlobal)):
+        <?php if (!empty($statutGlobal)) :
             $statutClasses = [
                 'Dépôt'          => 'email-status--depot',
                 'En instruction' => 'email-status--instruction',
@@ -78,7 +78,7 @@ $autresLignes = $autresLignes ?? [];
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($dateLimite)): ?>
+        <?php if (!empty($dateLimite)) : ?>
             <p class="email-deadline">📅 Date limite de remise des pièces : <strong><?= htmlspecialchars($dateLimite, ENT_QUOTES, 'UTF-8') ?></strong></p>
         <?php endif; ?>
 

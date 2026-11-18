@@ -33,7 +33,7 @@ class ContactService
      * @return int ID of the created conversation.
      * @throws \InvalidArgumentException if validation fails.
      */
-    public function createConversation(string $studentNumEtu, string $name, string $email, string $subject, string $initialMessage): int 
+    public function createConversation(string $studentNumEtu, string $name, string $email, string $subject, string $initialMessage): int
     {
         $this->validateEmail($email);
         $this->validateRequired($name, 'name');
@@ -54,19 +54,21 @@ class ContactService
     {
         $this->validateRequired($content, 'content');
         $conversation = $this->repository->findById($conversationId);
-        if (!$conversation) return false;
+        if (!$conversation) {
+            return false;
+        }
 
         $saved = $this->repository->addMessage($conversationId, $senderType, $content);
 
         if ($saved) {
             error_log("📧 DEBUG: Message saved, sending notification. Sender: {$senderType}");
-            
+
             if ($senderType === 'admin') {
                 $recipientEmail = $conversation->getEmail();
                 $recipientName = $conversation->getName();
                 $senderName = 'Service Relations Internationales';
                 $platformLink = 'https://ri-amu.app/index.php?page=contact-student';
-                
+
                 EmailReminderService::sendMessageNotification(
                     $recipientEmail,
                     $recipientName,
@@ -74,13 +76,12 @@ class ContactService
                     $content,
                     $platformLink
                 );
-                
             } elseif ($senderType === 'student') {
                 $adminEmail = 'relations.internationales@univ-amu.fr';
                 $recipientName = 'Administrateur';
                 $senderName = $conversation->getName();
                 $platformLink = 'https://ri-amu.app/index.php?page=messages-admin';
-                
+
                 EmailReminderService::sendMessageNotification(
                     $adminEmail,
                     $recipientName,
@@ -89,7 +90,7 @@ class ContactService
                     $platformLink
                 );
             }
-            
+
             usleep(500000); // 0.5 second delay
         }
 
@@ -156,7 +157,9 @@ class ContactService
      */
     private function validateEmail(string $email): void
     {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) throw new \InvalidArgumentException('Invalid email');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException('Invalid email');
+        }
     }
 
     /**
@@ -166,6 +169,8 @@ class ContactService
      */
     private function validateRequired(string $value, string $fieldName): void
     {
-        if (empty(trim($value))) throw new \InvalidArgumentException("Field '$fieldName' is required");
+        if (empty(trim($value))) {
+            throw new \InvalidArgumentException("Field '$fieldName' is required");
+        }
     }
 }

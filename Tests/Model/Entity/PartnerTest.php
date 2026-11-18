@@ -29,10 +29,10 @@ class PartnerTest extends TestCase
             "Échange"
         );
 
-        $this->assertEquals("Europe",                    $partner->getContinent());
-        $this->assertEquals("Espagne",                    $partner->getCountry());
-        $this->assertEquals("Barcelone",                  $partner->getCity());
-        $this->assertEquals("Universitat de Barcelona",   $partner->getInstitution());
-        $this->assertEquals("Échange",                    $partner->getType());
+        $this->assertEquals("Europe", $partner->getContinent());
+        $this->assertEquals("Espagne", $partner->getCountry());
+        $this->assertEquals("Barcelone", $partner->getCity());
+        $this->assertEquals("Universitat de Barcelona", $partner->getInstitution());
+        $this->assertEquals("Échange", $partner->getType());
     }
 }
