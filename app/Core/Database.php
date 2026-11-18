@@ -103,7 +103,9 @@ class Database
     /**
      * Prevents cloning of the singleton instance.
      */
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     /**
      * Prevents unserialization of the singleton instance.

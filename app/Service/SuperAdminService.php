@@ -124,8 +124,12 @@ class SuperAdminService
         $greeting = $fullName !== '' ? "Bonjour $fullName," : "Bonjour,";
 
         $extra = '';
-        if ($departement) $extra .= " (Département : $departement)";
-        if ($site)        $extra .= " (Site : $site)";
+        if ($departement) {
+            $extra .= " (Département : $departement)";
+        }
+        if ($site) {
+            $extra .= " (Site : $site)";
+        }
 
         $subject = "Votre accès à la plateforme AMU Relations Internationales";
         $body    = "$greeting\n\nVotre compte a été créé.\n"
@@ -134,7 +138,8 @@ class SuperAdminService
 
         $success = mail($email, $subject, $body, "From: noreply@univ-amu.fr");
         if (!$success) {
-            $errorMessage = error_get_last()['message'];
+            $lastError    = error_get_last();
+            $errorMessage = $lastError !== null ? $lastError['message'] : 'erreur inconnue';
             var_dump("Erreur lors de l'envoi de l'email : $errorMessage");
         }
     }

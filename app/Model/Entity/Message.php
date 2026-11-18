@@ -58,42 +58,60 @@ class Message
      *
      * @return int|null
      */
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     /**
      * Returns the identifier of the parent conversation.
      *
      * @return int
      */
-    public function getConversationId(): int { return $this->conversationId; }
+    public function getConversationId(): int
+    {
+        return $this->conversationId;
+    }
 
     /**
      * Returns the sender type ('admin' or 'student').
      *
      * @return string
      */
-    public function getSenderType(): string { return $this->senderType; }
+    public function getSenderType(): string
+    {
+        return $this->senderType;
+    }
 
     /**
      * Returns the text content of the message.
      *
      * @return string
      */
-    public function getContent(): string { return $this->content; }
+    public function getContent(): string
+    {
+        return $this->content;
+    }
 
     /**
      * Returns whether the message has been read by the recipient.
      *
      * @return bool
      */
-    public function isRead(): bool { return $this->isRead; }
+    public function isRead(): bool
+    {
+        return $this->isRead;
+    }
 
     /**
      * Returns the creation timestamp of the message.
      *
      * @return \DateTime
      */
-    public function getCreatedAt(): \DateTime { return $this->createdAt; }
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
 
     /**
      * Marks the message as read.

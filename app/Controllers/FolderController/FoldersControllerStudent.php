@@ -77,8 +77,14 @@ class FoldersControllerStudent implements ControllerInterface
         $page   = isset($_GET['page']) && is_string($_GET['page']) ? $_GET['page'] : '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($page === 'update_my_folder') { $this->handleUpdateFolder($numetu, $lang); return; }
-            if ($page === 'create_folder')    { $this->handleCreateFolder($numetu, $lang); return; }
+            if ($page === 'update_my_folder') {
+                $this->handleUpdateFolder($numetu, $lang);
+                return;
+            }
+            if ($page === 'create_folder') {
+                $this->handleCreateFolder($numetu, $lang);
+                return;
+            }
         }
 
         $this->displayFolderPage($numetu, $lang);

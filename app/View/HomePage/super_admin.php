@@ -58,10 +58,10 @@ ob_start();
             </div>
         </div>
 
-        <?php if ($success): ?>
+        <?php if ($success) : ?>
             <div class="sa-alert sa-alert--success"><span class="sa-alert-icon">✓</span><?= htmlspecialchars($success) ?></div>
         <?php endif; ?>
-        <?php if ($error): ?>
+        <?php if ($error) : ?>
             <div class="sa-alert sa-alert--error"><span class="sa-alert-icon">✗</span><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
@@ -176,7 +176,7 @@ ob_start();
                         <div class="sa-input-group">
                             <select class="sa-input" id="departement" name="departement">
                                 <option value=""><?= $t(['fr' => '-- Choisir un département --', 'en' => '-- Choose a department --']) ?></option>
-                                <?php foreach ($departments as $dept): ?>
+                                <?php foreach ($departments as $dept) : ?>
                                     <option value="<?= htmlspecialchars($dept) ?>"><?= htmlspecialchars($dept) ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -201,7 +201,7 @@ ob_start();
                         <div class="sa-input-group">
                             <select class="sa-input" id="site" name="site">
                                 <option value=""><?= $t(['fr' => '-- Choisir un site --', 'en' => '-- Choose a site --']) ?></option>
-                                <?php foreach ($sites as $s): ?>
+                                <?php foreach ($sites as $s) : ?>
                                     <option value="<?= htmlspecialchars($s) ?>"><?= htmlspecialchars($s) ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -235,11 +235,11 @@ ob_start();
                     <span class="sa-badge"><?= count($accounts) ?></span>
                 </h2>
 
-                <?php if (empty($accounts)): ?>
+                <?php if (empty($accounts)) : ?>
                     <div class="sa-empty"><?= $t(['fr' => 'Aucun compte créé pour l\'instant.', 'en' => 'No accounts created yet.']) ?></div>
-                <?php else: ?>
+                <?php else : ?>
                     <div class="sa-accounts-list">
-                        <?php foreach ($accounts as $account): ?>
+                        <?php foreach ($accounts as $account) : ?>
                             <div class="sa-account-item">
                                 <div class="sa-account-info">
                                     <div class="sa-account-avatar">
@@ -253,16 +253,16 @@ ob_start();
                                     </div>
                                     <div class="sa-account-details">
                                         <div class="sa-account-login">
-                                            <?php if (!empty($account['nom']) || !empty($account['prenom'])): ?>
+                                            <?php if (!empty($account['nom']) || !empty($account['prenom'])) : ?>
                                                 <strong><?= htmlspecialchars(trim(($account['prenom'] ?? '') . ' ' . ($account['nom'] ?? ''))) ?></strong>
                                                 <span class="sa-account-email"><?= htmlspecialchars($account['login']) ?></span>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <?= htmlspecialchars($account['login']) ?>
                                             <?php endif; ?>
                                         </div>
                                         <div class="sa-account-meta">
                                         <span class="sa-role-badge sa-role-badge--<?= htmlspecialchars($account['role']) ?>">
-                                            <?= match($account['role']) {
+                                            <?= match ($account['role']) {
                                                 'admin'              => $t(['fr' => 'Secrétaire',                'en' => 'Secretary']),
                                                 'coordinateur'       => $t(['fr' => 'Coord. Étude & Stage',      'en' => 'Study & Internship Coord.']),
                                                 'coordinateur_etude' => $t(['fr' => 'Coord. d\'étude',          'en' => 'Study Coordinator']),
@@ -271,10 +271,10 @@ ob_start();
                                                 default              => htmlspecialchars($account['role']),
                                             } ?>
                                         </span>
-                                            <?php if (!empty($account['departement'])): ?>
+                                            <?php if (!empty($account['departement'])) : ?>
                                                 <span class="sa-dept-badge">🏛 <?= htmlspecialchars($account['departement']) ?></span>
                                             <?php endif; ?>
-                                            <?php if (!empty($account['site'])): ?>
+                                            <?php if (!empty($account['site'])) : ?>
                                                 <span class="sa-dept-badge sa-dept-badge--site">📍 <?= htmlspecialchars($account['site']) ?></span>
                                             <?php endif; ?>
                                             <span class="sa-account-date">

@@ -37,7 +37,7 @@ $isEditable   = $allEditable    ?? false;
  * If $isEditable is true, no attributes are added (field is fully active).
  * Otherwise, the field is editable only if its name appears in $activeFields.
  */
-$fieldAttrs = function(string $name) use ($activeFields, $isEditable): string {
+$fieldAttrs = function (string $name) use ($activeFields, $isEditable): string {
     if ($isEditable) {
         return '';
     }
@@ -54,7 +54,7 @@ $fieldAttrs = function(string $name) use ($activeFields, $isEditable): string {
  * must be paired with a hidden mirror input (see $needsHidden).
  * Returns the appropriate attributes based on editability of the field.
  */
-$selectAttrs = function(string $name) use ($activeFields, $isEditable): string {
+$selectAttrs = function (string $name) use ($activeFields, $isEditable): string {
     if ($isEditable) {
         return '';
     }
@@ -70,13 +70,17 @@ $selectAttrs = function(string $name) use ($activeFields, $isEditable): string {
  * A mirror input is needed when the select is disabled (and therefore excluded
  * from the POST payload) so that the existing database value is preserved.
  */
-$needsHidden = function(string $name) use ($activeFields, $isEditable): bool {
-    if ($isEditable) return false;
-    if (in_array($name, $activeFields, true)) return false;
+$needsHidden = function (string $name) use ($activeFields, $isEditable): bool {
+    if ($isEditable) {
+        return false;
+    }
+    if (in_array($name, $activeFields, true)) {
+        return false;
+    }
     return true;
 };
 
-$labelClass = function(string $name) use ($activeFields, $isEditable): string {
+$labelClass = function (string $name) use ($activeFields, $isEditable): string {
     if (!$isEditable && in_array($name, $activeFields, true)) {
         return ' class="label-editable"';
     }

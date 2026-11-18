@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Partial: Frise du circuit de validation (5 étapes) + boutons d'action
  *
@@ -32,7 +33,9 @@ $wfAvis    = strval($wfRow['avis_chef_departement'] ?? '');
 $wfChefIdx = WorkflowStep::index(WorkflowStep::VALIDE_CHEF);
 
 $wfDate = function (mixed $value): string {
-    if (empty($value) || !is_string($value)) return '';
+    if (empty($value) || !is_string($value)) {
+        return '';
+    }
     $ts = strtotime($value);
     return $ts ? date('d/m/Y', $ts) : '';
 };
@@ -92,9 +95,15 @@ $wfAction = 'index.php?page=valider_etape&lang=' . urlencode($lang);
             <?php
             $isChefRefused = $code === WorkflowStep::VALIDE_CHEF && $wfAvis === 'refuse' && $wfIndex >= $wfChefIdx - 1;
             $classes = ['workflow__step', 'workflow__step--' . $code];
-            if ($i <= $wfIndex)  $classes[] = 'workflow__step--done';
-            if ($i === $wfIndex) $classes[] = 'workflow__step--current';
-            if ($isChefRefused)  $classes[] = 'workflow__step--refused';
+            if ($i <= $wfIndex) {
+                $classes[] = 'workflow__step--done';
+            }
+            if ($i === $wfIndex) {
+                $classes[] = 'workflow__step--current';
+            }
+            if ($isChefRefused) {
+                $classes[] = 'workflow__step--refused';
+            }
             ?>
             <li class="<?= implode(' ', $classes) ?>" <?= $i === $wfIndex ? 'aria-current="step"' : '' ?>>
                 <span class="workflow__num"><?= $i + 1 ?></span>

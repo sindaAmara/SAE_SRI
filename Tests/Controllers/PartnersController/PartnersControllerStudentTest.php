@@ -38,9 +38,13 @@ class PartnersControllerStudentTest extends TestCase
     private function makeController(): PartnersControllerStudent
     {
         return new class extends PartnersControllerStudent {
-            public function __construct() {}
+            public function __construct()
+            {
+            }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -49,7 +53,9 @@ class PartnersControllerStudentTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
     }
 
@@ -97,7 +103,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true); // Ensure no exceptions occur
     }
@@ -112,7 +119,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true); // Ensure no exceptions occur
     }
@@ -127,7 +135,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -142,7 +151,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -157,7 +167,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue($_SESSION['tritanopia'] ?? false);
     }
@@ -172,7 +183,8 @@ class PartnersControllerStudentTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertFalse($_SESSION['tritanopia'] ?? true);
     }

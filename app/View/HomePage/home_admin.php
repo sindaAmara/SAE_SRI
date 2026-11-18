@@ -138,7 +138,7 @@ ob_start();
                             ])) ?>">
                                 <?= $t(['fr' => 'Tous les départements', 'en' => 'All departments']) ?>
                             </a>
-                            <?php foreach ($allDepartements as $dept): ?>
+                            <?php foreach ($allDepartements as $dept) : ?>
                                 <a href="<?= $buildUrl('index.php', array_filter([
                                         'page'        => 'home-admin',
                                         'mobilite'    => $mobiliteFilter,
@@ -271,7 +271,7 @@ ob_start();
                 <div class="stat-slide">
                     <h2><?= $t(['fr' => 'Classement par continent', 'en' => 'Ranking by Continent']) ?></h2>
                     <div class="stat-content ranking">
-                        <?php foreach (array_slice($zoneStats, 0, 6) as $index => $continent): ?>
+                        <?php foreach (array_slice($zoneStats, 0, 6) as $index => $continent) : ?>
                             <div class="ranking-item">
                                 <span class="rank"><?= $index + 1 ?></span>
                                 <span class="country-name"><?= htmlspecialchars($continent['name']) ?></span>
@@ -306,7 +306,7 @@ ob_start();
                 <div class="stat-slide">
                     <h2><?= $t(['fr' => 'Pays les plus demandés', 'en' => 'Most Requested Countries']) ?></h2>
                     <div class="stat-content ranking">
-                        <?php foreach (array_slice($topCountries, 0, 5) as $index => $country): ?>
+                        <?php foreach (array_slice($topCountries, 0, 5) as $index => $country) : ?>
                             <div class="ranking-item">
                                 <span class="rank"><?= $index + 1 ?></span>
                                 <span class="country-name"><?= htmlspecialchars($country->getName()) ?></span>

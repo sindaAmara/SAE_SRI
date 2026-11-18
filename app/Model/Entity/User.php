@@ -50,42 +50,60 @@ class User
      *
      * @return int|null
      */
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     /**
      * Returns the email address of the user.
      *
      * @return string
      */
-    public function getEmail(): string { return $this->email; }
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 
     /**
      * Returns the student number, or null if the user is not a student.
      *
      * @return string|null
      */
-    public function getNumetu(): ?string { return $this->numetu; }
+    public function getNumetu(): ?string
+    {
+        return $this->numetu;
+    }
 
     /**
      * Returns the hashed password of the user.
      *
      * @return string
      */
-    public function getPassword(): string { return $this->password; }
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
 
     /**
      * Returns the role of the user.
      *
      * @return string
      */
-    public function getRole(): string { return $this->role; }
+    public function getRole(): string
+    {
+        return $this->role;
+    }
 
     /**
      * Returns the department the user belongs to, or null if not set.
      *
      * @return string|null
      */
-    public function getDepartement(): ?string { return $this->departement; }
+    public function getDepartement(): ?string
+    {
+        return $this->departement;
+    }
 
     /**
      * Sets the database identifier of the user.
@@ -93,7 +111,10 @@ class User
      * @param int|null $id
      * @return void
      */
-    public function setId(?int $id): void { $this->id = $id; }
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
 
     /**
      * Sets the email address of the user.
@@ -101,7 +122,10 @@ class User
      * @param string $email
      * @return void
      */
-    public function setEmail(string $email): void { $this->email = $email; }
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
 
     /**
      * Sets the student number of the user.
@@ -109,7 +133,10 @@ class User
      * @param string|null $numetu
      * @return void
      */
-    public function setNumetu(?string $numetu): void { $this->numetu = $numetu; }
+    public function setNumetu(?string $numetu): void
+    {
+        $this->numetu = $numetu;
+    }
 
     /**
      * Sets the hashed password of the user.
@@ -117,7 +144,10 @@ class User
      * @param string $password
      * @return void
      */
-    public function setPassword(string $password): void { $this->password = $password; }
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
 
     /**
      * Sets the role of the user.
@@ -125,7 +155,10 @@ class User
      * @param string $role
      * @return void
      */
-    public function setRole(string $role): void { $this->role = $role; }
+    public function setRole(string $role): void
+    {
+        $this->role = $role;
+    }
 
     /**
      * Sets the department the user belongs to.
@@ -133,5 +166,8 @@ class User
      * @param string|null $departement
      * @return void
      */
-    public function setDepartement(?string $departement): void { $this->departement = $departement; }
+    public function setDepartement(?string $departement): void
+    {
+        $this->departement = $departement;
+    }
 }

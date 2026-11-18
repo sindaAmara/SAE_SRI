@@ -135,11 +135,21 @@ class SaveStudentControllerTest extends TestCase
     private function runValidation(array $data, string $lang = 'fr'): array
     {
         $errors = [];
-        if (($data['NumEtu']         ?? '') === '') $errors[] = $lang === 'fr' ? 'Le numéro étudiant est requis' : 'Student ID is required';
-        if (($data['Nom']            ?? '') === '') $errors[] = $lang === 'fr' ? 'Le nom est requis'             : 'Last name is required';
-        if (($data['Prenom']         ?? '') === '') $errors[] = $lang === 'fr' ? 'Le prénom est requis'          : 'First name is required';
-        if (($data['EmailPersonnel'] ?? '') === '') $errors[] = $lang === 'fr' ? "L'email est requis"            : 'Email is required';
-        if (($data['Telephone']      ?? '') === '') $errors[] = $lang === 'fr' ? 'Le téléphone est requis'       : 'Phone is required';
+        if (($data['NumEtu']         ?? '') === '') {
+            $errors[] = $lang === 'fr' ? 'Le numéro étudiant est requis' : 'Student ID is required';
+        }
+        if (($data['Nom']            ?? '') === '') {
+            $errors[] = $lang === 'fr' ? 'Le nom est requis'             : 'Last name is required';
+        }
+        if (($data['Prenom']         ?? '') === '') {
+            $errors[] = $lang === 'fr' ? 'Le prénom est requis'          : 'First name is required';
+        }
+        if (($data['EmailPersonnel'] ?? '') === '') {
+            $errors[] = $lang === 'fr' ? "L'email est requis"            : 'Email is required';
+        }
+        if (($data['Telephone']      ?? '') === '') {
+            $errors[] = $lang === 'fr' ? 'Le téléphone est requis'       : 'Phone is required';
+        }
         return $errors;
     }
 
@@ -265,11 +275,11 @@ class SaveStudentControllerTest extends TestCase
             'EmailPersonnel' => '', 'Telephone' => '',
         ], 'en');
 
-        $this->assertContains('Student ID is required',  $errors);
-        $this->assertContains('Last name is required',   $errors);
-        $this->assertContains('First name is required',  $errors);
-        $this->assertContains('Email is required',       $errors);
-        $this->assertContains('Phone is required',       $errors);
+        $this->assertContains('Student ID is required', $errors);
+        $this->assertContains('Last name is required', $errors);
+        $this->assertContains('First name is required', $errors);
+        $this->assertContains('Email is required', $errors);
+        $this->assertContains('Phone is required', $errors);
     }
 
     /**
@@ -424,12 +434,12 @@ class SaveStudentControllerTest extends TestCase
             'Type'           => (string)($_POST['type']        ?? ''),
         ];
 
-        $this->assertEquals('22000001',          $data['NumEtu']);
-        $this->assertEquals('DUPONT',            $data['Nom']);
-        $this->assertEquals('Alice',             $data['Prenom']);
+        $this->assertEquals('22000001', $data['NumEtu']);
+        $this->assertEquals('DUPONT', $data['Nom']);
+        $this->assertEquals('Alice', $data['Prenom']);
         $this->assertEquals('alice@example.com', $data['EmailPersonnel']);
-        $this->assertEquals('0600000000',        $data['Telephone']);
-        $this->assertEquals('sortant',           $data['Type']);
+        $this->assertEquals('0600000000', $data['Telephone']);
+        $this->assertEquals('sortant', $data['Type']);
     }
 
     /**

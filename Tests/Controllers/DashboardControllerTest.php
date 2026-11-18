@@ -74,12 +74,12 @@ class DashboardControllerTest extends TestCase
 
     /**
      * @test
-     * The controller must claim the "dashboard-admin" page on GET so the
-     * router directs admin dashboard traffic through it.
+     * The admin dashboard has been removed: "dashboard-admin" must no longer
+     * be routed to this controller.
      */
-    public function testSupportReturnsTrueForDashboardAdminGet(): void
+    public function testSupportReturnsFalseForDashboardAdmin(): void
     {
-        $this->assertTrue(DashboardController::support('dashboard-admin', 'GET'));
+        $this->assertFalse(DashboardController::support('dashboard-admin', 'GET'));
     }
 
     /**
@@ -507,11 +507,15 @@ class DashboardControllerTest extends TestCase
         // so the progress bar reaches 100%.
         $statusForProgress = in_array($status, ['accepte', 'refuse'], true) ? 'accepte' : $status;
         $currentStepIndex  = array_search($statusForProgress, $steps, true);
-        if ($currentStepIndex === false) $currentStepIndex = 0;
+        if ($currentStepIndex === false) {
+            $currentStepIndex = 0;
+        }
         $totalSteps         = count($steps);
         $progressPercentage = ((int)$currentStepIndex / ($totalSteps - 1)) * 100;
         // Enforce a minimum bar width so the UI always shows at least a sliver.
-        if ($progressPercentage == 0) $progressPercentage = 8;
+        if ($progressPercentage == 0) {
+            $progressPercentage = 8;
+        }
         $this->assertEquals($expectedPercentage, $progressPercentage);
     }
 
@@ -645,7 +649,7 @@ class DashboardControllerTest extends TestCase
         $folder = ['Nom' => 'TEST', 'NumEtu' => '99', 'Type' => 'sortant'];
         $annee  = strval($folder['Annee']    ?? '2024-2025');
         $camp   = strval($folder['Campagne'] ?? 'Automne 2024');
-        $this->assertEquals('2024-2025',    $annee);
+        $this->assertEquals('2024-2025', $annee);
         $this->assertEquals('Automne 2024', $camp);
     }
 
@@ -697,18 +701,30 @@ class DashboardControllerTest extends TestCase
             // Student name / number search: matches Nom, Prenom, or NumEtu.
             if ($filters['student'] !== '') {
                 $fullName = strtolower("$nom $prenom $numEtu");
-                if (strpos($fullName, $filters['student']) === false) continue;
+                if (strpos($fullName, $filters['student']) === false) {
+                    continue;
+                }
             }
-            if ($filters['dept'] !== '' && $dept !== $filters['dept']) continue;
-            if ($filters['year'] !== '' && $annee !== $filters['year']) continue;
-            if ($filters['camp'] !== '' && $campagne !== $filters['camp']) continue;
+            if ($filters['dept'] !== '' && $dept !== $filters['dept']) {
+                continue;
+            }
+            if ($filters['year'] !== '' && $annee !== $filters['year']) {
+                continue;
+            }
+            if ($filters['camp'] !== '' && $campagne !== $filters['camp']) {
+                continue;
+            }
             if ($filters['dest'] !== '') {
-                if (strpos(strtolower($destination), $filters['dest']) === false) continue;
+                if (strpos(strtolower($destination), $filters['dest']) === false) {
+                    continue;
+                }
             }
             // Cadre filter: partial match against either Composante or Accord.
             if ($filters['cadre'] !== '') {
                 $cadreRecherche = $filters['cadre'];
-                if (stripos($composante, $cadreRecherche) === false && stripos($accord, $cadreRecherche) === false) continue;
+                if (stripos($composante, $cadreRecherche) === false && stripos($accord, $cadreRecherche) === false) {
+                    continue;
+                }
             }
             $result[] = $d;
         }
@@ -729,10 +745,14 @@ class DashboardControllerTest extends TestCase
         $isComplete    = intval($d['IsComplete'] ?? 0);
         $piecesJson    = strval($d['PiecesJustificatives'] ?? '');
         $pieces        = (!empty($piecesJson)) ? json_decode($piecesJson, true) : [];
-        if (!is_array($pieces)) $pieces = [];
+        if (!is_array($pieces)) {
+            $pieces = [];
+        }
         $countProvided = count($pieces);
         $totalRequired = 4;
-        if ($isComplete === 1) return 100;
+        if ($isComplete === 1) {
+            return 100;
+        }
         $percentage = (int)round(($countProvided / $totalRequired) * 100);
         return min($percentage, 100);
     }

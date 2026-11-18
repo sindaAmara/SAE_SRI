@@ -44,11 +44,21 @@ class SaveStudentController
 
         // Validate required fields
         $errors = [];
-        if ($data['NumEtu']         === '') $errors[] = $lang === 'fr' ? 'Le numéro étudiant est requis' : 'Student ID is required';
-        if ($data['Nom']            === '') $errors[] = $lang === 'fr' ? 'Le nom est requis'             : 'Last name is required';
-        if ($data['Prenom']         === '') $errors[] = $lang === 'fr' ? 'Le prénom est requis'          : 'First name is required';
-        if ($data['EmailPersonnel'] === '') $errors[] = $lang === 'fr' ? "L'email est requis"            : 'Email is required';
-        if ($data['Telephone']      === '') $errors[] = $lang === 'fr' ? 'Le téléphone est requis'       : 'Phone is required';
+        if ($data['NumEtu']         === '') {
+            $errors[] = $lang === 'fr' ? 'Le numéro étudiant est requis' : 'Student ID is required';
+        }
+        if ($data['Nom']            === '') {
+            $errors[] = $lang === 'fr' ? 'Le nom est requis'             : 'Last name is required';
+        }
+        if ($data['Prenom']         === '') {
+            $errors[] = $lang === 'fr' ? 'Le prénom est requis'          : 'First name is required';
+        }
+        if ($data['EmailPersonnel'] === '') {
+            $errors[] = $lang === 'fr' ? "L'email est requis"            : 'Email is required';
+        }
+        if ($data['Telephone']      === '') {
+            $errors[] = $lang === 'fr' ? 'Le téléphone est requis'       : 'Phone is required';
+        }
 
         // Redirect if there are validation errors
         if (!empty($errors)) {
@@ -72,12 +82,16 @@ class SaveStudentController
         // Merge uploaded files into $data for creation
         if (isset($_FILES['photo']) && is_array($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
             $content = file_get_contents((string)$_FILES['photo']['tmp_name']);
-            if ($content !== false) $data['photo'] = $content;
+            if ($content !== false) {
+                $data['photo'] = $content;
+            }
         }
 
         if (isset($_FILES['cv']) && is_array($_FILES['cv']) && $_FILES['cv']['error'] === UPLOAD_ERR_OK) {
             $content = file_get_contents((string)$_FILES['cv']['tmp_name']);
-            if ($content !== false) $data['cv'] = $content;
+            if ($content !== false) {
+                $data['cv'] = $content;
+            }
         }
 
         // Create the student folder

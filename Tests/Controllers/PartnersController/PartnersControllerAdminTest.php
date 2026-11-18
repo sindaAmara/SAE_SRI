@@ -39,9 +39,13 @@ class PartnersControllerAdminTest extends TestCase
     private function makeController(): PartnersControllerAdmin
     {
         return new class extends PartnersControllerAdmin {
-            public function __construct() {}
+            public function __construct()
+            {
+            }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -50,7 +54,9 @@ class PartnersControllerAdminTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
     }
 
@@ -79,7 +85,8 @@ class PartnersControllerAdminTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('fr', $_SESSION['lang'] ?? 'fr');
     }
@@ -94,7 +101,8 @@ class PartnersControllerAdminTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -117,7 +125,8 @@ class PartnersControllerAdminTest extends TestCase
 
         try {
             $controller->control();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         // This test just ensures no fatal errors occur
         $this->assertTrue(true);

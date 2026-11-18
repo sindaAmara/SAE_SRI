@@ -68,7 +68,7 @@ class HomeControllersTest extends TestCase
     {
         $serviceMock = $this->createMock(SuperAdminService::class);
 
-        $controller = new class($serviceMock) extends SuperAdminController {
+        $controller = new class ($serviceMock) extends SuperAdminController {
             private SuperAdminService $injectedService;
 
             public function __construct(SuperAdminService $svc)
@@ -77,7 +77,9 @@ class HomeControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -93,7 +95,9 @@ class HomeControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
 
             /** Returns the injected mock instead of constructing a real service. */
             protected function makeService(): SuperAdminService
@@ -126,7 +130,7 @@ class HomeControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(GetAdminStatsUseCase::class);
 
-        $controller = new class($useCaseMock) extends HomeControllerAdmin {
+        $controller = new class ($useCaseMock) extends HomeControllerAdmin {
             private GetAdminStatsUseCase $injectedUseCase;
 
             public function __construct(GetAdminStatsUseCase $useCase)
@@ -135,7 +139,9 @@ class HomeControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -151,10 +157,14 @@ class HomeControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
 
             /** No-op: suppresses log output during tests. */
-            protected function log(string $message): void {}
+            protected function log(string $message): void
+            {
+            }
 
             /** Returns the injected mock instead of constructing a real use case. */
             protected function makeUseCase(): GetAdminStatsUseCase
@@ -196,7 +206,7 @@ class HomeControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(GetAdminStatsUseCase::class);
 
-        $controller = new class($useCaseMock) extends HomeControllerCoordinateur {
+        $controller = new class ($useCaseMock) extends HomeControllerCoordinateur {
             private GetAdminStatsUseCase $injectedUseCase;
 
             public function __construct(GetAdminStatsUseCase $useCase)
@@ -205,7 +215,9 @@ class HomeControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -221,10 +233,14 @@ class HomeControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
 
             /** No-op: suppresses log output during tests. */
-            protected function log(string $message): void {}
+            protected function log(string $message): void
+            {
+            }
 
             /** Returns the injected mock instead of constructing a real use case. */
             protected function makeUseCase(): GetAdminStatsUseCase
@@ -254,7 +270,9 @@ class HomeControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -270,7 +288,9 @@ class HomeControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
     }
 
@@ -354,7 +374,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAvailableSites')->willReturn([]);
         $serviceMock->method('getAllAccounts')->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('fr', $_SESSION['lang'] ?? 'fr');
     }
@@ -373,7 +396,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAvailableSites')->willReturn([]);
         $serviceMock->method('getAllAccounts')->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -393,7 +419,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAvailableSites')->willReturn([]);
         $serviceMock->method('getAllAccounts')->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -422,7 +451,10 @@ class HomeControllersTest extends TestCase
 
         $serviceMock->expects($this->once())->method('addDepartment')->with('INFORMATIQUE');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -444,7 +476,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('addDepartment');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -468,7 +503,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->method('addDepartment');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true);
     }
@@ -491,7 +529,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('addDepartment');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -517,7 +558,10 @@ class HomeControllersTest extends TestCase
 
         $serviceMock->expects($this->once())->method('addSite')->with('Marseille');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -538,7 +582,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('addSite');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -559,7 +606,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('addSite');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -588,7 +638,10 @@ class HomeControllersTest extends TestCase
             ->with('user@example.com')
             ->willReturn(true);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -609,7 +662,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('deleteAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -643,7 +699,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->expects($this->once())->method('createAccount')
             ->with('coord@univ.fr', 'Secure@Password1!', 'coordinateur', 'Informatique', null, 'Dupont', 'Alice');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -666,7 +725,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('createAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -690,7 +752,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('createAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -714,7 +779,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('createAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -738,7 +806,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('createAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -762,7 +833,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->method('getAllAccounts')->willReturn([]);
         $serviceMock->expects($this->never())->method('createAccount');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -792,7 +866,10 @@ class HomeControllersTest extends TestCase
         $serviceMock->expects($this->once())->method('createAccount')
             ->with('admin@univ.fr', 'Secure@Password1!', 'admin', null, 'Aix', null, null);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -841,7 +918,10 @@ class HomeControllersTest extends TestCase
         $_GET['lang'] = 'en';
         [$controller] = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -856,7 +936,10 @@ class HomeControllersTest extends TestCase
         $_GET['lang'] = 'zh';
         [$controller] = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -875,7 +958,10 @@ class HomeControllersTest extends TestCase
         $_GET['mobilite'] = 'etude';
         [$controller]     = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true);
     }
@@ -890,7 +976,10 @@ class HomeControllersTest extends TestCase
         $_GET['mobilite'] = 'invalid';
         [$controller]     = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true);
     }
@@ -905,7 +994,10 @@ class HomeControllersTest extends TestCase
         $_GET['departement'] = 'Informatique';
         [$controller]        = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue(true);
     }
@@ -924,7 +1016,10 @@ class HomeControllersTest extends TestCase
         $_GET['tritanopia'] = '1';
         [$controller]       = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue($_SESSION['tritanopia'] ?? false);
     }
@@ -939,7 +1034,10 @@ class HomeControllersTest extends TestCase
         $_GET['tritanopia'] = '0';
         [$controller]       = $this->makeAdminHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertFalse($_SESSION['tritanopia'] ?? true);
     }
@@ -1053,7 +1151,10 @@ class HomeControllersTest extends TestCase
         $_SESSION['numetu'] = '12345'; // required to pass the authentication guard
         $controller         = $this->makeStudentHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('en', $_SESSION['lang']);
     }
@@ -1068,7 +1169,10 @@ class HomeControllersTest extends TestCase
         $_SESSION['numetu'] = '12345';
         $controller         = $this->makeStudentHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertArrayNotHasKey('lang', $_SESSION);
     }
@@ -1083,7 +1187,10 @@ class HomeControllersTest extends TestCase
         $_SESSION['numetu'] = '12345';
         $controller         = $this->makeStudentHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('fr', $_SESSION['lang'] ?? 'fr');
     }
@@ -1105,7 +1212,10 @@ class HomeControllersTest extends TestCase
         $_SESSION['numetu'] = '12345'; // required to pass the authentication guard
         $controller         = $this->makeStudentHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertTrue($_SESSION['tritanopia'] ?? false);
     }
@@ -1121,7 +1231,10 @@ class HomeControllersTest extends TestCase
         $_SESSION['numetu'] = '12345'; // required to pass the authentication guard
         $controller         = $this->makeStudentHome();
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertFalse($_SESSION['tritanopia'] ?? true);
     }

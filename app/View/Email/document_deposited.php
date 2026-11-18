@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Email template: Document deposited confirmation
  *

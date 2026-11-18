@@ -65,8 +65,6 @@ ob_start();
         </nav>
     </header>
 
-    <section class="hero-section">
-        <img class="hero_logo" src="img/amu.png" alt="AMU Logo Large">
     </section>
 
     <section class="partners-map-section">

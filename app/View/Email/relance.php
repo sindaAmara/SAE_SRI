@@ -33,13 +33,13 @@ $itemsToComplete = $itemsToComplete ?? [];
         <p>Bonjour <strong><?= htmlspecialchars($studentName, ENT_QUOTES, 'UTF-8') ?></strong>,</p>
         <p>Votre dossier n°<strong><?= htmlspecialchars($dossierId, ENT_QUOTES, 'UTF-8') ?></strong> est actuellement <strong>incomplet</strong>.</p>
 
-        <?php if (!empty($itemsToComplete)): ?>
+        <?php if (!empty($itemsToComplete)) : ?>
             <ul>
-                <?php foreach ($itemsToComplete as $item): ?>
+                <?php foreach ($itemsToComplete as $item) : ?>
                     <li><?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?></li>
                 <?php endforeach; ?>
             </ul>
-        <?php else: ?>
+        <?php else : ?>
             <p>Veuillez compléter les documents manquants dans votre dossier.</p>
         <?php endif; ?>
 

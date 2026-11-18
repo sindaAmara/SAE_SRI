@@ -35,7 +35,7 @@ $validatedDocuments = $validatedDocuments ?? [];
         <p>Bonne nouvelle ! Votre dossier <strong><?= htmlspecialchars($numEtu, ENT_QUOTES, 'UTF-8') ?></strong> a été examiné et les documents suivants ont été <strong class="text-green-bold">validés</strong> :</p>
 
         <ul class="list--green">
-            <?php foreach ($validatedDocuments as $doc): ?>
+            <?php foreach ($validatedDocuments as $doc) : ?>
                 <li><strong>✓ <?= htmlspecialchars($doc, ENT_QUOTES, 'UTF-8') ?></strong></li>
             <?php endforeach; ?>
         </ul>

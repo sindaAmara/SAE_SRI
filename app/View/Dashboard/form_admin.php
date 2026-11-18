@@ -1,4 +1,5 @@
 <?php
+
 /**
  * View: Admin — End-of-Internship Form Responses
  *
@@ -7,7 +8,7 @@
  *
  * @var string                                $lang
  * @var Closure(array<string,string>): string $t
- * @var Closure(string, array=): string       $buildUrl
+ * @var Closure(string, array<string, mixed>=): string $buildUrl
  * @var array<string, mixed>                  $filters
  * @var array<int, array<string, mixed>>      $paginatedData Students with 'form_response' / 'form_submitted' keys
  * @var int                                   $totalCount

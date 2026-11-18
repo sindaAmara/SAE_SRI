@@ -48,12 +48,16 @@ $docTypes = [
         $statut     = $statuts[$key] ?? ($doc['status'] ?? 'pending');
         // Pas de fichier = rien à accepter ni refuser. Certaines données de test ont un statut
         // « accepted » sans fichier : la carte était alors grisée et bloquée (bouton Modifier inactif).
-        if (!$hasDoc) $statut = 'pending';
+        if (!$hasDoc) {
+            $statut = 'pending';
+        }
         $comment    = $doc['comment'] ?? '';
         $isAccepted = ($statut === 'accepted');
         $isRefused  = ($statut === 'refused');
         $isRequise  = $piecesRequises === null || in_array($key, $piecesRequises, true);
-        if (!$isRequise && !$hasDoc) continue; // pièce sans objet pour ce dossier
+        if (!$isRequise && !$hasDoc) {
+            continue; // pièce sans objet pour ce dossier
+        }
         ?>
         <div class="doc-review-item <?= $isAccepted ? 'is-accepted' : '' ?>" data-doctype="<?= $key ?>">
             <div class="doc-info">

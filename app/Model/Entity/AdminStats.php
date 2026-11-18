@@ -54,14 +54,14 @@ class AdminStats
      */
     public function __construct(
         FolderStats $dossierStats,
-        array       $topCountries,
+        array $topCountries,
         GenderStats $genderStats,
-        array       $departments,
-        int         $incomingStudents = 0,
-        int         $outgoingStudents = 0,
-        array       $zoneStats = [],
-        int         $europeCountriesCount = 0,
-        int         $nonEuropeCountriesCount = 0,
+        array $departments,
+        int $incomingStudents = 0,
+        int $outgoingStudents = 0,
+        array $zoneStats = [],
+        int $europeCountriesCount = 0,
+        int $nonEuropeCountriesCount = 0,
         WorkflowStats $workflowStats = new WorkflowStats(0, 0, 0, 0, 0, 0),
     ) {
         $this->dossierStats            = $dossierStats;

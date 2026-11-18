@@ -38,7 +38,7 @@ isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'
             <?= $t(['fr' => 'Mentions Légales & RGPD', 'en' => 'Legal Notice & GDPR']) ?>
         </a>
 
-        <?php if ($userRole === 'admin' || $userRole === 'student'): ?>
+        <?php if ($userRole === 'admin' || $userRole === 'student') : ?>
             <a href="index.php?page=web_plan&lang=<?= htmlspecialchars($lang) ?>" class="footer-sitemap-btn">
                 <?= htmlspecialchars($t(['fr' => 'Plan du site 🗺️', 'en' => 'Site Map 🗺️'])) ?>
             </a>

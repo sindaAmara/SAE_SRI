@@ -62,7 +62,6 @@ class ConversationPDO
 
             $this->pdo->commit();
             return $conversationId;
-
         } catch (\Exception $e) {
             $this->pdo->rollBack();
             throw $e;
@@ -101,7 +100,9 @@ class ConversationPDO
         $stmt->execute([':id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!is_array($data)) return null;
+        if (!is_array($data)) {
+            return null;
+        }
 
         $conversation = $this->hydrateConversation($data);
         $this->attachMessagesToConversation($conversation);
@@ -234,7 +235,9 @@ class ConversationPDO
         $stmt->execute([':cid' => $conversation->getId()]);
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (!is_array($row)) continue;
+            if (!is_array($row)) {
+                continue;
+            }
 
             $msg = new Message(
                 conversationId: (int) $row['conversation_id'],

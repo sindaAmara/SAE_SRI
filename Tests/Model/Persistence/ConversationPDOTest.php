@@ -215,9 +215,9 @@ class ConversationPDOTest extends TestCase
         $conv = $this->repo->findById(1);
 
         $this->assertInstanceOf(Conversation::class, $conv);
-        $this->assertSame(1,      $conv->getId());
+        $this->assertSame(1, $conv->getId());
         $this->assertSame('open', $conv->getStatus());
-        $this->assertCount(1,     $conv->getMessages());
+        $this->assertCount(1, $conv->getMessages());
     }
 
     /**

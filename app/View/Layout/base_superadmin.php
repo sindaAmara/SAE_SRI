@@ -66,7 +66,7 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?php if (!empty($metaDescription)): ?>
+    <?php if (!empty($metaDescription)) : ?>
         <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>">
     <?php endif; ?>
 
@@ -76,7 +76,7 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
     <link rel="stylesheet" href="styles/chatbot.css">
     <link rel="icon" type="image/png" href="img/favicon.webp"/>
 
-    <?php foreach ($styles as $style): ?>
+    <?php foreach ($styles as $style) : ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style) ?>">
     <?php endforeach; ?>
 </head>
@@ -96,11 +96,11 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
                 </div>
             </div>
 
-            <?php if ($isLoggedIn): ?>
+            <?php if ($isLoggedIn) : ?>
                 <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'logout']) ?>'">
                     <?= $t(['fr' => 'Se déconnecter', 'en' => 'Log out']) ?>
                 </button>
-            <?php else: ?>
+            <?php else : ?>
                 <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => 'login']) ?>'">
                     <?= $t(['fr' => 'Se connecter', 'en' => 'Log in']) ?>
                 </button>
@@ -114,7 +114,7 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
 </header>
 
 <main>
-    <?php if (isset($_SESSION['message'])): ?>
+    <?php if (isset($_SESSION['message'])) : ?>
         <div class="message">
             <?= htmlspecialchars((string) $_SESSION['message']); ?>
             <?php unset($_SESSION['message']); ?>
@@ -128,7 +128,7 @@ $buildUrl = function (string $path, array $params = []) use ($lang): string {
 
 <script src="js/main.js"></script>
 
-<?php foreach ($scripts as $script): ?>
+<?php foreach ($scripts as $script) : ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>
 <?php endforeach; ?>
 

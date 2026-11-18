@@ -73,7 +73,9 @@ class FoldersControllerAdmin
      */
     protected function jsonResponse(array $data): never
     {
-        if (ob_get_length()) ob_clean();
+        if (ob_get_length()) {
+            ob_clean();
+        }
         header('Content-Type: application/json');
         echo json_encode($data);
         exit;
@@ -160,13 +162,34 @@ class FoldersControllerAdmin
 
         // Dispatch POST actions
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($page === 'update_global_status')    { $this->updateGlobalStatus();    return; }
-            if ($page === 'update_document_status')  { $this->updateDocumentStatus();  return; }
-            if ($page === 'import_folders')          { $this->importFolders($lang);    return; }
-            if ($page === 'save_student')            { $this->saveStudent($lang);      return; }
-            if ($page === 'update_student')          { $this->updateStudent($lang);    return; }
-            if ($page === 'valider_documents')       { $this->validerDocuments($lang); return; }
-            if ($page === 'valider_etape')           { $this->validerEtape($lang);     return; }
+            if ($page === 'update_global_status') {
+                $this->updateGlobalStatus();
+                return;
+            }
+            if ($page === 'update_document_status') {
+                $this->updateDocumentStatus();
+                return;
+            }
+            if ($page === 'import_folders') {
+                $this->importFolders($lang);
+                return;
+            }
+            if ($page === 'save_student') {
+                $this->saveStudent($lang);
+                return;
+            }
+            if ($page === 'update_student') {
+                $this->updateStudent($lang);
+                return;
+            }
+            if ($page === 'valider_documents') {
+                $this->validerDocuments($lang);
+                return;
+            }
+            if ($page === 'valider_etape') {
+                $this->validerEtape($lang);
+                return;
+            }
         }
 
         // Load student details when viewing a specific folder
@@ -244,8 +267,10 @@ class FoldersControllerAdmin
         if (in_array($role, ['coordinateur', 'coordinateur_etude', 'coordinateur_stage', 'chef_departement'], true)) {
             $dossier  = $this->folderUseCase->getStudentDetails($numetu);
             $userDept = trim(strval($_SESSION['departement'] ?? ''));
-            if (!is_array($dossier) || $userDept === ''
-                || strcasecmp(trim(strval($dossier['CodeDepartement'] ?? '')), $userDept) !== 0) {
+            if (
+                !is_array($dossier) || $userDept === ''
+                || strcasecmp(trim(strval($dossier['CodeDepartement'] ?? '')), $userDept) !== 0
+            ) {
                 $_SESSION['message'] = $lang === 'en' ? 'This folder belongs to another department.' : 'Ce dossier appartient à un autre département.';
                 $this->redirect('index.php?page=' . $redirectTo . '&lang=' . $lang);
             }
@@ -284,7 +309,9 @@ class FoldersControllerAdmin
         $nom    = strval($_SESSION['admin_nom']    ?? '');
         $name   = trim($prenom . ' ' . $nom);
 
-        if ($name !== '') return $name;
+        if ($name !== '') {
+            return $name;
+        }
 
         $email = strval($_SESSION['user_identifier'] ?? $_SESSION['email'] ?? '');
 
@@ -327,16 +354,22 @@ class FoldersControllerAdmin
      */
     private function notifyStudent(string $numEtu, array $updates): void
     {
-        if (empty($updates)) return;
+        if (empty($updates)) {
+            return;
+        }
 
         $studentData = $this->folderUseCase->getStudentDetails($numEtu);
-        if (!$studentData) return;
+        if (!$studentData) {
+            return;
+        }
 
         $emailAmu    = strval($studentData['EmailAMU']       ?? '');
         $emailPerso  = strval($studentData['EmailPersonnel'] ?? '');
         // Prefer personal email over AMU email
         $email       = $emailPerso !== '' ? $emailPerso : $emailAmu;
-        if ($email === '') return;
+        if ($email === '') {
+            return;
+        }
 
         $prenom      = strval($studentData['Prenom'] ?? '');
         $nom         = strval($studentData['Nom']    ?? '');
@@ -401,7 +434,9 @@ class FoldersControllerAdmin
             $fileContent = null;
             if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
                 $fileContent = file_get_contents($_FILES['file']['tmp_name']);
-                if ($fileContent === false) $fileContent = null;
+                if ($fileContent === false) {
+                    $fileContent = null;
+                }
             }
 
             $success = $this->folderUseCase->updateDocumentStatus($numEtu, $docType, $status, $comment, $fileContent);
@@ -522,8 +557,11 @@ class FoldersControllerAdmin
                 $statut     = $statutsDocuments[$docKey] ?? ($oldStatuts[$docKey] ?? 'pending');
                 $docComment = trim(strval($_POST['comment_' . $docKey] ?? ($oldPieces[$docKey]['comment'] ?? '')));
 
-                if ($statut === 'accepted')    { $piecesAcceptees[] = ['name' => $docName, 'comment' => $docComment]; }
-                elseif ($statut === 'refused') { $piecesRefusees[]  = ['name' => $docName, 'comment' => $docComment]; }
+                if ($statut === 'accepted') {
+                    $piecesAcceptees[] = ['name' => $docName, 'comment' => $docComment];
+                } elseif ($statut === 'refused') {
+                    $piecesRefusees[]  = ['name' => $docName, 'comment' => $docComment];
+                }
             }
 
             $updates = [];
@@ -671,8 +709,12 @@ class FoldersControllerAdmin
         ];
 
         $errors = [];
-        if (empty($data['NumEtu'])) $errors[] = ($lang === 'fr') ? 'Numéro étudiant requis' : 'Student ID required';
-        if (empty($data['Nom']))    $errors[] = ($lang === 'fr') ? 'Nom requis'              : 'Name required';
+        if (empty($data['NumEtu'])) {
+            $errors[] = ($lang === 'fr') ? 'Numéro étudiant requis' : 'Student ID required';
+        }
+        if (empty($data['Nom'])) {
+            $errors[] = ($lang === 'fr') ? 'Nom requis'              : 'Name required';
+        }
 
         if (!empty($errors)) {
             $_SESSION['message'] = implode(', ', $errors);
@@ -787,7 +829,7 @@ class FoldersControllerAdmin
                 $newVal = trim(strval($data[$field]      ?? ''));
                 if ($oldVal !== $newVal && $newVal !== '') {
                     $safeOld   = htmlspecialchars($oldVal ?: '—', ENT_QUOTES, 'UTF-8');
-                    $safeNew   = htmlspecialchars($newVal,         ENT_QUOTES, 'UTF-8');
+                    $safeNew   = htmlspecialchars($newVal, ENT_QUOTES, 'UTF-8');
                     $updates[] = "<b>{$label}</b> : {$safeOld} → <b>{$safeNew}</b>";
                 }
             }

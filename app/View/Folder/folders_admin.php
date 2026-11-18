@@ -68,18 +68,24 @@
  */
 
 if (!isset($t)) {
-    $t = function(array $translations) use ($lang) {
+    $t = function (array $translations) use ($lang) {
         return $translations[$lang] ?? $translations['fr'] ?? '';
     };
 }
 
-$buildUrl = function(string $path, array $params = []) use ($lang): string {
+$buildUrl = function (string $path, array $params = []) use ($lang): string {
     $params['lang'] = $lang;
     $separator = (strpos($path, '?') === false) ? '?' : '&';
     return $path . $separator . http_build_query($params);
 };
 
 $PAGE = 'folders-admin';
+
+// Reads a field of the end-of-internship form response as a string ('' when missing)
+$stageField = static function (string $field) use ($stageFormResponse): string {
+    $value = $stageFormResponse[$field] ?? '';
+    return is_scalar($value) ? (string) $value : '';
+};
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
         || (strval($filters['zone']       ?? 'all')) !== 'all'
@@ -97,7 +103,6 @@ ob_start();
 ?>
 
 <?php if ($action === 'view') : ?>
-
     <?php if (!$studentData) : ?>
         <p><?= $t(['fr' => 'Étudiant non trouvé', 'en' => 'Student not found']) ?></p>
     <?php else : ?>
@@ -149,22 +154,22 @@ ob_start();
         <!-- ── AVIS CHEF DE DÉPARTEMENT (lecture seule) ── -->
         <?php
         $avisChef  = strval($studentData['avis_chef_departement'] ?? '');
-        $avisLabel = match($avisChef) {
+        $avisLabel = match ($avisChef) {
             'accepte' => ['fr' => 'Dossier accepté par le chef de département',  'en' => 'Profile accepted by department head'],
             'refuse'  => ['fr' => 'Dossier refusé par le chef de département',   'en' => 'Profile refused by department head'],
             default   => ['fr' => 'Aucune décision du chef de département',       'en' => 'No decision from department head'],
         };
-        $avisIcon = match($avisChef) {
+        $avisIcon = match ($avisChef) {
             'accepte' => '✅',
             'refuse'  => '❌',
             default   => '⏳',
         };
-        $avisClass = match($avisChef) {
+        $avisClass = match ($avisChef) {
             'accepte' => 'avis-chef avis-chef--accepte',
             'refuse'  => 'avis-chef avis-chef--refuse',
             default   => 'avis-chef avis-chef--pending',
         };
-        ?>
+    ?>
         <div class="<?= $avisClass ?>">
             <span class="avis-chef-icon"><?= $avisIcon ?></span>
             <span class="avis-chef-label"><?= $t(['fr' => 'Avis chef de département :', 'en' => 'Department head decision:']) ?></span>
@@ -196,28 +201,28 @@ ob_start();
                 <?php else : ?>
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?></strong>
-                        <div><?= htmlspecialchars($stageFormResponse['host_institution'] ?? '') ?></div>
+                        <div><?= htmlspecialchars($stageField('host_institution')) ?></div>
                     </div>
 
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => 'Dates', 'en' => 'Dates']) ?></strong>
                         <div>
-                            <?= htmlspecialchars($stageFormResponse['start_date'] ?? '') ?> →
-                            <?= htmlspecialchars($stageFormResponse['end_date'] ?? '') ?>
+                            <?= htmlspecialchars($stageField('start_date')) ?> →
+                            <?= htmlspecialchars($stageField('end_date')) ?>
                         </div>
                     </div>
 
                     <div class="stage-form-field">
                         <strong><?= $t(['fr' => 'Évaluation', 'en' => 'Evaluation']) ?></strong>
                         <div class="stage-form-evaluation">
-                            <?= nl2br(htmlspecialchars($stageFormResponse['evaluation'] ?? '')) ?>
+                            <?= nl2br(htmlspecialchars($stageField('evaluation'))) ?>
                         </div>
                     </div>
 
                     <div class="stage-form-field">
                         <small>
                             <?= $t(['fr' => 'Soumis le', 'en' => 'Submitted on']) ?> :
-                            <?= htmlspecialchars($stageFormResponse['submitted_at'] ?? '') ?>
+                            <?= htmlspecialchars($stageField('submitted_at')) ?>
                         </small>
                     </div>
                 <?php endif; ?>
@@ -242,7 +247,6 @@ ob_start();
     <?php endif; ?>
 
 <?php else : ?>
-
     <h1><?= $t(['fr' => 'Liste des étudiants', 'en' => 'Students List']) ?></h1>
 
     <?php if (!empty($message)) : ?>

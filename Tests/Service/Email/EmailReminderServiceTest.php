@@ -67,14 +67,16 @@ class EmailReminderServiceTest extends TestCase
         }
 
         // Create one stub template file per email type.
-        foreach ([
+        foreach (
+            [
                      'relance',
                      'folder_update',
                      'validation_complete',
                      'document_deposited',
                      'document_validated',
                      'message_notification',
-                 ] as $tpl) {
+                 ] as $tpl
+        ) {
             file_put_contents("{$tplDir}/{$tpl}.php", "<p>Template: {$tpl}</p>");
         }
 
@@ -131,7 +133,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendRelance_returns_bool_with_valid_params(): void
     {
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student@example.com', 42, 'Jean Dupont', ['CV manquant']
+            'student@example.com',
+            42,
+            'Jean Dupont',
+            ['CV manquant']
         );
         $this->assertIsBool($result);
     }
@@ -144,7 +149,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendRelance_returns_bool_with_empty_items_array(): void
     {
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student@example.com', 42, 'Jean Dupont', []
+            'student@example.com',
+            42,
+            'Jean Dupont',
+            []
         );
         $this->assertIsBool($result);
     }
@@ -157,7 +165,8 @@ class EmailReminderServiceTest extends TestCase
     public function sendRelance_returns_bool_with_string_dossierId(): void
     {
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student@example.com', 'DOS-2024-001'
+            'student@example.com',
+            'DOS-2024-001'
         );
         $this->assertIsBool($result);
     }
@@ -170,7 +179,9 @@ class EmailReminderServiceTest extends TestCase
     public function sendRelance_returns_bool_with_padded_student_name(): void
     {
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student@example.com', 99, '  Marie Curie  '
+            'student@example.com',
+            99,
+            '  Marie Curie  '
         );
         $this->assertIsBool($result);
     }
@@ -201,7 +212,9 @@ class EmailReminderServiceTest extends TestCase
         rename($tplPath, $backup); // temporarily remove the template
 
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student@example.com', 42, 'Jean Dupont'
+            'student@example.com',
+            42,
+            'Jean Dupont'
         );
 
         rename($backup, $tplPath); // restore the template for other tests
@@ -216,7 +229,9 @@ class EmailReminderServiceTest extends TestCase
     public function sendRelance_handles_special_characters_in_name(): void
     {
         $result = \Service\Email\EmailReminderService::sendRelance(
-            'student+test@example.co.uk', 1, 'Ségolène Lefèvre'
+            'student+test@example.co.uk',
+            1,
+            'Ségolène Lefèvre'
         );
         $this->assertIsBool($result);
     }
@@ -235,7 +250,10 @@ class EmailReminderServiceTest extends TestCase
     {
         // Empty array → early return true, no Mailjet call.
         $result = \Service\Email\EmailReminderService::sendFolderUpdateNotification(
-            'student@example.com', 'Bob', '22001234', []
+            'student@example.com',
+            'Bob',
+            '22001234',
+            []
         );
         $this->assertTrue($result);
     }
@@ -248,7 +266,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendFolderUpdateNotification_returns_bool_with_plain_updates(): void
     {
         $result = \Service\Email\EmailReminderService::sendFolderUpdateNotification(
-            'student@example.com', 'Bob Martin', '22001234', ['Document CV accepté']
+            'student@example.com',
+            'Bob Martin',
+            '22001234',
+            ['Document CV accepté']
         );
         $this->assertIsBool($result);
     }
@@ -270,7 +291,10 @@ class EmailReminderServiceTest extends TestCase
         ];
 
         $result = \Service\Email\EmailReminderService::sendFolderUpdateNotification(
-            'student@example.com', 'Bob Martin', '22001234', $updates
+            'student@example.com',
+            'Bob Martin',
+            '22001234',
+            $updates
         );
         $this->assertIsBool($result);
     }
@@ -289,7 +313,10 @@ class EmailReminderServiceTest extends TestCase
         ];
 
         $result = \Service\Email\EmailReminderService::sendFolderUpdateNotification(
-            'student@example.com', 'Claire', '22005678', $updates
+            'student@example.com',
+            'Claire',
+            '22005678',
+            $updates
         );
         $this->assertIsBool($result);
     }
@@ -303,7 +330,10 @@ class EmailReminderServiceTest extends TestCase
     {
         $this->clearCredentials();
         $result = \Service\Email\EmailReminderService::sendFolderUpdateNotification(
-            'student@example.com', 'Bob', '22001234', ['update']
+            'student@example.com',
+            'Bob',
+            '22001234',
+            ['update']
         );
         $this->assertFalse($result);
         $this->restoreCredentials();
@@ -321,7 +351,8 @@ class EmailReminderServiceTest extends TestCase
     public function sendValidationConfirmation_returns_bool_for_known_doc_types(): void
     {
         $result = \Service\Email\EmailReminderService::sendValidationConfirmation(
-            'student@example.com', 'Alice Liddell',
+            'student@example.com',
+            'Alice Liddell',
             ['cv', 'photo', 'convention', 'lettre_motivation', 'langues_file'],
             '22001234'
         );
@@ -337,7 +368,10 @@ class EmailReminderServiceTest extends TestCase
     {
         // Unknown types fall back to ucfirst(); must not throw.
         $result = \Service\Email\EmailReminderService::sendValidationConfirmation(
-            'student@example.com', 'Alice', ['rapport_stage'], '22001234'
+            'student@example.com',
+            'Alice',
+            ['rapport_stage'],
+            '22001234'
         );
         $this->assertIsBool($result);
     }
@@ -351,7 +385,10 @@ class EmailReminderServiceTest extends TestCase
     {
         $this->clearCredentials();
         $result = \Service\Email\EmailReminderService::sendValidationConfirmation(
-            'student@example.com', 'Alice', ['cv'], '22001234'
+            'student@example.com',
+            'Alice',
+            ['cv'],
+            '22001234'
         );
         $this->assertFalse($result);
         $this->restoreCredentials();
@@ -370,7 +407,10 @@ class EmailReminderServiceTest extends TestCase
     {
         foreach (['photo', 'cv', 'convention', 'lettre_motivation', 'langues_file'] as $type) {
             $result = \Service\Email\EmailReminderService::sendDocumentDeposited(
-                'student@example.com', 'Jean Paul', $type, '22001234'
+                'student@example.com',
+                'Jean Paul',
+                $type,
+                '22001234'
             );
             $this->assertIsBool($result, "Failed for type: {$type}");
         }
@@ -384,7 +424,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendDocumentDeposited_returns_bool_for_unknown_type(): void
     {
         $result = \Service\Email\EmailReminderService::sendDocumentDeposited(
-            'student@example.com', 'Jean Paul', 'autre_document', '22001234'
+            'student@example.com',
+            'Jean Paul',
+            'autre_document',
+            '22001234'
         );
         $this->assertIsBool($result);
     }
@@ -397,7 +440,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendDocumentDeposited_handles_empty_numEtu(): void
     {
         $result = \Service\Email\EmailReminderService::sendDocumentDeposited(
-            'student@example.com', 'Jean Paul', 'cv', '' // empty numEtu
+            'student@example.com',
+            'Jean Paul',
+            'cv',
+            '' // empty numEtu
         );
         $this->assertIsBool($result);
     }
@@ -411,7 +457,10 @@ class EmailReminderServiceTest extends TestCase
     {
         $this->clearCredentials();
         $result = \Service\Email\EmailReminderService::sendDocumentDeposited(
-            'student@example.com', 'Jean Paul', 'cv', '22001234'
+            'student@example.com',
+            'Jean Paul',
+            'cv',
+            '22001234'
         );
         $this->assertFalse($result);
         $this->restoreCredentials();
@@ -430,7 +479,10 @@ class EmailReminderServiceTest extends TestCase
     {
         foreach (['photo', 'cv', 'convention', 'lettre_motivation', 'langues_file'] as $type) {
             $result = \Service\Email\EmailReminderService::sendDocumentValidated(
-                'student@example.com', 'Sophie Bernard', $type, '22009876'
+                'student@example.com',
+                'Sophie Bernard',
+                $type,
+                '22009876'
             );
             $this->assertIsBool($result, "Failed for type: {$type}");
         }
@@ -443,7 +495,10 @@ class EmailReminderServiceTest extends TestCase
     public function sendDocumentValidated_returns_bool_for_unknown_type(): void
     {
         $result = \Service\Email\EmailReminderService::sendDocumentValidated(
-            'student@example.com', 'Sophie Bernard', 'attestation_emploi', '22009876'
+            'student@example.com',
+            'Sophie Bernard',
+            'attestation_emploi',
+            '22009876'
         );
         $this->assertIsBool($result);
     }
@@ -457,7 +512,10 @@ class EmailReminderServiceTest extends TestCase
     {
         $this->clearCredentials();
         $result = \Service\Email\EmailReminderService::sendDocumentValidated(
-            'student@example.com', 'Sophie Bernard', 'cv', '22009876'
+            'student@example.com',
+            'Sophie Bernard',
+            'cv',
+            '22009876'
         );
         $this->assertFalse($result);
         $this->restoreCredentials();
@@ -475,7 +533,9 @@ class EmailReminderServiceTest extends TestCase
     public function sendMessageNotification_returns_bool_for_normal_message(): void
     {
         $result = \Service\Email\EmailReminderService::sendMessageNotification(
-            'recipient@example.com', 'Alice', 'Bob',
+            'recipient@example.com',
+            'Alice',
+            'Bob',
             'Bonjour Alice, voici un message.',
             'https://ri-amu.app/messages'
         );
@@ -490,7 +550,9 @@ class EmailReminderServiceTest extends TestCase
     public function sendMessageNotification_returns_bool_when_preview_exceeds_150_chars(): void
     {
         $result = \Service\Email\EmailReminderService::sendMessageNotification(
-            'recipient@example.com', 'Alice', 'Bob',
+            'recipient@example.com',
+            'Alice',
+            'Bob',
             str_repeat('A', 300), // 300 chars → must be truncated to 150
             'https://ri-amu.app/messages'
         );
@@ -506,7 +568,9 @@ class EmailReminderServiceTest extends TestCase
     {
         // 150 chars exactly: at the boundary, must not be truncated.
         $result = \Service\Email\EmailReminderService::sendMessageNotification(
-            'r@example.com', 'Alice', 'Bob',
+            'r@example.com',
+            'Alice',
+            'Bob',
             str_repeat('B', 150),
             'https://ri-amu.app'
         );
@@ -522,7 +586,9 @@ class EmailReminderServiceTest extends TestCase
     {
         // 151 chars: one over the boundary → must be truncated to 150.
         $result = \Service\Email\EmailReminderService::sendMessageNotification(
-            'r@example.com', 'Alice', 'Bob',
+            'r@example.com',
+            'Alice',
+            'Bob',
             str_repeat('C', 151),
             'https://ri-amu.app'
         );
@@ -538,7 +604,11 @@ class EmailReminderServiceTest extends TestCase
     {
         $this->clearCredentials();
         $result = \Service\Email\EmailReminderService::sendMessageNotification(
-            'recipient@example.com', 'Alice', 'Bob', 'msg', 'https://ri-amu.app'
+            'recipient@example.com',
+            'Alice',
+            'Bob',
+            'msg',
+            'https://ri-amu.app'
         );
         $this->assertFalse($result);
         $this->restoreCredentials();
