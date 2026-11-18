@@ -23,7 +23,6 @@
  * - _form_fields.php          : folder form with only 'niveau_etude' and
  *   'moyenne_sans_bac' editable ($EDITABLE list, $allEditable = false).
  * - _doc_review.php           : document review panel with $languesEditable = true.
- * - _global_status.php        : global workflow status dropdown + update button.
  * - _modal_validation.php     : confirmation modal for save-and-notify.
  *
  * The form posts to index.php?page=update_student with a hidden redirect_to
@@ -50,10 +49,11 @@ $PAGE     = 'coordinateur-etude';
 $EDITABLE = ['niveau_etude', 'moyenne_sans_bac'];
 
 $hasActiveFilters = (strval($filters['type']       ?? 'all')) !== 'all'
-    || (strval($filters['zone']       ?? 'all')) !== 'all'
-    || (strval($filters['complet']    ?? 'all')) !== 'all'
-    || (strval($filters['composante'] ?? 'all')) !== 'all'
-    || !empty($filters['search']);
+        || (strval($filters['zone']       ?? 'all')) !== 'all'
+        || (strval($filters['complet']    ?? 'all')) !== 'all'
+        || (strval($filters['composante'] ?? 'all')) !== 'all'
+        || !empty($filters['search'])
+        || (strval($filters['etape'] ?? 'all')) !== 'all';
 
 ob_start();
 ?>
@@ -72,7 +72,11 @@ ob_start();
         $currentStatus = $studentData['status'] ?? 'depot';
         ?>
 
-        <h1><?= $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
+        <?php // Titre : « Dossier Prénom Nom » (repli sur « Dossier étudiant » si le nom est vide)
+        $nomCompletEtudiant = trim(strval($studentData['Prenom'] ?? '') . ' ' . strval($studentData['Nom'] ?? '')); ?>
+        <h1><?= $nomCompletEtudiant !== ''
+                    ? $t(['fr' => 'Dossier', 'en' => 'Folder:']) . ' ' . htmlspecialchars($nomCompletEtudiant)
+                    : $t(['fr' => 'Dossier étudiant', 'en' => 'Student Profile']) ?></h1>
         <div class="form-back-button">
             <button onclick="window.location.href='<?= $buildUrl('index.php', ['page' => $PAGE]) ?>'" class="btn-secondary">
                 <?= $t(['fr' => 'Retour à la liste', 'en' => 'Back to List']) ?>
@@ -87,6 +91,8 @@ ob_start();
         $redirectPage = $PAGE;
         include __DIR__ . '/../Partials/_banniere_date_limite.php';
         ?>
+
+        <?php include __DIR__ . '/../Partials/_workflow_steps.php'; ?>
 
         <form method="post" action="index.php?page=update_student&lang=<?= htmlspecialchars($lang) ?>" enctype="multipart/form-data" class="creation-form">
             <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($PAGE) ?>">
@@ -106,7 +112,7 @@ ob_start();
                 ?>
             </div>
 
-            <?php include __DIR__ . '/../Partials/_global_status.php'; ?>
+            <?php /* « Statut global » retiré : l'état du dossier est donné par la frise du circuit (en haut). */ ?>
 
             <div class="form-actions">
                 <button type="submit" class="btn-secondary">
@@ -148,6 +154,7 @@ ob_start();
         <?php
         $resetUrl         = $buildUrl('index.php', ['page' => $PAGE]);
         $showAccordFilter = false;
+        $showEtapeFilter  = true; // filtre « Étape » (cases « Mes dossiers » de l'accueil)
         $viewPage         = $PAGE;
         include __DIR__ . '/../Partials/_filters.php';
         include __DIR__ . '/../Partials/_table_etudiants.php';
@@ -160,7 +167,7 @@ ob_start();
 $content = ob_get_clean();
 
 $title           = $t(['fr' => 'Coordinateur d\'étude - Relations Internationales AMU', 'en' => 'Study Coordinator - International Relations AMU']);
-$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/coordinators_extra.css'];
+$styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/coordinators_extra.css', 'styles/workflow.css'];
 $scripts         = ['js/folders.js'];
 $activeMenu      = $PAGE;
 $userRole        = $_SESSION['role'] ?? 'coordinateur_etude';

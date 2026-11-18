@@ -1,5 +1,6 @@
 # --- Sécurité et Dépendances ---
 .env
+node_modules
 
 # --- IDE (IntelliJ, PhpStorm, VS Code) ---
 .idea/
@@ -10,3 +11,4 @@
 .DS_Store
 .DS_Store?
 
+.phpunit.result.cache

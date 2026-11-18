@@ -6,10 +6,11 @@
  * chef_departement roles. Structurally identical to the admin dashboard but
  * with two key differences:
  *
- * - The folder-status slide shows plain counts (no clickable links to the
- *   folder list, unlike the admin version).
- * - An additional slide 2 displays a department distribution bar chart
- *   (top 5 departments, bar widths scaled relative to the highest count).
+ * - Statistics are always limited to the user's department (CDC §7.2): no
+ *   department dropdown; coordinateur_etude / coordinateur_stage are also
+ *   limited to their mobility type.
+ * - First slide « Mes dossiers »: 3 clickable tiles (incomplete / awaiting my
+ *   validation / validated) linking to the role's folder list filtered by step.
  *
  * The user role is read from $userRole and falls back to $_SESSION['role']
  * (defaulting to 'coordinateur_etude') when the controller did not inject it.
@@ -32,7 +33,9 @@
  * @var bool                                           $isLoggedIn         Whether the current user is authenticated
  * @var string|null                                    $mobiliteFilter     Active mobility-type filter: 'etude', 'stage', or null for all
  * @var string|null                                    $departementFilter  Active department filter code, or null for all departments
- * @var array<int, string>                             $allDepartements    Ordered list of all available department codes for the department dropdown
+ * @var array<int, string>                             $allDepartements    (unused) list of all department codes
+ * @var string                                         $userDepartement    Department of the logged-in user ('' if none)
+ * @var array<int, array{titre: array{fr: string, en: string}|null, tiles: array<int, array{etape: string, label: array{fr: string, en: string}, count: int, class: string, links: array<int, array{page: string, label: array{fr: string, en: string}}>}>}> $workflowGroups « Mes dossiers »: one group of 3 tiles, or two (Études / Stages) for a coordinator of both types
  * @var \Model\Entity\AdminStats|null                  $stats              Aggregated statistics object; null triggers safe fallbacks (zero counts)
  */
 
@@ -43,6 +46,8 @@ $mobiliteFilter = $mobiliteFilter ?? null;
 if (empty($userRole)) {
     $userRole = $_SESSION['role'] ?? 'coordinateur_etude';
 }
+// Seuls le coordinateur « études + stages » et le chef de département choisissent la mobilité
+$peutChoisirMobilite = in_array($userRole, ['coordinateur', 'chef_departement'], true);
 
 $dossierStats   = $stats?->getDossierStats();
 $genderStats    = $stats?->getGenderStats();
@@ -74,93 +79,64 @@ $europePct      = round($europeCount    / $totalCountries * 100);
 $nonEuropePct   = round($nonEuropeCount / $totalCountries * 100);
 
 $maxDept = !empty($departments)
-    ? max(array_map(fn($d) => $d->getCount(), $departments))
-    : 1;
+        ? max(array_map(fn($d) => $d->getCount(), $departments))
+        : 1;
 
 ob_start();
 ?>
 
-    <section class="hero-section">
-        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
-    </section>
+    <div class="home-intro">
 
-    <section class="pub-section">
-        <img id="pub_amu"
-             src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
-             alt="AMU Promotion">
-        <div class="pub-text">
-            <?= $t([
-                'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
-                'en' => 'Aix-Marseille University, a university open to the world',
-            ]) ?>
-        </div>
-    </section>
-
-    <!-- Filtre Mobilité + Département -->
-    <section class="mobilite-filter">
-        <div class="mobilite-filter__inner">
-        <span class="mobilite-filter__label">
-            <?= $t(['fr' => 'Statistiques :', 'en' => 'Statistics:']) ?>
-        </span>
-
-            <div class="mobilite-filter__buttons">
-                <!-- "Tous" réinitialise tout -->
-                <a href="<?= $buildUrl('index.php', ['page' => 'home-admin']) ?>"
-                   class="mobilite-btn <?= $mobiliteFilter === null && $departementFilter === null ? 'active' : '' ?>">
-                    <?= $t(['fr' => 'Tous', 'en' => 'All']) ?>
-                </a>
-
-                <!-- Études : préserve le département actif -->
-                <a href="<?= $buildUrl('index.php', array_filter([
-                    'page'        => 'home-admin',
-                    'mobilite'    => $mobiliteFilter === 'etude' ? null : 'etude',
-                    'departement' => $departementFilter,
-                ])) ?>"
-                   class="mobilite-btn mobilite-btn--etude <?= $mobiliteFilter === 'etude' ? 'active' : '' ?>">
-                    🎓 <?= $t(['fr' => 'Études', 'en' => 'Studies']) ?>
-                </a>
-
-                <!-- Stage : préserve le département actif -->
-                <a href="<?= $buildUrl('index.php', array_filter([
-                    'page'        => 'home-admin',
-                    'mobilite'    => $mobiliteFilter === 'stage' ? null : 'stage',
-                    'departement' => $departementFilter,
-                ])) ?>"
-                   class="mobilite-btn mobilite-btn--stage <?= $mobiliteFilter === 'stage' ? 'active' : '' ?>">
-                    💼 <?= $t(['fr' => 'Stage', 'en' => 'Internship']) ?>
-                </a>
-
-                <!-- Département : préserve la mobilité active -->
-                <div class="dept-dropdown">
-                    <button class="mobilite-btn dept-btn <?= $departementFilter !== null ? 'active' : '' ?>">
-                        🏛️ <?= $departementFilter ?? $t(['fr' => 'Département', 'en' => 'Department']) ?>
-                        <span class="arrow">▼</span>
-                    </button>
-                    <div class="dept-dropdown-content">
-                        <!-- "Tous les départements" préserve la mobilité active -->
-                        <a href="<?= $buildUrl('index.php', array_filter([
-                            'page'     => 'home-admin',
-                            'mobilite' => $mobiliteFilter,
-                        ])) ?>">
-                            <?= $t(['fr' => 'Tous les départements', 'en' => 'All departments']) ?>
-                        </a>
-                        <?php foreach ($allDepartements as $dept): ?>
-                            <a href="<?= $buildUrl('index.php', array_filter([
-                                'page'        => 'home-admin',
-                                'mobilite'    => $mobiliteFilter,
-                                'departement' => $dept,
-                            ])) ?>"
-                               class="<?= $departementFilter === $dept ? 'active' : '' ?>">
-                                <?= htmlspecialchars($dept) ?>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-
+        <section class="pub-section">
+            <img id="pub_amu"
+                 src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
+                 alt="AMU Promotion">
+            <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
+            <div class="pub-text">
+                <?= $t([
+                        'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
+                        'en' => 'Aix-Marseille University, a university open to the world',
+                ]) ?>
             </div>
-        </div>
-    </section>
+        </section>
 
+        <!-- Filtre Mobilité (le département est toujours celui du compte : CDC §7.2) -->
+        <section class="mobilite-filter">
+            <div class="mobilite-filter__inner">
+            <span class="mobilite-filter__label">
+                <?= $t(['fr' => 'Statistiques :', 'en' => 'Statistics:']) ?>
+            </span>
+
+                <div class="mobilite-filter__buttons">
+                <span class="mobilite-btn dept-btn active" aria-label="<?= $t(['fr' => 'Votre département', 'en' => 'Your department']) ?>">
+                    🏛️ <?= $userDepartement !== '' ? htmlspecialchars($userDepartement) : $t(['fr' => 'Aucun département', 'en' => 'No department']) ?>
+                </span>
+
+                    <?php if ($peutChoisirMobilite) : ?>
+                        <a href="<?= $buildUrl('index.php', ['page' => 'home-coordinateur']) ?>"
+                           class="mobilite-btn <?= $mobiliteFilter === null ? 'active' : '' ?>">
+                            <?= $t(['fr' => 'Tous', 'en' => 'All']) ?>
+                        </a>
+                        <a href="<?= $buildUrl('index.php', array_filter(['page' => 'home-coordinateur', 'mobilite' => $mobiliteFilter === 'etude' ? null : 'etude'])) ?>"
+                           class="mobilite-btn mobilite-btn--etude <?= $mobiliteFilter === 'etude' ? 'active' : '' ?>">
+                            🎓 <?= $t(['fr' => 'Études', 'en' => 'Studies']) ?>
+                        </a>
+                        <a href="<?= $buildUrl('index.php', array_filter(['page' => 'home-coordinateur', 'mobilite' => $mobiliteFilter === 'stage' ? null : 'stage'])) ?>"
+                           class="mobilite-btn mobilite-btn--stage <?= $mobiliteFilter === 'stage' ? 'active' : '' ?>">
+                            💼 <?= $t(['fr' => 'Stage', 'en' => 'Internship']) ?>
+                        </a>
+                    <?php else : ?>
+                        <span class="mobilite-btn active">
+                        <?= $mobiliteFilter === 'stage' ? '💼 ' . $t(['fr' => 'Stages', 'en' => 'Internships']) : '🎓 ' . $t(['fr' => 'Études', 'en' => 'Studies']) ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php if ($userDepartement === '') : ?>
+                <p class="dept-warning"><?= $t(['fr' => "Aucun département n'est associé à votre compte : demandez au super administrateur de le renseigner.", 'en' => 'No department is linked to your account: ask the super administrator to set it.']) ?></p>
+            <?php endif; ?>
+        </section>
+    </div>
     <!-- Carrousel -->
     <section class="stats-section">
         <button class="carousel-btn prev" onclick="window.carousel.changeSlide(-1)">←</button>
@@ -169,8 +145,39 @@ ob_start();
         <div class="stats-carousel">
             <div class="carousel-container">
 
-                <!-- Slide 1 : État des dossiers -->
+                <!-- Slide : Mes dossiers (3 cases cliquables, CDC §4.3 / §8.1) -->
                 <div class="stat-slide active">
+                    <h2><?= $t(['fr' => 'Mes dossiers', 'en' => 'My folders']) ?></h2>
+                    <?php foreach ($workflowGroups as $group) : ?>
+                        <?php if ($group['titre'] !== null) : ?>
+                            <h3 class="workflow-group-title"><?= htmlspecialchars($t($group['titre'])) ?> :</h3>
+                        <?php endif; ?>
+                        <div class="stat-content workflow-grid<?= $group['titre'] !== null ? ' workflow-grid--compact' : '' ?>">
+                            <?php foreach ($group['tiles'] as $tile) : ?>
+                                <?php if (count($tile['links']) === 1) : ?>
+                                    <a href="<?= $buildUrl('index.php', ['page' => $tile['links'][0]['page'], 'etape' => $tile['etape']]) ?>"
+                                       class="stat-item <?= $tile['class'] ?> stat-item--link">
+                                        <div class="stat-number"><?= $tile['count'] ?></div>
+                                        <div class="stat-label"><?= htmlspecialchars($t($tile['label'])) ?></div>
+                                    </a>
+                                <?php else : ?>
+                                    <div class="stat-item <?= $tile['class'] ?>">
+                                        <div class="stat-number"><?= $tile['count'] ?></div>
+                                        <div class="stat-label"><?= htmlspecialchars($t($tile['label'])) ?></div>
+                                        <div class="stat-links">
+                                            <?php foreach ($tile['links'] as $link) : ?>
+                                                <a href="<?= $buildUrl('index.php', ['page' => $link['page'], 'etape' => $tile['etape']]) ?>"><?= htmlspecialchars($t($link['label'])) ?> →</a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Slide : État des dossiers -->
+                <div class="stat-slide">
                     <h2><?= $t(['fr' => 'État des dossiers', 'en' => 'Folder Status']) ?></h2>
                     <div class="stat-content">
                         <div class="stat-item complete">
@@ -187,24 +194,6 @@ ob_start();
                     </div>
                     <div class="stat-percentage">
                         <?= $completionRate ?>% <?= $t(['fr' => 'de complétion', 'en' => 'completion']) ?>
-                    </div>
-                </div>
-
-                <!-- Slide 2 : Répartition par département -->
-                <div class="stat-slide">
-                    <h2><?= $t(['fr' => 'Répartition par département', 'en' => 'Distribution by Department']) ?></h2>
-                    <div class="stat-content departments">
-                        <?php foreach (array_slice($departments, 0, 5) as $dept):
-                            $barWidth = round($dept->getCount() / max($maxDept, 1) * 100);
-                            ?>
-                            <div class="dept-item">
-                                <span class="dept-name"><?= htmlspecialchars($dept->getName()) ?></span>
-                                <div class="dept-bar-container">
-                                    <div class="dept-bar" style="width: <?= $barWidth ?>%"></div>
-                                </div>
-                                <span class="dept-count"><?= $dept->getCount() ?></span>
-                            </div>
-                        <?php endforeach; ?>
                     </div>
                 </div>
 
@@ -302,38 +291,34 @@ ob_start();
             </div>
 
             <div class="carousel-dots">
-                <span class="dot active" onclick="window.carousel.goToSlide(0)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(1)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(2)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(3)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(4)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(5)"></span>
-                <span class="dot"        onclick="window.carousel.goToSlide(6)"></span>
+                <?php for ($i = 0; $i < 7; $i++) : /* 7 slides */ ?>
+                    <span class="dot <?= $i === 0 ? 'active' : '' ?>" onclick="window.carousel.goToSlide(<?= $i ?>)"></span>
+                <?php endfor; ?>
             </div>
         </div>
     </section>
 
     <div id="app-config"
-        data-lang="<?= htmlspecialchars($lang) ?>"
-        data-role="admin"
-        style="display:none;">
+         data-lang="<?= htmlspecialchars($lang) ?>"
+         data-role="admin"
+         style="display:none;">
     </div>
 
 <?php
 $content = ob_get_clean();
 
 $title = $t([
-    'fr' => 'Accueil - Coordinateur - Relations Internationales AMU',
-    'en' => 'Home - Coordinator - International Relations AMU',
+        'fr' => 'Accueil - Coordinateur - Relations Internationales AMU',
+        'en' => 'Home - Coordinator - International Relations AMU',
 ]);
 
-$styles          = ['styles/homepage.css'];
+$styles          = ['styles/homepage.css', 'styles/workflow.css'];
 $scripts         = ['js/carousel.js'];
 $activeMenu      = 'home-coordinateur';
 $noMain          = true;
 $metaDescription = $t([
-    'fr' => "Espace coordinateur du service des relations internationales de l'AMU.",
-    'en' => 'Coordinator space of the International Relations Service of AMU.',
+        'fr' => "Espace coordinateur du service des relations internationales de l'AMU.",
+        'en' => 'Coordinator space of the International Relations Service of AMU.',
 ]);
 
 include __DIR__ . '/../Layout/base.php';

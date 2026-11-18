@@ -14,24 +14,13 @@ class FormManager {
 
     _initMobiliteSelect() {
         const mobiliteSelect = document.getElementById('mobilite_type');
-        const sousTypeSelect = document.getElementById('sous_type');
-        const zoneSelect = document.getElementById('zone');
-        const boursierCheck = document.getElementById('boursier');
-        const erasmusCheck = document.getElementById('erasmus');
-        const transportCheck = document.getElementById('transport_vert');
-
         if (!mobiliteSelect) return;
         this.changerTypeMobilite(mobiliteSelect.value);
         mobiliteSelect.addEventListener('change', (e) => {
             this.changerTypeMobilite(e.target.value);
+            // Synchroniser le hidden miroir quand le select change
             const hidden = document.getElementById('hidden_mobilite_type');
             if (hidden) hidden.value = e.target.value;
-        });
-
-        [sousTypeSelect, zoneSelect, boursierCheck, erasmusCheck, transportCheck].forEach((el) => {
-            if (!el) return;
-            el.addEventListener('change', () => this.changerTypeMobilite(mobiliteSelect.value));
-            el.addEventListener('input', () => this.changerTypeMobilite(mobiliteSelect.value));
         });
     }
 
@@ -43,79 +32,12 @@ class FormManager {
     changerTypeMobilite(type) {
         const conventionBlock = document.getElementById('justificatif_convention');
         const lettreBlock     = document.getElementById('lettre_motivation');
-        const checklist       = document.getElementById('etudes-checklist');
-        const conditions      = document.getElementById('etudes-conditions');
-        const sousType        = document.getElementById('sous_type');
-        const zone            = document.getElementById('zone');
-        const boursier        = document.getElementById('boursier');
-        const erasmus         = document.getElementById('erasmus');
-        const transportVert   = document.getElementById('transport_vert');
 
         if (conventionBlock) conventionBlock.style.display = 'none';
         if (lettreBlock)     lettreBlock.style.display     = 'none';
 
-        if (type === 'stage' && conventionBlock) conventionBlock.style.display = 'block';
+        if (type === 'stage'  && conventionBlock) conventionBlock.style.display = 'block';
         if (type === 'etudes' && lettreBlock)     lettreBlock.style.display     = 'block';
-
-        if (checklist) {
-            checklist.style.display = type === 'etudes' ? 'block' : 'none';
-            checklist.innerHTML = '';
-        }
-        if (conditions) {
-            conditions.style.display = type === 'etudes' ? 'block' : 'none';
-        }
-
-        const selectedSousType = sousType ? sousType.value : '';
-        const selectedZone = zone ? zone.value : '';
-        const isBoursier = !!(boursier && boursier.checked);
-        const isErasmus = !!(erasmus && erasmus.checked);
-        const isTransportVert = !!(transportVert && transportVert.checked);
-
-        if (type !== 'etudes' || !checklist) return;
-
-        const isEurope = selectedZone === 'europe';
-        const isLongStudy = ['longue S1', 'longue S2', 'FY'].includes(selectedSousType);
-        const items = [];
-
-        if (selectedSousType === 'BIP') {
-            items.push('Certificat de scolarité');
-            items.push('Assurances : individuelle accident, responsabilité civile, rapatriement');
-            items.push('Contrat d\'études signé par tous');
-            items.push('Fil d\'Ariane (déclaration des démarches préliminaires)');
-            if (isEurope) items.push('CEAM (Carte Européenne d\'Assurance Maladie)');
-            items.push('Lettre d\'acceptation de l\'enseignant');
-            items.push('Attestation de présence (arrivée et retour) tamponnée et signée');
-        } else if (isLongStudy) {
-            items.push('<strong>Avant le départ / Constitution</strong>');
-            items.push('Certificat de scolarité');
-            items.push('Fil d\'Ariane (déclaration des démarches préliminaires)');
-            items.push('Assurances : individuelle accident, responsabilité civile, rapatriement');
-            if (isEurope) items.push('Carte Européenne d\'assurance maladie (CEAM)');
-            if (isBoursier) items.push('Notification conditionnelle et définitive de la bourse du CROUS');
-            items.push('Contrat d\'études : liste des cours à suivre, validation coordinateur RI');
-            items.push('OLA : Toutes signatures apportées (OLA validé)');
-            items.push('OLA : Modification en cours');
-            items.push('Contrat de financement Erasmus : oui/non + espace commentaire gestionnaire');
-            items.push('<strong>À l\'arrivée</strong>');
-            items.push('Attestation de présence tamponnée et signée');
-            items.push('Contrat d\'études définitif signé par tous');
-            if (isBoursier) items.push('Notification définitive de la bourse du CROUS');
-            items.push('<strong>Au retour</strong>');
-            items.push('Attestation de retour signée et tamponnée');
-            if (isErasmus && isTransportVert) items.push('Justificatifs de transport (transports verts)');
-            if (isErasmus) items.push('Rapport de fin de séjour');
-        }
-
-        if (items.length > 0) {
-            checklist.innerHTML = '<ul class="checklist-items">' + items.map(item => {
-                if (item.startsWith('<strong>')) {
-                    return `<li class="checklist-section-title">${item}</li>`;
-                }
-                return `<li><input type="checkbox" disabled> ${item}</li>`;
-            }).join('') + '</ul>';
-        } else {
-            checklist.innerHTML = '<p class="checklist-empty">' + (document.documentElement.lang === 'fr' ? 'Choisissez un sous-type d\'études pour afficher la checklist.' : 'Select a study subtype to display the checklist.') + '</p>';
-        }
     }
 
     activerModification() {
@@ -209,7 +131,7 @@ class FilterManager {
     }
 
     _initSelectFilters() {
-        document.querySelectorAll('#filter-mobilite, #filter-sous-type, #filter-complet, #date-debut, #date-fin, #filter-composante, #filter-accord').forEach(sel => {
+        document.querySelectorAll('#filter-complet, #date-debut, #date-fin, #filter-composante, #filter-accord, #filter-etape').forEach(sel => {
             if (sel) sel.addEventListener('change', () => this.appliquerFiltres(true));
         });
     }
@@ -229,14 +151,6 @@ class FilterManager {
         if (zoneChecked) url.searchParams.set('zone', zoneChecked.value);
         else             url.searchParams.delete('zone');
 
-        const mobiliteVal = document.getElementById('filter-mobilite');
-        if (mobiliteVal && mobiliteVal.value !== 'all') url.searchParams.set('mobilite', mobiliteVal.value);
-        else                                            url.searchParams.delete('mobilite');
-
-        const sousTypeVal = document.getElementById('filter-sous-type');
-        if (sousTypeVal && sousTypeVal.value !== 'all') url.searchParams.set('sous_type', sousTypeVal.value);
-        else                                            url.searchParams.delete('sous_type');
-
         const completVal = document.getElementById('filter-complet');
         if (completVal && completVal.value !== 'all') url.searchParams.set('complet', completVal.value);
         else                                           url.searchParams.delete('complet');
@@ -248,6 +162,13 @@ class FilterManager {
         const accordVal = document.getElementById('filter-accord');
         if (accordVal && accordVal.value !== 'all') url.searchParams.set('accord', accordVal.value);
         else                                         url.searchParams.delete('accord');
+
+        // Étape de validation (présent uniquement sur la liste admin)
+        const etapeVal = document.getElementById('filter-etape');
+        if (etapeVal) {
+            if (etapeVal.value !== 'all') url.searchParams.set('etape', etapeVal.value);
+            else                          url.searchParams.delete('etape');
+        }
 
         if (resetPage) url.searchParams.delete('p');
         window.location.href = url.toString();
@@ -304,7 +225,7 @@ class AccordionManager {
             const paginationContainer = section.querySelector('.accordion-pagination');
             if (!tbody || !paginationContainer) return;
 
-            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const rows = Array.from(tbody.querySelectorAll('tr:not(.eval-detail-row)'));
             if (rows.length <= this.itemsPerPage) { paginationContainer.style.display = 'none'; return; }
 
             const totalPages = Math.ceil(rows.length / this.itemsPerPage);
@@ -312,6 +233,14 @@ class AccordionManager {
             const showPage = (page) => {
                 rows.forEach((row, index) => {
                     row.style.display = (index >= (page - 1) * this.itemsPerPage && index < page * this.itemsPerPage) ? '' : 'none';
+
+                    // Referme l'évaluation associée lors d'un changement de page
+                    const detail = row.nextElementSibling;
+                    if (detail && detail.classList.contains('eval-detail-row')) {
+                        detail.style.display = 'none';
+                        const arrow = row.querySelector('.eval-toggle');
+                        if (arrow) { arrow.textContent = '▼'; arrow.setAttribute('aria-expanded', 'false'); }
+                    }
                 });
                 renderButtons(page);
             };
@@ -432,6 +361,8 @@ class DocumentManager {
                 indicator.textContent = result.success ? "Enregistré ✓" : "Erreur serveur";
                 indicator.style.color = result.success ? "green" : "red";
             }
+            // Le dossier vient de changer d'étape (complet / incomplet) : on recharge pour mettre la frise à jour
+            if (result.success && result.reload) setTimeout(() => window.location.reload(), 800);
         } catch {
             if (indicator) { indicator.textContent = "Erreur réseau"; indicator.style.color = "red"; }
         }

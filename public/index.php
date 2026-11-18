@@ -60,6 +60,7 @@ use Controllers\AuthController;
 use Controllers\DashboardController;
 use Controllers\NotFoundController;
 use Controllers\SaveStudentController;
+use Controllers\StageFormController;
 
 // Folder Controllers
 use Controllers\FolderController\FoldersControllerAdmin;
@@ -72,9 +73,7 @@ use Controllers\HomeController\SuperAdminController;
 use Controllers\HomeController\HomeControllerCoordinateur;
 
 // Partners Controllers
-use Controllers\PartnersController\PartnersControllerStudent;
 use Controllers\PartnersController\PartnersControllerAdmin;
-
 // WebPlan (Sitemap) Controllers
 use Controllers\WebPlanController\WebPlanControllerAdmin;
 use Controllers\WebPlanController\WebPlanControllerStudent;
@@ -88,6 +87,8 @@ use Controllers\ContactController\ContactControllerStudent;
 use Controllers\CoordinatorController\InternershipCoordinatorController;
 use Controllers\CoordinatorController\StudyCoordinatorController;
 use Controllers\CoordinatorController\DepartmentHeadController;
+//bob controller
+use Controllers\BobController\BobController;
 // --- 5. Initialize Controllers ---
 
 /**
@@ -102,13 +103,13 @@ $controllers = [
     FoldersControllerAdmin::class,
     FoldersControllerStudent::class,
     PartnersControllerAdmin::class,
-    PartnersControllerStudent::class,
     WebPlanController::class,
     WebPlanControllerAdmin::class,
     WebPlanControllerStudent::class,
     FoldersControllerAdmin::class,
     FoldersControllerStudent::class,
     DashboardController::class,
+    StageFormController::class,
     SaveStudentController::class,
     ContactControllerStudent::class,
     ContactControllerAdmin::class,
@@ -117,6 +118,7 @@ $controllers = [
     InternershipCoordinatorController::class,
     StudyCoordinatorController::class,
     DepartmentHeadController::class,
+    BobController::class,
 ];
 
 // --- 6. Routing Logic ---
@@ -155,7 +157,6 @@ if ($page === '' || $page === 'index.php' || $page === 'home') {
 
 // Handle Logout
 if ($page === 'logout') {
-    // Destroy session and redirect to login
     session_unset();
     session_destroy();
     header('Location: index.php?page=login');

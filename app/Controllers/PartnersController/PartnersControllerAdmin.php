@@ -126,7 +126,8 @@ class PartnersControllerAdmin implements ControllerInterface
             'errorMessage' => $errorMessage,
             'success'      => $success,
             't'            => $t,
-            'buildUrl'     => $buildUrl,
+            'buildUrl' => $buildUrl,
+            'userRole' => 'admin',
         ]);
     }
 }

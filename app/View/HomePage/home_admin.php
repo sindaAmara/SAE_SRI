@@ -52,6 +52,7 @@ $incoming       = $stats?->getIncomingStudents() ?? 0;
 $outgoing       = $stats?->getOutgoingStudents() ?? 0;
 $europeCount    = $stats?->getEuropeCountriesCount()    ?? 0;
 $nonEuropeCount = $stats?->getNonEuropeCountriesCount() ?? 0;
+$workflowStats = $stats?->getWorkflowStats() ?? new \Model\Entity\WorkflowStats(0, 0, 0, 0, 0, 0);
 
 $totalFolders   = max($dossierStats?->getTotal() ?? 0, 1);
 $completed      = $dossierStats?->getCompleted() ?? 0;
@@ -73,92 +74,87 @@ $europePct      = round($europeCount    / $totalCountries * 100);
 $nonEuropePct   = round($nonEuropeCount / $totalCountries * 100);
 
 $maxDept = !empty($departments)
-    ? max(array_map(fn($d) => $d->getCount(), $departments))
-    : 1;
+        ? max(array_map(fn($d) => $d->getCount(), $departments))
+        : 1;
 
 ob_start();
 ?>
 
-    <section class="hero-section">
-        <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
-    </section>
 
-    <section class="pub-section">
-        <img id="pub_amu"
-             src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
-             alt="AMU Promotion">
-        <div class="pub-text">
-            <?= $t([
-                'fr' => 'Aix-Marseille Université, une université ouverte sur le monde',
-                'en' => 'Aix-Marseille University, a university open to the world',
-            ]) ?>
-        </div>
-    </section>
+    <div class="home-intro">
 
-    <!-- Filtre Mobilité + Département -->
-    <section class="mobilite-filter">
-        <div class="mobilite-filter__inner">
+        <section class="pub-section">
+            <img id="pub_amu"
+                 src="<?= $isTritanopia ? 'img/etudiants_daltoniens.png' : 'img/image_etudiants.png' ?>"
+                 alt="AMU Promotion">
+            <img class="hero_logo" src="img/amu.png" alt="AMU Logo">
+        </section>
+
+        <!-- Filtre Mobilité + Département -->
+        <section class="mobilite-filter">
+            <div class="mobilite-filter__inner">
         <span class="mobilite-filter__label">
             <?= $t(['fr' => 'Statistiques :', 'en' => 'Statistics:']) ?>
         </span>
 
-            <div class="mobilite-filter__buttons">
-                <!-- "Tous" réinitialise tout -->
-                <a href="<?= $buildUrl('index.php', ['page' => 'home-admin']) ?>"
-                   class="mobilite-btn <?= $mobiliteFilter === null && $departementFilter === null ? 'active' : '' ?>">
-                    <?= $t(['fr' => 'Tous', 'en' => 'All']) ?>
-                </a>
+                <div class="mobilite-filter__buttons">
+                    <!-- "Tous" réinitialise tout -->
+                    <a href="<?= $buildUrl('index.php', ['page' => 'home-admin']) ?>"
+                       class="mobilite-btn <?= $mobiliteFilter === null && $departementFilter === null ? 'active' : '' ?>">
+                        <?= $t(['fr' => 'Tous', 'en' => 'All']) ?>
+                    </a>
 
-                <!-- Études : préserve le département actif -->
-                <a href="<?= $buildUrl('index.php', array_filter([
-                    'page'        => 'home-admin',
-                    'mobilite'    => $mobiliteFilter === 'etude' ? null : 'etude',
-                    'departement' => $departementFilter,
-                ])) ?>"
-                   class="mobilite-btn mobilite-btn--etude <?= $mobiliteFilter === 'etude' ? 'active' : '' ?>">
-                    🎓 <?= $t(['fr' => 'Études', 'en' => 'Studies']) ?>
-                </a>
+                    <!-- Études : préserve le département actif -->
+                    <a href="<?= $buildUrl('index.php', array_filter([
+                            'page'        => 'home-admin',
+                            'mobilite'    => $mobiliteFilter === 'etude' ? null : 'etude',
+                            'departement' => $departementFilter,
+                    ])) ?>"
+                       class="mobilite-btn mobilite-btn--etude <?= $mobiliteFilter === 'etude' ? 'active' : '' ?>">
+                        🎓 <?= $t(['fr' => 'Études', 'en' => 'Studies']) ?>
+                    </a>
 
-                <!-- Stage : préserve le département actif -->
-                <a href="<?= $buildUrl('index.php', array_filter([
-                    'page'        => 'home-admin',
-                    'mobilite'    => $mobiliteFilter === 'stage' ? null : 'stage',
-                    'departement' => $departementFilter,
-                ])) ?>"
-                   class="mobilite-btn mobilite-btn--stage <?= $mobiliteFilter === 'stage' ? 'active' : '' ?>">
-                    💼 <?= $t(['fr' => 'Stage', 'en' => 'Internship']) ?>
-                </a>
+                    <!-- Stage : préserve le département actif -->
+                    <a href="<?= $buildUrl('index.php', array_filter([
+                            'page'        => 'home-admin',
+                            'mobilite'    => $mobiliteFilter === 'stage' ? null : 'stage',
+                            'departement' => $departementFilter,
+                    ])) ?>"
+                       class="mobilite-btn mobilite-btn--stage <?= $mobiliteFilter === 'stage' ? 'active' : '' ?>">
+                        💼 <?= $t(['fr' => 'Stage', 'en' => 'Internship']) ?>
+                    </a>
 
-                <!-- Département : préserve la mobilité active -->
-                <div class="dept-dropdown">
-                    <button class="mobilite-btn dept-btn <?= $departementFilter !== null ? 'active' : '' ?>">
-                        🏛️ <?= $departementFilter ?? $t(['fr' => 'Département', 'en' => 'Department']) ?>
-                        <span class="arrow">▼</span>
-                    </button>
-                    <div class="dept-dropdown-content">
-                        <!-- "Tous les départements" préserve la mobilité active -->
-                        <a href="<?= $buildUrl('index.php', array_filter([
-                            'page'     => 'home-admin',
-                            'mobilite' => $mobiliteFilter,
-                        ])) ?>">
-                            <?= $t(['fr' => 'Tous les départements', 'en' => 'All departments']) ?>
-                        </a>
-                        <?php foreach ($allDepartements as $dept): ?>
+                    <!-- Département : préserve la mobilité active -->
+                    <div class="dept-dropdown">
+                        <button class="mobilite-btn dept-btn <?= $departementFilter !== null ? 'active' : '' ?>">
+                            🏛️ <?= $departementFilter ?? $t(['fr' => 'Département', 'en' => 'Department']) ?>
+                            <span class="arrow">▼</span>
+                        </button>
+                        <div class="dept-dropdown-content">
+                            <!-- "Tous les départements" préserve la mobilité active -->
                             <a href="<?= $buildUrl('index.php', array_filter([
-                                'page'        => 'home-admin',
-                                'mobilite'    => $mobiliteFilter,
-                                'departement' => $dept,
-                            ])) ?>"
-                               class="<?= $departementFilter === $dept ? 'active' : '' ?>">
-                                <?= htmlspecialchars($dept) ?>
+                                    'page'     => 'home-admin',
+                                    'mobilite' => $mobiliteFilter,
+                            ])) ?>">
+                                <?= $t(['fr' => 'Tous les départements', 'en' => 'All departments']) ?>
                             </a>
-                        <?php endforeach; ?>
+                            <?php foreach ($allDepartements as $dept): ?>
+                                <a href="<?= $buildUrl('index.php', array_filter([
+                                        'page'        => 'home-admin',
+                                        'mobilite'    => $mobiliteFilter,
+                                        'departement' => $dept,
+                                ])) ?>"
+                                   class="<?= $departementFilter === $dept ? 'active' : '' ?>">
+                                    <?= htmlspecialchars($dept) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <!-- Carrousel -->
     <section class="stats-section">
@@ -168,26 +164,58 @@ ob_start();
         <div class="stats-carousel">
             <div class="carousel-container">
 
-                <!-- Slide 1 : État des dossiers -->
+
+
+                <!-- Slide 8 : Workflow de validation -->
                 <div class="stat-slide active">
+                    <h2><?= $t(['fr' => 'Workflow de validation', 'en' => 'Validation Workflow']) ?></h2>
+                    <?php
+                    // Une case par étape : nombre, % et lien vers la liste filtrée sur cette étape.
+                    // Chaque dossier est dans une seule étape → la somme des cases = total.
+                    $workflowTiles = [
+                            \Model\Entity\WorkflowStep::INCOMPLET           => ['incomplete', $workflowStats->getIncomplete(),                    $workflowStats->getIncompletePercentage()],
+                            \Model\Entity\WorkflowStep::A_VALIDER           => ['',           $workflowStats->getAwaitingAdmin(),                 $workflowStats->getAwaitingAdminPercentage()],
+                            \Model\Entity\WorkflowStep::VALIDE_SECRETARIAT  => ['',           $workflowStats->getValidatedAdmin(),                $workflowStats->getValidatedAdminPercentage()],
+                            \Model\Entity\WorkflowStep::VALIDE_COORDINATEUR => ['',           $workflowStats->getValidatedAdminAndCoordinateur(), $workflowStats->getValidatedAdminAndCoordinateurPercentage()],
+                            \Model\Entity\WorkflowStep::VALIDE_CHEF         => ['complete',   $workflowStats->getValidatedChefDepartement(),      $workflowStats->getValidatedChefDepartementPercentage()],
+                    ];
+                    ?>
+                    <div class="stat-content workflow-grid">
+                        <?php foreach ($workflowTiles as $etapeCode => [$tileClass, $tileCount, $tilePct]) : ?>
+                            <a href="<?= $buildUrl('index.php', array_filter([
+                                    'page'        => 'folders-admin',
+                                    'mobilite'    => $mobiliteFilter,
+                                    'departement' => $departementFilter,
+                                    'etape'       => $etapeCode,
+                            ])) ?>" class="stat-item <?= $tileClass ?> stat-item--link">
+                                <div class="stat-number"><?= $tileCount ?></div>
+                                <div class="stat-label"><?= htmlspecialchars($t(\Model\Entity\WorkflowStep::LABELS[$etapeCode])) ?></div>
+                                <div class="stat-percentage-small"><?= $tilePct ?>%</div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Slide 1 : État des dossiers -->
+                <div class="stat-slide">
                     <h2><?= $t(['fr' => 'État des dossiers', 'en' => 'Folder Status']) ?></h2>
                     <div class="stat-content">
-                    <a href="<?= $buildUrl('index.php', array_filter([
-                        'page'        => 'folders-admin',
-                        'mobilite'    => $mobiliteFilter,
-                        'departement' => $departementFilter,
-                    ]) + ['complet' => '1']) ?>" class="stat-item complete stat-item--link">
-                        <div class="stat-number"><?= $completed ?></div>
-                        <div class="stat-label"><?= $t(['fr' => 'Dossiers complets', 'en' => 'Complete folders']) ?></div>
-                    </a>
-                    <a href="<?= $buildUrl('index.php', array_filter([
-                        'page'        => 'folders-admin',
-                        'mobilite'    => $mobiliteFilter,
-                        'departement' => $departementFilter,
-                    ]) + ['complet' => '0']) ?>" class="stat-item incomplete stat-item--link">
-                        <div class="stat-number"><?= $incomplete ?></div>
-                        <div class="stat-label"><?= $t(['fr' => 'Dossiers incomplets', 'en' => 'Incomplete folders']) ?></div>
-                    </a>
+                        <a href="<?= $buildUrl('index.php', array_filter([
+                                        'page'        => 'folders-admin',
+                                        'mobilite'    => $mobiliteFilter,
+                                        'departement' => $departementFilter,
+                                ]) + ['complet' => '1']) ?>" class="stat-item complete stat-item--link">
+                            <div class="stat-number"><?= $completed ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Dossiers complets', 'en' => 'Complete folders']) ?></div>
+                        </a>
+                        <a href="<?= $buildUrl('index.php', array_filter([
+                                        'page'        => 'folders-admin',
+                                        'mobilite'    => $mobiliteFilter,
+                                        'departement' => $departementFilter,
+                                ]) + ['complet' => '0']) ?>" class="stat-item incomplete stat-item--link">
+                            <div class="stat-number"><?= $incomplete ?></div>
+                            <div class="stat-label"><?= $t(['fr' => 'Dossiers incomplets', 'en' => 'Incomplete folders']) ?></div>
+                        </a>
                     </div>
                     <div class="completion-bar">
                         <div class="completion-fill" style="width: <?= $completionRate ?>%"></div>
@@ -288,6 +316,10 @@ ob_start();
                     </div>
                 </div>
 
+
+
+
+
             </div>
 
             <div class="carousel-dots">
@@ -312,8 +344,8 @@ ob_start();
 $content = ob_get_clean();
 
 $title = $t([
-    'fr' => 'Accueil - Service des relations internationales AMU',
-    'en' => 'Home - International Relations Service AMU',
+        'fr' => 'Accueil - Service des relations internationales AMU',
+        'en' => 'Home - International Relations Service AMU',
 ]);
 
 $styles          = ['styles/homepage.css'];
@@ -322,8 +354,8 @@ $activeMenu      = 'home';
 $userRole        = 'admin';
 $noMain          = true;
 $metaDescription = $t([
-    'fr' => "Service des relations internationales de l'AMU. Informations pour étudiants internationaux, échanges universitaires et partenariats.",
-    'en' => 'International Relations Service of AMU. Info for international students, university exchanges, and partnerships.',
+        'fr' => "Service des relations internationales de l'AMU. Informations pour étudiants internationaux, échanges universitaires et partenariats.",
+        'en' => 'International Relations Service of AMU. Info for international students, university exchanges, and partnerships.',
 ]);
 
 include __DIR__ . '/../Layout/base.php';
