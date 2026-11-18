@@ -159,7 +159,9 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-$title           = $t(['fr' => 'Coordinateur d\'étude - Relations Internationales AMU', 'en' => 'Study Coordinator - International Relations AMU']);
+$title           = ($action === 'view' && is_array($studentData) && trim(strval($studentData['Prenom'] ?? '')) !== '' && trim(strval($studentData['Nom'] ?? '')) !== '')
+    ? $t(['fr' => 'Dossier – ' . trim(strval($studentData['Prenom'])) . ' ' . trim(strval($studentData['Nom'])) . ' – SRI IUT', 'en' => 'Dossier – ' . trim(strval($studentData['Prenom'])) . ' ' . trim(strval($studentData['Nom'])) . ' – SRI IUT'])
+    : $t(['fr' => 'Coordinateur d\'étude - Relations Internationales AMU', 'en' => 'Study Coordinator - International Relations AMU']);
 $styles          = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css', 'styles/coordinators_extra.css'];
 $scripts         = ['js/folders.js'];
 $activeMenu      = $PAGE;

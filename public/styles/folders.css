@@ -1,4 +1,3 @@
-
 h1 {
     background-color: var(--primary-color);
     color: white;
@@ -1401,4 +1400,20 @@ tr:nth-child(even) {
     .nav-buttons button { padding: 5px 8px; font-size: 0.85rem; }
     .student-toolbar input[type="text"] { font-size: 0.9rem; }
     .menu-toggle { display: block; font-size: 28px; color: var(--primary-color); background: none; border: none; cursor: pointer; }
+}
+
+/* RGPD — bouton discret près des pièces justificatives */
+.rgpd-info-button {
+    width: 28px;
+    height: 28px;
+    margin-left: 8px;
+    padding: 0;
+    border: 1px solid var(--primary-color, #004080);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--primary-color, #004080);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 26px;
+    vertical-align: middle;
 }

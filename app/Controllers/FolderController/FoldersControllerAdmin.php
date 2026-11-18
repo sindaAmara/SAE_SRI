@@ -377,6 +377,7 @@ class FoldersControllerAdmin
             'Composante'         => $_POST['composante']          ?? null,
             'Pays'               => $_POST['pays']                ?? null,
             'Mobilite'           => $_POST['mobilite_type']       ?? null,
+            'SousType'           => $_POST['sous_type']           ?? null,
             'Campus'             => $_POST['campus']              ?? null,
             'Discipline'         => $_POST['discipline']          ?? null,
             'NiveauEtude'        => $_POST['niveau_etude']        ?? null,
@@ -564,15 +565,8 @@ class FoldersControllerAdmin
             'Type'               => $_POST['type']                ?? null,
             'Zone'               => $_POST['zone']                ?? 'europe',
             'Pays'               => $_POST['pays']                ?? null,
-            'Campus'             => $_POST['campus']              ?? null,
-            'Discipline'         => $_POST['discipline']          ?? null,
-            'NiveauEtude'        => $_POST['niveau_etude']        ?? null,
-            'Formation'          => $_POST['formation']           ?? null,
-            'MoyenneBac'         => $_POST['moyenne_bac']         ?? null,
-            'MoyenneSansBac'     => $_POST['moyenne_sans_bac']    ?? null,
-            'AvisDRI'            => $_POST['avis_dri']            ?? null,
-            'DateDebut'          => $_POST['date_debut']          ?? null,
-            'MobiliteAnterieure' => $_POST['mobilite_anterieure'] ?? null,
+            'Mobilite'           => $_POST['mobilite_type']       ?? null,
+            'SousType'           => $_POST['sous_type']           ?? null,
         ];
 
         $errors = [];
@@ -632,6 +626,7 @@ class FoldersControllerAdmin
             'Composante'         => $_POST['composante']          ?? null,
             'Pays'               => $_POST['pays']                ?? null,
             'Mobilite'           => $_POST['mobilite_type']       ?? null,
+            'SousType'           => $_POST['sous_type']           ?? null,
             'Campus'             => $_POST['campus']              ?? null,
             'Discipline'         => $_POST['discipline']          ?? null,
             'NiveauEtude'        => $_POST['niveau_etude']        ?? null,

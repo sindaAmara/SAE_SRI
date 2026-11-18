@@ -251,7 +251,9 @@ ob_start();
 <?php
 $content = ob_get_clean();
 
-$title      = $t(['fr' => 'Gestion des dossiers - Admin', 'en' => 'Profiles Management - Admin']);
+$title      = ($action === 'view' && is_array($studentData) && trim(strval($studentData['Prenom'] ?? '')) !== '' && trim(strval($studentData['Nom'] ?? '')) !== '')
+    ? $t(['fr' => 'Dossier – ' . trim(strval($studentData['Prenom'])) . ' ' . trim(strval($studentData['Nom'])) . ' – SRI IUT', 'en' => 'Dossier – ' . trim(strval($studentData['Prenom'])) . ' ' . trim(strval($studentData['Nom'])) . ' – SRI IUT'])
+    : $t(['fr' => 'Gestion des dossiers - Admin', 'en' => 'Profiles Management - Admin']);
 $styles     = ['styles/index.css', 'styles/folders.css', 'styles/chatbot.css'];
 $scripts    = ['js/folders.js'];
 $activeMenu = $PAGE;

@@ -51,6 +51,18 @@ class FormManager {
         const erasmus         = document.getElementById('erasmus');
         const transportVert   = document.getElementById('transport_vert');
 
+        if (sousType) {
+            sousType.querySelectorAll('option[data-type]').forEach((option) => {
+                const visible = option.dataset.type === type;
+                option.hidden = !visible;
+                option.style.display = visible ? '' : 'none';
+            });
+            const selected = sousType.options[sousType.selectedIndex];
+            if (selected && selected.dataset.type && selected.dataset.type !== type) {
+                sousType.value = '';
+            }
+        }
+
         if (conventionBlock) conventionBlock.style.display = 'none';
         if (lettreBlock)     lettreBlock.style.display     = 'none';
 

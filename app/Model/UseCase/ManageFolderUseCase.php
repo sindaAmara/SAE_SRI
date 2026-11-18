@@ -222,6 +222,7 @@ class ManageFolderUseCase
             ':Zone'               => null,
             ':Pays'               => null,
             ':Mobilite'           => null,
+            ':SousType'           => null,
             ':Campus'             => null,
             ':Discipline'         => null,
             ':NiveauEtude'        => null,
@@ -307,6 +308,8 @@ class ManageFolderUseCase
             'Type'               => $data['type']                ?? ($data['Type']               ?? null),
             'Zone'               => $data['zone']                ?? ($data['Zone']               ?? null),
             'Pays'               => $data['pays']                ?? ($data['Pays']               ?? null),
+            'Mobilite'           => $data['mobilite']            ?? ($data['Mobilite']           ?? null),
+            'SousType'           => $this->validSousType($data['sous_type'] ?? ($data['SousType'] ?? null)),
             'Campus'             => $data['campus']              ?? ($data['Campus']             ?? null),
             'Discipline'         => $data['discipline']          ?? ($data['Discipline']         ?? null),
             'NiveauEtude'        => $data['niveau_etude']        ?? ($data['NiveauEtude']        ?? null),
@@ -386,17 +389,8 @@ class ManageFolderUseCase
             ':Zone'               => $data['zone']                ?? ($data['Zone']               ?? null),
             ':Pays'               => $data['pays']                ?? ($data['Pays']               ?? null),
             ':Mobilite'           => $data['mobilite']            ?? ($data['Mobilite']           ?? null),
+            ':SousType'           => $this->validSousType($data['sous_type'] ?? ($data['SousType'] ?? null)),
             ':Campus'             => $data['campus']              ?? ($data['Campus']             ?? null),
-            ':Discipline'         => $data['discipline']          ?? ($data['Discipline']         ?? null),
-            ':NiveauEtude'        => $data['niveau_etude']        ?? ($data['NiveauEtude']        ?? null),
-            ':Formation'          => $data['formation']           ?? ($data['Formation']          ?? null),
-            ':MoyenneBac'         => $data['moyenne_bac']         ?? ($data['MoyenneBac']         ?? null),
-            ':MoyenneSansBac'     => $data['moyenne_sans_bac']    ?? ($data['MoyenneSansBac']     ?? null),
-            ':AvisDRI'            => $data['avis_dri']            ?? ($data['AvisDRI']            ?? null),
-            ':DateDebut'          => $data['date_debut']          ?? ($data['DateDebut']          ?? null),
-            ':MobiliteAnterieure' => $data['mobilite_anterieure'] ?? ($data['MobiliteAnterieure'] ?? null),
-            ':PiecesJustificatives' => $piecesJson,
-            ':status'             => is_string($existing['status'] ?? null) ? $existing['status'] : 'depot',
             ':ModifiePar'         => !empty($data['ModifiePar']) ? $data['ModifiePar'] : null,
             ':ModifieLe'          => !empty($data['ModifieLe'])  ? $data['ModifieLe']  : null,
         ];
@@ -678,5 +672,23 @@ class ManageFolderUseCase
         ?string $commentaire = null
     ): bool {
         return $this->dossierRepo->enregistrerValidation($numetu, $statutsDocuments, $dateLimite, $commentaire);
+    }
+
+    /**
+     * Validates a mobility subtype against the supported whitelist.
+     *
+     * @param mixed $value Submitted subtype value
+     * @return string|null Whitelisted subtype or null
+     */
+    private function validSousType(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $allowed = [
+            'BIP', 'longue S1', 'longue S2', 'FY',
+            'stage -2', 'stage +2 Europe', 'stage +2 hors Europe',
+        ];
+        return in_array($value, $allowed, true) ? $value : null;
     }
 }

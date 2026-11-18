@@ -70,7 +70,12 @@ $pieces       = is_array($rawPieces) ? $rawPieces : [];
 
 $detectedType = '';
 if (!$isCreateMode) {
-    if (!empty($pieces['convention']['file'])) {
+    $mobiliteCol = strtolower(trim(strval($dossier['Mobilite'] ?? '')));
+    if ($mobiliteCol === 'stage') {
+        $detectedType = 'stage';
+    } elseif ($mobiliteCol === 'etude' || $mobiliteCol === 'etudes') {
+        $detectedType = 'etudes';
+    } elseif (!empty($pieces['convention']['file'])) {
         $detectedType = 'stage';
     } elseif (!empty($pieces['lettre_motivation']['file'])) {
         $detectedType = 'etudes';
@@ -92,15 +97,23 @@ $valComposante        = htmlspecialchars(strval($dossier['Composante'] ?? ''));
 $valCampus            = htmlspecialchars(strval($dossier['Campus'] ?? ''));
 $valDiscipline        = htmlspecialchars(strval($dossier['Discipline'] ?? ''));
 $valNiveauEtude       = htmlspecialchars(strval($dossier['NiveauEtude'] ?? ''));
-$valFormation         = htmlspecialchars(strval($dossier['Formation'] ?? ''));
+$valFormation         = htmlspecialchars(strval($dossier['Formation' ?? '']));
 $valMoyenneBac        = htmlspecialchars(strval($dossier['MoyenneBac'] ?? ''));
 $valMoyenneSansBac    = htmlspecialchars(strval($dossier['MoyenneSansBac'] ?? ''));
-$valAvisDRI           = htmlspecialchars(strval($dossier['AvisDRI'] ?? ''));
-$valDateDebut         = htmlspecialchars(strval($dossier['DateDebut'] ?? ''));
+$valAvisDRI           = htmlspecialchars(strval($dossier['AvisDRI' ?? '']));
+$valDateDebut         = htmlspecialchars(strval($dossier['DateDebut' ?? '']));
 $valMobiliteAnterieure= htmlspecialchars(strval($dossier['MobiliteAnterieure'] ?? ''));
 $valPays              = htmlspecialchars(strval($dossier['Pays'] ?? ''));
-$valType              = strval($dossier['Type'] ?? '');
-$valZone              = strval($dossier['Zone'] ?? '');
+$valType              = strval($dossier['Type' ?? '']);
+$valZone              = strval($dossier['Zone' ?? '']);
+$valSousType          = strval($dossier['SousType'] ?? '');
+$firstDeposit         = '1';
+foreach ($pieces as $piece) {
+    if (is_array($piece) && !empty($piece['file'])) {
+        $firstDeposit = '0';
+        break;
+    }
+}
 
 $clsReadonly  = $isCreateMode ? '' : 'input-readonly';
 $clsDisabled  = 'input-admin';
@@ -289,15 +302,18 @@ endif;
                 <option value="etudes"<?= $detectedType === 'etudes' ? 'selected' : '' ?>><?= $t(['fr' => 'Études', 'en' => 'Studies']) ?></option>
             </select>
 
-            <label for="sous_type"><?= $t(['fr' => 'Sous-type d’études', 'en' => 'Study subtype']) ?></label>
+            <label for="sous_type"><?= $t(['fr' => 'Sous-type', 'en' => 'Subtype']) ?></label>
             <select name="sous_type" id="sous_type"
                 <?= $isCreateMode ? '' : 'disabled' ?>
                     class="<?= $clsReadonly ?>">
                 <option value=""><?= $t(['fr' => '-- Choisir --', 'en' => '-- Choose --']) ?></option>
-                <option value="BIP"><?= $t(['fr' => 'BIP', 'en' => 'BIP']) ?></option>
-                <option value="longue S1"><?= $t(['fr' => 'Longue S1', 'en' => 'Long S1']) ?></option>
-                <option value="longue S2"><?= $t(['fr' => 'Longue S2', 'en' => 'Long S2']) ?></option>
-                <option value="FY"><?= $t(['fr' => 'FY', 'en' => 'FY']) ?></option>
+                <option value="BIP" data-type="etudes" <?= $valSousType === 'BIP' ? 'selected' : '' ?>><?= $t(['fr' => 'BIP', 'en' => 'BIP']) ?></option>
+                <option value="longue S1" data-type="etudes" <?= $valSousType === 'longue S1' ? 'selected' : '' ?>><?= $t(['fr' => 'Longue S1', 'en' => 'Long S1']) ?></option>
+                <option value="longue S2" data-type="etudes" <?= $valSousType === 'longue S2' ? 'selected' : '' ?>><?= $t(['fr' => 'Longue S2', 'en' => 'Long S2']) ?></option>
+                <option value="FY" data-type="etudes" <?= $valSousType === 'FY' ? 'selected' : '' ?>><?= $t(['fr' => 'FY', 'en' => 'FY']) ?></option>
+                <option value="stage -2" data-type="stage" <?= $valSousType === 'stage -2' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage -2', 'en' => 'Internship -2']) ?></option>
+                <option value="stage +2 Europe" data-type="stage" <?= $valSousType === 'stage +2 Europe' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage +2 Europe', 'en' => 'Internship +2 Europe']) ?></option>
+                <option value="stage +2 hors Europe" data-type="stage" <?= $valSousType === 'stage +2 hors Europe' ? 'selected' : '' ?>><?= $t(['fr' => 'Stage +2 hors Europe', 'en' => 'Internship +2 outside Europe']) ?></option>
             </select>
 
             <div id="etudes-checklist" class="etudes-checklist" style="display:none;"></div>
@@ -319,8 +335,31 @@ endif;
 
         </div><!-- /.form-section -->
 
-        <div class="form-section form-section--pieces">
-            <h2 class="form-section__titre"><?= $t(['fr' => 'Mes pièces justificatives', 'en' => 'My Documents']) ?></h2>
+        <div class="form-section form-section--pieces" data-first-deposit="<?= $firstDeposit ?>">
+            <h2 class="form-section__titre"><?= $t(['fr' => 'Mes pièces justificatives', 'en' => 'My Documents']) ?>
+                <button type="button" id="rgpd-info-button" class="rgpd-info-button"
+                        aria-label="<?= htmlspecialchars($t(['fr' => 'Informations sur la protection des données', 'en' => 'Data protection information']), ENT_QUOTES, 'UTF-8') ?>"
+                        aria-haspopup="dialog" aria-controls="rgpd-modal">ⓘ</button>
+            </h2>
+
+            <div id="rgpd-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="rgpd-modal-title">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="rgpd-modal-title"><?= $t(['fr' => 'Protection de vos données personnelles', 'en' => 'Protection of your personal data']) ?></h2>
+                    </div>
+                    <div class="modal-section">
+                        <p><?= $t(['fr' => 'Vos données sont utilisées pour gérer votre mobilité internationale sortante.', 'en' => 'Your data is used to manage your outgoing international mobility.']) ?></p>
+                        <p><?= $t(['fr' => 'Les destinataires sont le SRI et les référents de votre département.', 'en' => 'Recipients are the International Relations Service and your department representatives.']) ?></p>
+                        <p><?= $t(['fr' => 'Vous disposez des droits d’accès, de rectification, d’effacement et de portabilité.', 'en' => 'You have rights of access, rectification, erasure and portability.']) ?></p>
+                        <p><?= $t(['fr' => 'Pour exercer ces droits, contactez le DPO d’AMU.', 'en' => 'To exercise these rights, contact AMU’s DPO.']) ?></p>
+                        <p><a href="index.php?page=mentions-legales&amp;lang=<?= htmlspecialchars($lang, ENT_QUOTES, 'UTF-8') ?>"><?= $t(['fr' => 'Consulter les mentions légales et la politique RGPD', 'en' => 'View the legal notice and GDPR policy']) ?></a></p>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" id="rgpd-cancel" class="btn-modal btn-modal-cancel"><?= $t(['fr' => 'Annuler', 'en' => 'Cancel']) ?></button>
+                        <button type="button" id="rgpd-accept" class="btn-modal btn-modal-submit"><?= $t(['fr' => 'J’ai compris et j’accepte', 'en' => 'I understand and accept']) ?></button>
+                    </div>
+                </div>
+            </div>
 
             <?php
             $docTypes = [
@@ -423,10 +462,17 @@ endif;
 <?php
 $content = ob_get_clean();
 
-$title = $t(['fr' => 'Mon profil - Étudiant', 'en' => 'My Profile - Student']);
+$title = $isCreateMode
+    ? $t(['fr' => 'Mon profil - Étudiant', 'en' => 'My Profile - Student'])
+    : (trim(strval($dossier['Nom'] ?? '')) !== '' && trim(strval($dossier['Prenom'] ?? '')) !== ''
+        ? $t([
+            'fr' => 'Dossier de ' . trim(strval($dossier['Prenom'])) . ' ' . trim(strval($dossier['Nom'])) . ' – SRI IUT',
+            'en' => 'Dossier de ' . trim(strval($dossier['Prenom'])) . ' ' . trim(strval($dossier['Nom'])) . ' – SRI IUT',
+        ])
+        : $t(['fr' => 'Mon profil - Étudiant', 'en' => 'My Profile - Student']));
 
 $styles    = ['styles/folders.css', 'styles/chatbot.css'];
-$scripts   = ['js/chatbot.js', 'js/folders.js'];
+$scripts   = ['js/chatbot.js', 'js/folders.js', 'js/folder_rgpd.js'];
 $activeMenu = 'folders';
 $userRole   = 'student';
 

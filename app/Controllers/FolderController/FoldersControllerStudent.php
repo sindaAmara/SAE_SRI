@@ -172,6 +172,8 @@ class FoldersControllerStudent implements ControllerInterface
             'Pays'               => $_POST['pays']        ?? null,
             'Type'               => $_POST['type']        ?? null,
             'Zone'               => $_POST['zone']        ?? null,
+            'Mobilite'           => $_POST['mobilite_type'] ?? null,
+            'SousType'           => $_POST['sous_type'] ?? null,
             'Campus'             => null,
             'NiveauEtude'        => null,
             'MoyenneBac'         => null,
@@ -249,6 +251,8 @@ class FoldersControllerStudent implements ControllerInterface
             'Pays'            => $_POST['pays']        ?? null,
             'Type'            => $_POST['type']        ?? null,
             'Zone'            => $_POST['zone']        ?? null,
+            'Mobilite'        => $_POST['mobilite_type'] ?? null,
+            'SousType'        => $_POST['sous_type'] ?? null,
         ];
 
         if (empty($data['EmailPersonnel'])) {
