@@ -2,37 +2,73 @@
 
 namespace Model\UseCase;
 
+use Model\Entity\Date;
 use Model\Persistence\DateRepositoryPDO;
 
+/**
+ * ManageDateUseCase
+ *
+ * Business operations on important dates (deadlines shown to the admin).
+ */
 class ManageDateUseCase
 {
-
+    /** @var DateRepositoryPDO Repository of important dates */
     private DateRepositoryPDO $dateRepo;
-    public function __construct()
+
+    /**
+     * @param DateRepositoryPDO|null $dateRepo Injected repository (defaults to a new instance)
+     */
+    public function __construct(?DateRepositoryPDO $dateRepo = null)
     {
-        $this->dateRepo = new DateRepositoryPDO();
+        $this->dateRepo = $dateRepo ?? new DateRepositoryPDO();
     }
 
-    public function createDate(string $id, string $titre, string $description, string $date, string $type)
+    /**
+     * Creates an important date.
+     *
+     * @return bool True on success
+     */
+    public function createDate(string $id, string $titre, string $description, string $date, string $type): bool
     {
-        $this->dateRepo->create($id, $titre, $description, $date, $type);
+        return $this->dateRepo->create($id, $titre, $description, $date, $type);
     }
 
-    public function deleteDate(string $id)
+    /**
+     * Deletes an important date.
+     *
+     * @return bool True on success
+     */
+    public function deleteDate(string $id): bool
     {
-        $this->dateRepo->delete($id);
+        return $this->dateRepo->delete($id);
     }
 
-    public function updateDate(string $id, string $titre, string $description, string $date, string $type)
+    /**
+     * Updates an important date.
+     *
+     * @return bool True on success
+     */
+    public function updateDate(string $id, string $titre, string $description, string $date, string $type): bool
     {
-        $this->dateRepo->update($id, $titre, $description, $date, $type);
+        return $this->dateRepo->update($id, $titre, $description, $date, $type);
     }
 
-    public function showDatesFromDay(string $date){
-        return $this->dateRepo->findbyDate($date);
+    /**
+     * Returns the important dates of a given day.
+     *
+     * @param string $date Day in YYYY-MM-DD format
+     * @return array<int, Date>
+     */
+    public function showDatesFromDay(string $date): array
+    {
+        return $this->dateRepo->findByDate($date);
     }
 
-    public function getDateFromId(string $id){
-        return $this->dateRepo->findById($id)->getDate();
+    /**
+     * Returns the day (YYYY-MM-DD) of an important date, or null if it does not exist.
+     */
+    public function getDateFromId(string $id): ?string
+    {
+        return $this->dateRepo->findById($id)?->getDate();
     }
 }

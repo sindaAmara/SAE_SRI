@@ -67,5 +67,4 @@ class Date
     {
         $this->type = $type;
     }
-
 }
