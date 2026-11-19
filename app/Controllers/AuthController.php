@@ -50,12 +50,24 @@ class AuthController implements ControllerInterface
         $page = $_GET['page'] ?? 'login';
 
         switch ($page) {
-            case 'login':               $this->handleLogin();              break;
-            case 'register':            $this->handleRegister();           break;
-            case 'reset-password':      $this->handleResetPassword();      break;
-            case 'force-reset-password':$this->handleForceResetPassword(); break;
-            case 'mentions-legales':    $this->handleMentionsLegales();    break;
-            case 'forgot_password':     $this->handleForgotPassword();     break;
+            case 'login':
+                $this->handleLogin();
+                break;
+            case 'register':
+                $this->handleRegister();
+                break;
+            case 'reset-password':
+                $this->handleResetPassword();
+                break;
+            case 'force-reset-password':
+                $this->handleForceResetPassword();
+                break;
+            case 'mentions-legales':
+                $this->handleMentionsLegales();
+                break;
+            case 'forgot_password':
+                $this->handleForgotPassword();
+                break;
         }
     }
 
@@ -104,7 +116,7 @@ class AuthController implements ControllerInterface
                     exit;
                 }
 
-                $destination = match($role) {
+                $destination = match ($role) {
                     'super_admin'                                                  => 'index.php?page=super-admin',
                     'admin'                                                        => 'index.php?page=home-admin',
                     'coordinateur_etude', 'coordinateur_stage',
@@ -187,7 +199,7 @@ class AuthController implements ControllerInterface
                 $this->userRepository->updatePasswordAndUnlock($userIdentifier, $hashedPassword);
 
                 $role        = $_SESSION['role'] ?? 'student';
-                $destination = match($role) {
+                $destination = match ($role) {
                     'super_admin'                                                  => 'index.php?page=super-admin',
                     'admin'                                                        => 'index.php?page=home-admin',
                     'coordinateur_etude', 'coordinateur_stage',
@@ -290,7 +302,7 @@ class AuthController implements ControllerInterface
     {
         $lang = $_GET['lang'] ?? $_SESSION['lang'] ?? 'fr';
 
-        $t = function(array $frEn) use ($lang) {
+        $t = function (array $frEn) use ($lang) {
             return $frEn[$lang] ?? $frEn['fr'] ?? '';
         };
 

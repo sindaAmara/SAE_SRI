@@ -168,8 +168,12 @@ class HomeControllerCoordinateur implements ControllerInterface
         if (isset($_GET['mobilite']) && in_array($_GET['mobilite'], ['etude', 'stage'], true)) {
             $mobiliteFilter = $_GET['mobilite'];
         }
-        if ($role === 'coordinateur_etude') $mobiliteFilter = 'etude';
-        if ($role === 'coordinateur_stage') $mobiliteFilter = 'stage';
+        if ($role === 'coordinateur_etude') {
+            $mobiliteFilter = 'etude';
+        }
+        if ($role === 'coordinateur_stage') {
+            $mobiliteFilter = 'stage';
+        }
 
         // Department: always the one of the logged-in user (CDC §7.2 « leur département uniquement »).
         // Le paramètre ?departement= de l'URL est ignoré. Sans département sur le compte : aucun dossier.

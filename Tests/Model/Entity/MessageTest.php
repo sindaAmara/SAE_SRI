@@ -34,12 +34,12 @@ class MessageTest extends TestCase
             $date
         );
 
-        $this->assertEquals(10,        $message->getId());
-        $this->assertEquals(1,         $message->getConversationId());
+        $this->assertEquals(10, $message->getId());
+        $this->assertEquals(1, $message->getConversationId());
         $this->assertEquals("student", $message->getSenderType());
         $this->assertEquals("Bonjour", $message->getContent());
         $this->assertFalse($message->isRead());
-        $this->assertSame($date,       $message->getCreatedAt());
+        $this->assertSame($date, $message->getCreatedAt());
     }
 
     /**
@@ -55,8 +55,8 @@ class MessageTest extends TestCase
         );
 
         $this->assertNull($message->getId());
-        $this->assertEquals(2,              $message->getConversationId());
-        $this->assertEquals("admin",        $message->getSenderType());
+        $this->assertEquals(2, $message->getConversationId());
+        $this->assertEquals("admin", $message->getSenderType());
         $this->assertEquals("Message test", $message->getContent());
         $this->assertFalse($message->isRead());
         $this->assertInstanceOf(\DateTime::class, $message->getCreatedAt());

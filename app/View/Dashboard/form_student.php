@@ -1,4 +1,5 @@
 <?php
+
 /**
  * View: Student Dashboard — End-of-Internship Form
  *
@@ -8,6 +9,12 @@
  * @var array<string, mixed> $errors  Validation errors keyed by field name (empty if none)
  * @var array<string, mixed> $old     Previously submitted values on validation failure
  */
+
+// Returns a previously submitted value as a string ('' when missing or not scalar)
+$oldValue = static function (string $field) use ($old): string {
+    $value = $old[$field] ?? '';
+    return is_scalar($value) ? (string) $value : '';
+};
 
 ob_start();
 ?>
@@ -28,26 +35,26 @@ ob_start();
                 <?= $t(['fr' => "Établissement d'accueil", 'en' => 'Host institution']) ?>
             </label>
             <input type="text" id="host_institution" name="host_institution"
-                   value="<?= htmlspecialchars($old['host_institution'] ?? '') ?>" required>
+                   value="<?= htmlspecialchars($oldValue('host_institution')) ?>" required>
         </div>
 
         <div class="form-group">
             <label for="start_date"><?= $t(['fr' => 'Date de début', 'en' => 'Start date']) ?></label>
             <input type="date" id="start_date" name="start_date"
-                   value="<?= htmlspecialchars($old['start_date'] ?? '') ?>" required>
+                   value="<?= htmlspecialchars($oldValue('start_date')) ?>" required>
         </div>
 
         <div class="form-group">
             <label for="end_date"><?= $t(['fr' => 'Date de fin', 'en' => 'End date']) ?></label>
             <input type="date" id="end_date" name="end_date"
-                   value="<?= htmlspecialchars($old['end_date'] ?? '') ?>" required>
+                   value="<?= htmlspecialchars($oldValue('end_date')) ?>" required>
         </div>
 
         <div class="form-group">
             <label for="evaluation">
                 <?= $t(['fr' => "Évaluation de l'expérience", 'en' => 'Evaluation of the experience']) ?>
             </label>
-            <textarea id="evaluation" name="evaluation" rows="6"><?= htmlspecialchars($old['evaluation'] ?? '') ?></textarea>
+            <textarea id="evaluation" name="evaluation" rows="6"><?= htmlspecialchars($oldValue('evaluation')) ?></textarea>
         </div>
 
         <div class="form-actions">

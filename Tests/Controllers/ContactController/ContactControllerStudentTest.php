@@ -37,7 +37,7 @@ class ContactControllerStudentTest extends TestCase
     {
         $serviceMock = $this->createMock(ContactService::class);
 
-        $controller = new class($serviceMock) extends ContactControllerStudent {
+        $controller = new class ($serviceMock) extends ContactControllerStudent {
             public function __construct(ContactService $service)
             {
                 $ref  = new \ReflectionClass(ContactControllerStudent::class);
@@ -46,7 +46,9 @@ class ContactControllerStudentTest extends TestCase
                 $prop->setValue($this, $service);
             }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -54,7 +56,9 @@ class ContactControllerStudentTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $serviceMock];
@@ -71,9 +75,9 @@ class ContactControllerStudentTest extends TestCase
 
     public function test_support_returns_false_for_other_pages(): void
     {
-        $this->assertFalse(ContactControllerStudent::support('home',           'GET'));
+        $this->assertFalse(ContactControllerStudent::support('home', 'GET'));
         $this->assertFalse(ContactControllerStudent::support('messages-admin', 'POST'));
-        $this->assertFalse(ContactControllerStudent::support('',               'GET'));
+        $this->assertFalse(ContactControllerStudent::support('', 'GET'));
     }
 
     // -------------------------------------------------------------------------
@@ -121,7 +125,10 @@ class ContactControllerStudentTest extends TestCase
             ->method('addMessage')
             ->with(10, 'student', 'Merci pour votre réponse.');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_reply_action_does_not_call_addMessage_when_reply_is_empty(): void
@@ -135,7 +142,10 @@ class ContactControllerStudentTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_reply_action_does_not_call_addMessage_when_id_is_zero(): void
@@ -149,7 +159,10 @@ class ContactControllerStudentTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_reply_action_sets_session_message_in_french(): void
@@ -164,7 +177,10 @@ class ContactControllerStudentTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('Votre message a été envoyé !', $_SESSION['message'] ?? '');
     }
@@ -181,7 +197,10 @@ class ContactControllerStudentTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('Message sent!', $_SESSION['message'] ?? '');
     }
@@ -213,7 +232,10 @@ class ContactControllerStudentTest extends TestCase
             );
         $serviceMock->method('getStudentConversations')->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_form_action_trims_fields_before_creating_conversation(): void
@@ -239,7 +261,10 @@ class ContactControllerStudentTest extends TestCase
             );
         $serviceMock->method('getStudentConversations')->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_form_action_does_not_crash_when_createConversation_throws(): void
@@ -263,7 +288,8 @@ class ContactControllerStudentTest extends TestCase
             if ($e->getMessage() === 'DB error') {
                 $exceptionPropagated = true;
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         $this->assertFalse(
             $exceptionPropagated,
@@ -286,7 +312,10 @@ class ContactControllerStudentTest extends TestCase
             ->with('12345')
             ->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_get_request_passes_conversations_to_view(): void
@@ -302,7 +331,10 @@ class ContactControllerStudentTest extends TestCase
             ->with('99999')
             ->willReturn([$fakeConversation]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -320,7 +352,7 @@ class ContactControllerStudentTest extends TestCase
         };
 
         $result = $buildUrl('index.php', ['page' => 'contact-student']);
-        $this->assertStringContainsString('lang=en',             $result);
+        $this->assertStringContainsString('lang=en', $result);
         $this->assertStringContainsString('page=contact-student', $result);
     }
 
@@ -335,8 +367,8 @@ class ContactControllerStudentTest extends TestCase
         };
 
         $result = $buildUrl('index.php', ['action' => 'reply', 'id' => '5']);
-        $this->assertStringContainsString('lang=fr',      $result);
+        $this->assertStringContainsString('lang=fr', $result);
         $this->assertStringContainsString('action=reply', $result);
-        $this->assertStringContainsString('id=5',         $result);
+        $this->assertStringContainsString('id=5', $result);
     }
 }

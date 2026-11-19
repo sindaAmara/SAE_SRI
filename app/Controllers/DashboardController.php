@@ -44,7 +44,9 @@ class DashboardController implements ControllerInterface
         $page = is_string($page) ? trim($page, '/') : '';
 
         switch ($page) {
-            case 'dashboard-student': $this->showStudentDashboard(); break;
+            case 'dashboard-student':
+                $this->showStudentDashboard();
+                break;
             default:
                 http_response_code(404);
                 echo "Page not found";
@@ -83,14 +85,18 @@ class DashboardController implements ControllerInterface
         $steps             = ['depot', 'instruction', 'accepte'];
         $statusForProgress = in_array($status, ['accepte', 'refuse'], true) ? 'accepte' : $status;
         $currentStepIndex  = array_search($statusForProgress, $steps, true);
-        if ($currentStepIndex === false) $currentStepIndex = 0;
+        if ($currentStepIndex === false) {
+            $currentStepIndex = 0;
+        }
 
         $totalSteps         = count($steps);
         $currentStepInt     = (int)$currentStepIndex;
         $progressPercentage = ($currentStepInt / ($totalSteps - 1)) * 100;
 
         // Avoid a fully empty bar at the "depot" step for visual clarity
-        if ($progressPercentage == 0) $progressPercentage = 8;
+        if ($progressPercentage == 0) {
+            $progressPercentage = 8;
+        }
 
         $progressStyle = "width: {$progressPercentage}%;";
 

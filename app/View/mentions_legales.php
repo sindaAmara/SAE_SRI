@@ -88,7 +88,7 @@ ob_start();
                 <?= $t([
                     'fr' => 'Ce site utilise uniquement des cookies "techniques" (identifiants de session) strictement nécessaires pour maintenir votre connexion sécurisée et assurer le bon fonctionnement de l\'application. Ces cookies ne tracent pas votre navigation et ne requièrent pas de consentement préalable.',
                     'en' => 'This site only uses "technical" cookies (session identifiers) strictly necessary to maintain your secure connection and ensure the application functions correctly. These cookies do not track your browsing and do not require prior consent.'
-                ]) ?>
+                    ]) ?>
             </p>
         </section>
     </div>

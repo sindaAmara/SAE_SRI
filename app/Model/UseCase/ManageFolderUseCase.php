@@ -55,11 +55,15 @@ class ManageFolderUseCase
     public function getStudentDetails(string $numetu): ?array
     {
         $result = $this->dossierRepo->findByNumEtu($numetu);
-        if (!$result) return null;
+        if (!$result) {
+            return null;
+        }
 
         $piecesJson = $result['PiecesJustificatives'] ?? '';
         $pieces = (is_string($piecesJson) && $piecesJson !== '') ? (json_decode($piecesJson, true) ?? []) : [];
-        if (!is_array($pieces)) $pieces = [];
+        if (!is_array($pieces)) {
+            $pieces = [];
+        }
 
         foreach ($pieces as $key => $val) {
             if (is_string($val)) {
@@ -70,7 +74,9 @@ class ManageFolderUseCase
 
         $statutsJson = $result['StatutDocuments'] ?? '';
         $statuts = (is_string($statutsJson) && $statutsJson !== '') ? (json_decode($statutsJson, true) ?? []) : [];
-        if (!is_array($statuts)) $statuts = [];
+        if (!is_array($statuts)) {
+            $statuts = [];
+        }
         $result['statuts'] = $statuts;
 
         return $result;
@@ -233,13 +239,19 @@ class ManageFolderUseCase
     public function validerEtape(string $numEtu, string $action, string $role): array
     {
         $check = $this->checkEtape($numEtu, $action, $role);
-        if ($check['error'] !== null) return ['success' => false, 'error' => $check['error']];
+        if ($check['error'] !== null) {
+            return ['success' => false, 'error' => $check['error']];
+        }
 
         $current = $check['current'];
         $target  = WorkflowStep::index(self::ETAPE_ACTIONS[$action]);
 
-        if ($current >= $target)      return ['success' => false, 'error' => 'already_done'];
-        if ($current !== $target - 1) return ['success' => false, 'error' => 'wrong_order'];
+        if ($current >= $target) {
+            return ['success' => false, 'error' => 'already_done'];
+        }
+        if ($current !== $target - 1) {
+            return ['success' => false, 'error' => 'wrong_order'];
+        }
 
         $ok = $action === 'secretariat'
             ? $this->dossierRepo->setValideAdmin($numEtu, true)
@@ -260,10 +272,14 @@ class ManageFolderUseCase
     public function devaliderEtape(string $numEtu, string $action, string $role): array
     {
         $check = $this->checkEtape($numEtu, $action, $role);
-        if ($check['error'] !== null) return ['success' => false, 'error' => $check['error']];
+        if ($check['error'] !== null) {
+            return ['success' => false, 'error' => $check['error']];
+        }
 
         $target = WorkflowStep::index(self::ETAPE_ACTIONS[$action]);
-        if ($check['current'] < $target) return ['success' => false, 'error' => 'not_validated'];
+        if ($check['current'] < $target) {
+            return ['success' => false, 'error' => 'not_validated'];
+        }
 
         $ok = $this->resetValidations($numEtu, $action === 'secretariat');
 
@@ -286,13 +302,17 @@ class ManageFolderUseCase
     public function synchroniserComplet(string $numEtu): ?string
     {
         $row = $this->dossierRepo->findByNumEtu($numEtu);
-        if ($row === null) return null;
+        if ($row === null) {
+            return null;
+        }
 
         $progress     = $this->progressionPieces($numEtu);
         $complet      = $progress['total'] > 0 && $progress['acceptees'] === $progress['total'];
         $etaitComplet = !empty($row['IsComplete']);
 
-        if ($complet === $etaitComplet) return null;
+        if ($complet === $etaitComplet) {
+            return null;
+        }
 
         if ($complet) {
             return $this->dossierRepo->toggleCompleteStatus($numEtu) ? 'complet' : null; // 0 -> 1
@@ -321,15 +341,21 @@ class ManageFolderUseCase
 
         foreach ($this->dossierRepo->findAll() as $dossier) {
             $numEtu = strval($dossier['NumEtu'] ?? '');
-            if ($numEtu === '') continue;
+            if ($numEtu === '') {
+                continue;
+            }
 
             $row = $this->dossierRepo->findByNumEtu($numEtu);
-            if ($row === null) continue;
+            if ($row === null) {
+                continue;
+            }
 
             $progress     = $this->progressionPieces($numEtu);
             $complet      = $progress['total'] > 0 && $progress['acceptees'] === $progress['total'];
             $etaitComplet = !empty($row['IsComplete']);
-            if ($complet === $etaitComplet) continue;
+            if ($complet === $etaitComplet) {
+                continue;
+            }
 
             $avaitValidations = !$complet && (!empty($row['valide_admin']) || !empty($row['valide_coordinateur'])
                     || !empty($row['avis_chef_departement']));
@@ -364,7 +390,9 @@ class ManageFolderUseCase
 
         $acceptees = 0;
         foreach ($docs['presents'] as $doc) {
-            if (($docs['statuts'][$doc] ?? '') === 'accepted') $acceptees++;
+            if (($docs['statuts'][$doc] ?? '') === 'accepted') {
+                $acceptees++;
+            }
         }
 
         return ['acceptees' => $acceptees, 'total' => count($requises)];
@@ -402,11 +430,17 @@ class ManageFolderUseCase
      */
     private function checkEtape(string $numEtu, string $action, string $role): array
     {
-        if (!isset(self::ETAPE_ACTIONS[$action]))       return ['error' => 'unknown_action', 'current' => -1];
-        if (!self::peutAgirSurEtape($action, $role))    return ['error' => 'forbidden',      'current' => -1];
+        if (!isset(self::ETAPE_ACTIONS[$action])) {
+            return ['error' => 'unknown_action', 'current' => -1];
+        }
+        if (!self::peutAgirSurEtape($action, $role)) {
+            return ['error' => 'forbidden',      'current' => -1];
+        }
 
         $row = $this->dossierRepo->findByNumEtu($numEtu);
-        if ($row === null)                              return ['error' => 'not_found',      'current' => -1];
+        if ($row === null) {
+            return ['error' => 'not_found',      'current' => -1];
+        }
 
         return ['error' => null, 'current' => WorkflowStep::index(WorkflowStep::fromRow($row))];
     }
@@ -458,7 +492,9 @@ class ManageFolderUseCase
     public function updateDocumentStatus(string $numEtu, string $docType, string $status, string $comment, ?string $fileContent = null): bool
     {
         $dossier = $this->getStudentDetails($numEtu);
-        if (!$dossier) return false;
+        if (!$dossier) {
+            return false;
+        }
 
         $pieces = isset($dossier['pieces']) && is_array($dossier['pieces']) ? $dossier['pieces'] : [];
         if (!isset($pieces[$docType])) {
@@ -542,11 +578,21 @@ class ManageFolderUseCase
                 : null;
         };
 
-        if (!empty($data['photo']))             $pieces['photo']             = $addPiece(is_string($data['photo']) ? $data['photo'] : null);
-        if (!empty($data['cv']))                $pieces['cv']                = $addPiece(is_string($data['cv']) ? $data['cv'] : null);
-        if (!empty($data['convention']))        $pieces['convention']        = $addPiece(is_string($data['convention']) ? $data['convention'] : null);
-        if (!empty($data['lettre_motivation'])) $pieces['lettre_motivation'] = $addPiece(is_string($data['lettre_motivation']) ? $data['lettre_motivation'] : null);
-        if (!empty($data['langues_file']))      $pieces['langues']           = $addPiece(is_string($data['langues_file']) ? $data['langues_file'] : null);
+        if (!empty($data['photo'])) {
+            $pieces['photo']             = $addPiece(is_string($data['photo']) ? $data['photo'] : null);
+        }
+        if (!empty($data['cv'])) {
+            $pieces['cv']                = $addPiece(is_string($data['cv']) ? $data['cv'] : null);
+        }
+        if (!empty($data['convention'])) {
+            $pieces['convention']        = $addPiece(is_string($data['convention']) ? $data['convention'] : null);
+        }
+        if (!empty($data['lettre_motivation'])) {
+            $pieces['lettre_motivation'] = $addPiece(is_string($data['lettre_motivation']) ? $data['lettre_motivation'] : null);
+        }
+        if (!empty($data['langues_file'])) {
+            $pieces['langues']           = $addPiece(is_string($data['langues_file']) ? $data['langues_file'] : null);
+        }
 
         $piecesJson = empty($pieces) ? '{}' : json_encode($pieces);
 
@@ -588,7 +634,9 @@ class ManageFolderUseCase
         ];
 
         foreach ($formattedData as $key => $value) {
-            if ($value === '') $formattedData[$key] = null;
+            if ($value === '') {
+                $formattedData[$key] = null;
+            }
         }
 
         return $this->dossierRepo->create($formattedData);
@@ -608,10 +656,14 @@ class ManageFolderUseCase
     public function updateDossier(array $data): bool
     {
         $numEtu = strval($data['numetu'] ?? ($data['NumEtu'] ?? ''));
-        if ($numEtu === '') return false;
+        if ($numEtu === '') {
+            return false;
+        }
 
         $existing = $this->getStudentDetails($numEtu);
-        if (!$existing) return false;
+        if (!$existing) {
+            return false;
+        }
 
         $oldPieces = isset($existing['pieces']) && is_array($existing['pieces']) ? $existing['pieces'] : [];
 
@@ -621,11 +673,11 @@ class ManageFolderUseCase
             }
         };
 
-        $updatePiece($oldPieces, 'photo',             isset($data['photo'])             && is_string($data['photo'])             ? $data['photo']             : null);
-        $updatePiece($oldPieces, 'cv',                isset($data['cv'])                && is_string($data['cv'])                ? $data['cv']                : null);
-        $updatePiece($oldPieces, 'convention',        isset($data['convention'])        && is_string($data['convention'])        ? $data['convention']        : null);
+        $updatePiece($oldPieces, 'photo', isset($data['photo'])             && is_string($data['photo'])             ? $data['photo']             : null);
+        $updatePiece($oldPieces, 'cv', isset($data['cv'])                && is_string($data['cv'])                ? $data['cv']                : null);
+        $updatePiece($oldPieces, 'convention', isset($data['convention'])        && is_string($data['convention'])        ? $data['convention']        : null);
         $updatePiece($oldPieces, 'lettre_motivation', isset($data['lettre_motivation']) && is_string($data['lettre_motivation']) ? $data['lettre_motivation'] : null);
-        $updatePiece($oldPieces, 'langues',           isset($data['langues_file'])      && is_string($data['langues_file'])      ? $data['langues_file']      : null);
+        $updatePiece($oldPieces, 'langues', isset($data['langues_file'])      && is_string($data['langues_file'])      ? $data['langues_file']      : null);
 
         $piecesJson = empty($oldPieces) ? '{}' : json_encode($oldPieces);
 
@@ -723,17 +775,19 @@ class ManageFolderUseCase
                 $rows        = $worksheet->toArray();
             }
 
-            if (empty($rows) || count($rows) < 2) return false;
+            if (empty($rows) || count($rows) < 2) {
+                return false;
+            }
 
             $normalize = function (string $string): string {
                 $string   = mb_strtolower(trim($string), 'UTF-8');
                 $unwanted = [
-                    'á'=>'a','à'=>'a','â'=>'a','ä'=>'a','ã'=>'a','å'=>'a',
-                    'é'=>'e','è'=>'e','ê'=>'e','ë'=>'e',
-                    'í'=>'i','ì'=>'i','î'=>'i','ï'=>'i',
-                    'ó'=>'o','ò'=>'o','ô'=>'o','ö'=>'o','õ'=>'o',
-                    'ú'=>'u','ù'=>'u','û'=>'u','ü'=>'u',
-                    'ç'=>'c','ñ'=>'n','œ'=>'oe',
+                    'á' => 'a','à' => 'a','â' => 'a','ä' => 'a','ã' => 'a','å' => 'a',
+                    'é' => 'e','è' => 'e','ê' => 'e','ë' => 'e',
+                    'í' => 'i','ì' => 'i','î' => 'i','ï' => 'i',
+                    'ó' => 'o','ò' => 'o','ô' => 'o','ö' => 'o','õ' => 'o',
+                    'ú' => 'u','ù' => 'u','û' => 'u','ü' => 'u',
+                    'ç' => 'c','ñ' => 'n','œ' => 'oe',
                 ];
                 $string = strtr($string, $unwanted);
                 $string = (string) preg_replace('/[^a-z0-9\s]/', ' ', $string);
@@ -742,7 +796,9 @@ class ManageFolderUseCase
             };
 
             $rawHeaders = array_shift($rows);
-            if (!is_array($rawHeaders)) return false;
+            if (!is_array($rawHeaders)) {
+                return false;
+            }
             $headers = array_map(fn($h) => $normalize(is_string($h) ? $h : (string)$h), $rawHeaders);
 
             $keywords = [
@@ -779,27 +835,46 @@ class ManageFolderUseCase
 
             foreach ($keywords as $field => $searchWords) {
                 foreach ($headers as $index => $header) {
-                    if ($indices[$field] !== -1) continue;
+                    if ($indices[$field] !== -1) {
+                        continue;
+                    }
                     foreach ($searchWords as $word) {
-                        if ($header === $word) { $indices[$field] = $index; break 2; }
+                        if ($header === $word) {
+                            $indices[$field] = $index;
+                            break 2;
+                        }
                     }
                 }
             }
             foreach ($keywords as $field => $searchWords) {
-                if ($indices[$field] !== -1) continue;
+                if ($indices[$field] !== -1) {
+                    continue;
+                }
                 foreach ($headers as $index => $header) {
-                    if (in_array($index, $indices, true)) continue;
+                    if (in_array($index, $indices, true)) {
+                        continue;
+                    }
                     foreach ($searchWords as $word) {
-                        if (strpos($header, $word) === 0) { $indices[$field] = $index; break 2; }
+                        if (strpos($header, $word) === 0) {
+                            $indices[$field] = $index;
+                            break 2;
+                        }
                     }
                 }
             }
             foreach ($keywords as $field => $searchWords) {
-                if ($indices[$field] !== -1) continue;
+                if ($indices[$field] !== -1) {
+                    continue;
+                }
                 foreach ($headers as $index => $header) {
-                    if (in_array($index, $indices, true)) continue;
+                    if (in_array($index, $indices, true)) {
+                        continue;
+                    }
                     foreach ($searchWords as $word) {
-                        if (strpos($header, $word) !== false) { $indices[$field] = $index; break 2; }
+                        if (strpos($header, $word) !== false) {
+                            $indices[$field] = $index;
+                            break 2;
+                        }
                     }
                 }
             }
@@ -812,11 +887,15 @@ class ManageFolderUseCase
             $dossiersToInsert = [];
 
             foreach ($rows as $rowData) {
-                if (!is_array($rowData)) continue;
+                if (!is_array($rowData)) {
+                    continue;
+                }
 
                 $numEtu = $getVal('NumEtu', $rowData);
                 $numEtu = (string) preg_replace('/[^a-zA-Z0-9]/', '', $numEtu);
-                if (empty($numEtu)) continue;
+                if (empty($numEtu)) {
+                    continue;
+                }
 
                 $candidatVal = $getVal('Candidat', $rowData);
                 $nomVal      = $getVal('Nom', $rowData);
@@ -850,7 +929,8 @@ class ManageFolderUseCase
                         try {
                             $dateObj       = Date::excelToDateTimeObject((float) $rawDate);
                             $dateNaissance = $dateObj->format('Y-m-d');
-                        } catch (\Exception $e) {}
+                        } catch (\Exception $e) {
+                        }
                     }
                     if (!$dateNaissance) {
                         if (preg_match('#^(\d{2})[-/](\d{2})[-/](\d{4})$#', $rawDate, $matches)) {
@@ -862,7 +942,7 @@ class ManageFolderUseCase
                     }
                 }
 
-                $moyenneBac     = str_replace(',', '.', $getVal('MoyenneBac',     $rowData));
+                $moyenneBac     = str_replace(',', '.', $getVal('MoyenneBac', $rowData));
                 $moyenneSansBac = str_replace(',', '.', $getVal('MoyenneSansBac', $rowData));
 
                 $composanteRaw = $getVal('Composante', $rowData);
@@ -877,26 +957,26 @@ class ManageFolderUseCase
                     'Nom'                => $nom,
                     'Prenom'             => $prenom,
                     'DateNaissance'      => $dateNaissance,
-                    'Sexe'               => $getVal('Sexe',               $rowData),
-                    'Adresse'            => $getVal('Adresse',            $rowData),
-                    'CodePostal'         => $getVal('CodePostal',         $rowData),
-                    'Ville'              => $getVal('Ville',              $rowData),
-                    'EmailPersonnel'     => $getVal('EmailPersonnel',     $rowData),
-                    'EmailAMU'           => $getVal('EmailAMU',           $rowData),
-                    'Telephone'          => $getVal('Telephone',          $rowData),
-                    'CodeDepartement'    => $getVal('CodeDepartement',    $rowData),
+                    'Sexe'               => $getVal('Sexe', $rowData),
+                    'Adresse'            => $getVal('Adresse', $rowData),
+                    'CodePostal'         => $getVal('CodePostal', $rowData),
+                    'Ville'              => $getVal('Ville', $rowData),
+                    'EmailPersonnel'     => $getVal('EmailPersonnel', $rowData),
+                    'EmailAMU'           => $getVal('EmailAMU', $rowData),
+                    'Telephone'          => $getVal('Telephone', $rowData),
+                    'CodeDepartement'    => $getVal('CodeDepartement', $rowData),
                     'Composante'         => $composanteRaw,
-                    'Type'               => $getVal('Type',               $rowData) ?: 'sortant',
-                    'Zone'               => $getVal('Zone',               $rowData) ?: 'europe',
-                    'Pays'               => $getVal('Pays',               $rowData),
-                    'Campus'             => $getVal('Campus',             $rowData),
-                    'Discipline'         => $getVal('Discipline',         $rowData),
-                    'NiveauEtude'        => $getVal('NiveauEtude',        $rowData),
-                    'Formation'          => $getVal('Formation',          $rowData),
+                    'Type'               => $getVal('Type', $rowData) ?: 'sortant',
+                    'Zone'               => $getVal('Zone', $rowData) ?: 'europe',
+                    'Pays'               => $getVal('Pays', $rowData),
+                    'Campus'             => $getVal('Campus', $rowData),
+                    'Discipline'         => $getVal('Discipline', $rowData),
+                    'NiveauEtude'        => $getVal('NiveauEtude', $rowData),
+                    'Formation'          => $getVal('Formation', $rowData),
                     'MoyenneBac'         => $moyenneBac,
                     'MoyenneSansBac'     => $moyenneSansBac,
-                    'AvisDRI'            => $getVal('AvisDRI',            $rowData),
-                    'DateDebut'          => $getVal('DateDebut',          $rowData),
+                    'AvisDRI'            => $getVal('AvisDRI', $rowData),
+                    'DateDebut'          => $getVal('DateDebut', $rowData),
                     'MobiliteAnterieure' => $getVal('MobiliteAnterieure', $rowData),
                 ];
             }
@@ -905,7 +985,6 @@ class ManageFolderUseCase
                 return $this->dossierRepo->upsertMultiple($dossiersToInsert) > 0;
             }
             return false;
-
         } catch (\Exception $e) {
             error_log("Import Error: " . $e->getMessage());
             return false;

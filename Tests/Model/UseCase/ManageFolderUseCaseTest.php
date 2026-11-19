@@ -466,7 +466,7 @@ class ManageFolderUseCaseTest extends TestCase
         /** @var array<string, mixed> $pieces */
         $pieces = json_decode((string) $captured[':PiecesJustificatives'], true);
         $this->assertArrayHasKey('photo', $pieces); // new photo added
-        $this->assertArrayHasKey('cv',    $pieces); // existing cv preserved
+        $this->assertArrayHasKey('cv', $pieces); // existing cv preserved
     }
 
     // =========================================================

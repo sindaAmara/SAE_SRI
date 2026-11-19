@@ -84,7 +84,7 @@ foreach ($paginatedData as $etudiant) {
                                 : 0;
                         $eEtape       = strval($etudiant['etape'] ?? \Model\Entity\WorkflowStep::fromRow($etudiant));
                         $eEtapeLabel  = \Model\Entity\WorkflowStep::LABELS[$eEtape] ?? null;
-                        $rowUrl       = $buildUrl('index.php', ['page' => $viewPage, 'action' => 'view', 'numetu' =>$eNumEtu]);
+                        $rowUrl       = $buildUrl('index.php', ['page' => $viewPage, 'action' => 'view', 'numetu' => $eNumEtu]);
                         ?>
                         <tr class="clickable-row"
                             data-numetu="<?= htmlspecialchars($eNumEtu) ?>"

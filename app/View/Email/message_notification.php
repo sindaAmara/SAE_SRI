@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Email template: New message notification
  *

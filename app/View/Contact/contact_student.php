@@ -69,7 +69,7 @@ $subjects = [
                 'en' => 'A question about your mobility? Our team is here to help you.'
             ]) ?></p>
 
-        <?php if (!empty($studentConversations)): ?>
+        <?php if (!empty($studentConversations)) : ?>
             <button class="btn-my-messages" onclick="toggleMessages()">
                 📬 <?= $t(['fr' => 'Mes demandes en cours', 'en' => 'My current requests']) ?>
                 <span class="msg-count-badge"><?= count($studentConversations) ?></span>
@@ -78,12 +78,12 @@ $subjects = [
         <?php endif; ?>
     </div>
 
-<?php if (!empty($studentConversations)): ?>
+<?php if (!empty($studentConversations)) : ?>
     <div class="contact-history" id="messagesPanel" style="display:none;">
         <div class="history-list">
-            <?php foreach ($studentConversations as $conv):
-            $subjectLabel = $subjects[$conv->getSubject()] ?? $conv->getSubject();
-            ?>
+            <?php foreach ($studentConversations as $conv) :
+                $subjectLabel = $subjects[$conv->getSubject()] ?? $conv->getSubject();
+                ?>
             <details class="history-card">
 
                 <summary class="history-card-header" style="cursor: pointer;">
@@ -92,7 +92,7 @@ $subjects = [
                 </summary>
 
                 <div class="chat-thread">
-                    <?php foreach ($conv->getMessages() as $msg): ?>
+                    <?php foreach ($conv->getMessages() as $msg) : ?>
                         <?php $isStudent = $msg->getSenderType() === 'student'; ?>
                         <div class="chat-message <?= $isStudent ? 'chat-message--student' : 'chat-message--admin' ?>">
                             <div class="chat-message-meta">
@@ -122,7 +122,7 @@ $subjects = [
                 </div>
 
         </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
     </div>
     </div>
 <?php endif; ?>
@@ -132,7 +132,7 @@ $subjects = [
         <div class="contact-form-section">
             <h2><?= $t(['fr' => 'Envoyez-nous un message', 'en' => 'Send us a message']) ?></h2>
 
-            <?php if ($messageSent): ?>
+            <?php if ($messageSent) : ?>
                 <div class="success-message">
                     ✓ <?= $t([
                         'fr' => 'Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.',
@@ -141,7 +141,7 @@ $subjects = [
                 </div>
             <?php endif; ?>
 
-            <?php if ($error): ?>
+            <?php if ($error) : ?>
                 <div class="error-message">✗ <?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 

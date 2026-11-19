@@ -63,6 +63,7 @@ class StageFormRepositoryPDO
         );
         $stmt->execute(['numetu' => $numetu]);
 
+        /** @var array<string, mixed>|false $row */
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row !== false ? $row : null;
@@ -92,8 +93,13 @@ class StageFormRepositoryPDO
              ORDER BY r.submitted_at DESC'
         );
 
+        if ($stmt === false) {
+            return [];
+        }
+
+        /** @var array<int, array<string, mixed>> $rows */
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return is_array($rows) ? $rows : [];
+        return $rows;
     }
 }

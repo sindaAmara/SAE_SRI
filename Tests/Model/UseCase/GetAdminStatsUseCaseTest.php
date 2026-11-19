@@ -306,7 +306,7 @@ class GetAdminStatsUseCaseTest extends TestCase
         $countries = $stats->getTopCountries();
         $this->assertCount(2, $countries);
         $this->assertSame('Espagne', $countries[0]->getName());
-        $this->assertSame(3,         $countries[0]->getCount());
+        $this->assertSame(3, $countries[0]->getCount());
     }
 
     /**
@@ -331,7 +331,7 @@ class GetAdminStatsUseCaseTest extends TestCase
         $depts = $stats->getDepartments();
         $this->assertCount(1, $depts);
         $this->assertSame('MATH', $depts[0]->getName());
-        $this->assertSame(9,      $depts[0]->getCount());
+        $this->assertSame(9, $depts[0]->getCount());
     }
 
     // =========================================================

@@ -37,7 +37,7 @@ class ContactControllerAdminTest extends TestCase
     {
         $serviceMock = $this->createMock(ContactService::class);
 
-        $controller = new class($serviceMock) extends ContactControllerAdmin {
+        $controller = new class ($serviceMock) extends ContactControllerAdmin {
             public function __construct(ContactService $service)
             {
                 $ref  = new \ReflectionClass(ContactControllerAdmin::class);
@@ -46,7 +46,9 @@ class ContactControllerAdminTest extends TestCase
                 $prop->setValue($this, $service);
             }
 
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             protected function redirect(string $url): never
             {
@@ -54,7 +56,9 @@ class ContactControllerAdminTest extends TestCase
             }
 
             /** @param array<string, mixed> $data */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $serviceMock];
@@ -71,9 +75,9 @@ class ContactControllerAdminTest extends TestCase
 
     public function test_support_returns_false_for_other_pages(): void
     {
-        $this->assertFalse(ContactControllerAdmin::support('home',  'GET'));
+        $this->assertFalse(ContactControllerAdmin::support('home', 'GET'));
         $this->assertFalse(ContactControllerAdmin::support('login', 'POST'));
-        $this->assertFalse(ContactControllerAdmin::support('',      'GET'));
+        $this->assertFalse(ContactControllerAdmin::support('', 'GET'));
     }
 
     // -------------------------------------------------------------------------
@@ -121,7 +125,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('addMessage')
             ->with(42, 'admin', 'Bonjour, voici ma réponse.');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     public function test_respond_action_does_not_call_addMessage_when_response_is_empty(): void
@@ -135,7 +142,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_respond_action_does_not_call_addMessage_when_id_is_zero(): void
@@ -149,7 +159,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('addMessage');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -168,7 +181,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('markConversationAsRead')
             ->with(7, 'admin');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     public function test_mark_read_does_nothing_when_id_is_zero(): void
@@ -181,7 +197,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('markConversationAsRead');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -200,7 +219,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('deleteConversation')
             ->with(15);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     public function test_delete_action_does_nothing_when_id_is_missing(): void
@@ -212,7 +234,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->expects($this->never())->method('deleteConversation');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_delete_sets_session_message_in_french(): void
@@ -226,7 +251,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->method('deleteConversation');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Conversation supprimée.', $_SESSION['message'] ?? '');
     }
@@ -242,7 +270,10 @@ class ContactControllerAdminTest extends TestCase
         [$controller, $serviceMock] = $this->makeController();
         $serviceMock->method('deleteConversation');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Conversation deleted.', $_SESSION['message'] ?? '');
     }
@@ -269,7 +300,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('markConversationAsRead')
             ->with(10, 'admin');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_view_action_does_not_mark_read_when_conversation_not_found(): void
@@ -283,7 +317,10 @@ class ContactControllerAdminTest extends TestCase
         $serviceMock->method('getConversationById')->with(999)->willReturn(null);
         $serviceMock->expects($this->never())->method('markConversationAsRead');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -300,7 +337,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('getAllConversations')
             ->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_list_action_with_unread_filter_calls_getUnreadConversations(): void
@@ -316,7 +356,10 @@ class ContactControllerAdminTest extends TestCase
             ->willReturn([]);
         $serviceMock->expects($this->never())->method('getAllConversations');
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     public function test_list_action_with_all_filter_calls_getAllConversations(): void
@@ -330,7 +373,10 @@ class ContactControllerAdminTest extends TestCase
             ->method('getAllConversations')
             ->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -348,7 +394,7 @@ class ContactControllerAdminTest extends TestCase
         };
 
         $result = $buildUrl('index.php', ['page' => 'messages-admin']);
-        $this->assertStringContainsString('lang=en',              $result);
-        $this->assertStringContainsString('page=messages-admin',  $result);
+        $this->assertStringContainsString('lang=en', $result);
+        $this->assertStringContainsString('page=messages-admin', $result);
     }
 }

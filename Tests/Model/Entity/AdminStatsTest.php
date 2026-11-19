@@ -45,12 +45,12 @@ class AdminStatsTest extends TestCase
         // Assert that getters return expected objects
         $this->assertSame($dossierStats, $adminStats->getDossierStats());
         $this->assertSame($topCountries, $adminStats->getTopCountries());
-        $this->assertSame($genderStats,  $adminStats->getGenderStats());
-        $this->assertSame($departments,  $adminStats->getDepartments());
+        $this->assertSame($genderStats, $adminStats->getGenderStats());
+        $this->assertSame($departments, $adminStats->getDepartments());
 
         // Assert that getters return expected scalar values
         $this->assertEquals(10, $adminStats->getIncomingStudents());
-        $this->assertEquals(5,  $adminStats->getOutgoingStudents());
+        $this->assertEquals(5, $adminStats->getOutgoingStudents());
 
         $this->assertEquals([['name' => 'Europe', 'count' => 3]], $adminStats->getZoneStats());
 
@@ -97,8 +97,8 @@ class AdminStatsTest extends TestCase
         $result = $adminStats->toArray();
 
         // Assert Folder stats
-        $this->assertEquals(7,  $result['complete_folders']);
-        $this->assertEquals(3,  $result['incomplete_folders']);
+        $this->assertEquals(7, $result['complete_folders']);
+        $this->assertEquals(3, $result['incomplete_folders']);
         $this->assertEquals(10, $result['total_folders']);
 
         // Assert Top countries
@@ -118,8 +118,8 @@ class AdminStatsTest extends TestCase
         $this->assertEquals([['name' => 'Europe', 'count' => 3]], $result['top_continents']);
 
         // Assert country counts
-        $this->assertEquals(8,  $result['europe_countries_count']);
-        $this->assertEquals(2,  $result['non_europe_countries_count']);
+        $this->assertEquals(8, $result['europe_countries_count']);
+        $this->assertEquals(2, $result['non_europe_countries_count']);
         $this->assertEquals(10, $result['total_countries_count']);
     }
 }

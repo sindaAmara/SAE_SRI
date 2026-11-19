@@ -70,49 +70,70 @@ class Conversation
      *
      * @return int|null
      */
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     /**
      * Returns the student number of the conversation owner.
      *
      * @return string
      */
-    public function getStudentNumEtu(): string { return $this->studentNumEtu; }
+    public function getStudentNumEtu(): string
+    {
+        return $this->studentNumEtu;
+    }
 
     /**
      * Returns the display name of the student.
      *
      * @return string
      */
-    public function getName(): string { return $this->name; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
     /**
      * Returns the email address of the student.
      *
      * @return string
      */
-    public function getEmail(): string { return $this->email; }
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 
     /**
      * Returns the subject of the conversation.
      *
      * @return string
      */
-    public function getSubject(): string { return $this->subject; }
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
 
     /**
      * Returns the current status of the conversation.
      *
      * @return string
      */
-    public function getStatus(): string { return $this->status; }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
 
     /**
      * Returns the creation timestamp of the conversation.
      *
      * @return \DateTime
      */
-    public function getCreatedAt(): \DateTime { return $this->createdAt; }
+    public function getCreatedAt(): \DateTime
+    {
+        return $this->createdAt;
+    }
 
     /**
      * Updates the status of the conversation.
@@ -120,7 +141,10 @@ class Conversation
      * @param string $status The new status value
      * @return void
      */
-    public function setStatus(string $status): void { $this->status = $status; }
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
+    }
 
     // ─── Gestion des Messages (La relation 1 -> N) ─────────────────────
 
@@ -162,7 +186,9 @@ class Conversation
      */
     public function getLastMessage(): ?Message
     {
-        if (empty($this->messages)) return null;
+        if (empty($this->messages)) {
+            return null;
+        }
         return end($this->messages);
     }
 

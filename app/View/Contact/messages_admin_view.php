@@ -102,7 +102,7 @@ $subjects = [
             <h3><?= $t(['fr' => 'Fil de discussion', 'en' => 'Discussion thread']) ?></h3>
             
             <div class="chat-history">
-                <?php foreach ($conversation->getMessages() as $msg): ?>
+                <?php foreach ($conversation->getMessages() as $msg) : ?>
                     <?php $isAdmin = $msg->getSenderType() === 'admin'; ?>
                     
                     <div class="chat-message <?= $isAdmin ? 'chat-message--admin' : 'chat-message--student' ?>">

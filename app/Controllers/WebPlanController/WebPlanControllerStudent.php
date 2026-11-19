@@ -41,12 +41,12 @@ class WebPlanControllerStudent implements ControllerInterface
         $lang = $_SESSION['lang'] ?? 'fr';
 
         // Translation helper function
-        $t = function(array $translations) use ($lang): string {
+        $t = function (array $translations) use ($lang): string {
             return $translations[$lang] ?? $translations['fr'];
         };
 
         // URL builder helper
-        $buildUrl = function(string $path, array $params = []) use ($lang): string {
+        $buildUrl = function (string $path, array $params = []) use ($lang): string {
             $params['lang'] = $lang;
             $url = 'index.php?page=' . $path;
             foreach ($params as $key => $value) {
@@ -56,7 +56,7 @@ class WebPlanControllerStudent implements ControllerInterface
         };
 
         // Label translation helper
-        $translateLabel = function(string $label) use ($lang): string {
+        $translateLabel = function (string $label) use ($lang): string {
             $translations = [
                 'Accueil' => 'Home',
                 'Mon Tableau de bord' => 'My Dashboard',

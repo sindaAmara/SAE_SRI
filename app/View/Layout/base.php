@@ -67,7 +67,7 @@ $noMain       = $noMain ?? false;
     <link rel="stylesheet" href="styles/chatbot.css">
     <link rel="icon" type="image/png" href="img/favicon.webp"/>
 
-    <?php foreach ($styles as $style): ?>
+    <?php foreach ($styles as $style) : ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($style) ?>">
     <?php endforeach; ?>
 </head>
@@ -75,9 +75,8 @@ $noMain       = $noMain ?? false;
 
 <?php include __DIR__ . '/header.php'; ?>
 
-<?php if ($noMain): ?>
-
-    <?php if (isset($_SESSION['message'])): ?>
+<?php if ($noMain) : ?>
+    <?php if (isset($_SESSION['message'])) : ?>
         <div class="message" style="max-width:1200px;margin:20px auto;">
             <?= htmlspecialchars((string) $_SESSION['message']); ?>
             <?php unset($_SESSION['message']); ?>
@@ -86,10 +85,9 @@ $noMain       = $noMain ?? false;
 
     <?= $content ?>
 
-<?php else: ?>
-
+<?php else : ?>
     <main class="<?= $activeMenu ?>">
-        <?php if (isset($_SESSION['message'])): ?>
+        <?php if (isset($_SESSION['message'])) : ?>
             <div class="message">
                 <?= htmlspecialchars((string) $_SESSION['message']); ?>
                 <?php unset($_SESSION['message']); ?>
@@ -101,18 +99,18 @@ $noMain       = $noMain ?? false;
 
 <?php endif; ?>
 
-<?php if (!in_array($userRole, ['coordinateur', 'coordinateur_etude', 'coordinateur_stage', 'chef_departement'])): ?>
+<?php if (!in_array($userRole, ['coordinateur', 'coordinateur_etude', 'coordinateur_stage', 'chef_departement'])) : ?>
     <?php include __DIR__ . '/chatbot.php'; ?>
 <?php endif; ?>
 <?php include __DIR__ . '/footer.php'; ?>
 
 <script src="js/main.js"></script>
-<?php if ($userRole === 'admin'): ?>
+<?php if ($userRole === 'admin') : ?>
     <script src="js/chatbot-admin.js"></script>
-<?php elseif ($userRole === 'student'): ?>
+<?php elseif ($userRole === 'student') : ?>
     <script src="js/chatbot-student.js?v=<?= (int) @filemtime(dirname(__DIR__, 3) . '/public/js/chatbot-student.js') ?>"></script>
 <?php endif; ?>
-<?php foreach ($scripts as $script): ?>
+<?php foreach ($scripts as $script) : ?>
     <script src="<?= htmlspecialchars($script) ?>"></script>
 <?php endforeach; ?>
 

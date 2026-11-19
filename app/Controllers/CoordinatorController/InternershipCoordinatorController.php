@@ -110,8 +110,10 @@ class InternershipCoordinatorController implements ControllerInterface
         if ($action === 'view' && !empty($_GET['numetu'])) {
             $studentData = $this->folderUseCase->getStudentDetails($_GET['numetu']);
             // CDC §7.2 : pas d'accès aux dossiers d'un autre département
-            if (is_array($studentData) && $userDepartement !== null
-                && strcasecmp(trim(strval($studentData['CodeDepartement'] ?? '')), $userDepartement) !== 0) {
+            if (
+                is_array($studentData) && $userDepartement !== null
+                && strcasecmp(trim(strval($studentData['CodeDepartement'] ?? '')), $userDepartement) !== 0
+            ) {
                 $_SESSION['message'] = $lang === 'en'
                     ? 'This folder belongs to another department.'
                     : "Ce dossier appartient à un autre département.";

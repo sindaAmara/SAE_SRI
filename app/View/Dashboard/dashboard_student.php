@@ -45,8 +45,11 @@
 ob_start();
 
 $decisionClass = '';
-if ($status === 'accepte') $decisionClass = 'decision-accepted';
-elseif ($status === 'refuse') $decisionClass = 'decision-refused';
+if ($status === 'accepte') {
+    $decisionClass = 'decision-accepted';
+} elseif ($status === 'refuse') {
+    $decisionClass = 'decision-refused';
+}
 ?>
 
     <h1><?= $t(['fr' => 'Suivi du dossier', 'en' => 'File Tracking']) ?></h1>
@@ -73,7 +76,7 @@ elseif ($status === 'refuse') $decisionClass = 'decision-refused';
         </div>
     </div>
 
-    <?php if (in_array($status, ['accepte'], true)):?>
+    <?php if (in_array($status, ['accepte'], true)) :?>
         <div class="form-link-box">
             <a href="index.php?page=stage-form" class="form-link-btn">
                 <?= $t(['fr' => 'Formulaire de fin de stage', 'en' => 'End-of-internship form']) ?>

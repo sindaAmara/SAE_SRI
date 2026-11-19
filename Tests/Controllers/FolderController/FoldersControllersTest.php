@@ -69,7 +69,7 @@ class FoldersControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(ManageFolderUseCase::class);
 
-        $controller = new class($useCaseMock) extends FoldersControllerAdmin {
+        $controller = new class ($useCaseMock) extends FoldersControllerAdmin {
             public function __construct(ManageFolderUseCase $useCase)
             {
                 // Inject the mock directly via reflection to bypass the real constructor.
@@ -80,7 +80,9 @@ class FoldersControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -96,7 +98,9 @@ class FoldersControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
 
             /**
              * Converts a JSON response into a catchable exception so tests can
@@ -110,7 +114,9 @@ class FoldersControllersTest extends TestCase
             }
 
             /** No-op: suppresses log output during tests. */
-            protected function log(string $message): void {}
+            protected function log(string $message): void
+            {
+            }
         };
 
         return [$controller, $useCaseMock];
@@ -131,7 +137,7 @@ class FoldersControllersTest extends TestCase
     {
         $useCaseMock = $this->createMock(ManageFolderUseCase::class);
 
-        $controller = new class($useCaseMock) extends FoldersControllerStudent {
+        $controller = new class ($useCaseMock) extends FoldersControllerStudent {
             public function __construct(ManageFolderUseCase $useCase)
             {
                 // Inject the mock directly via reflection to bypass the real constructor.
@@ -142,7 +148,9 @@ class FoldersControllersTest extends TestCase
             }
 
             /** No-op: prevents real session_start() calls during tests. */
-            protected function startSession(): void {}
+            protected function startSession(): void
+            {
+            }
 
             /**
              * Converts a redirect into a catchable exception so tests can
@@ -158,7 +166,9 @@ class FoldersControllersTest extends TestCase
              *
              * @param array<string, mixed> $data
              */
-            protected function renderView(string $view, array $data = []): void {}
+            protected function renderView(string $view, array $data = []): void
+            {
+            }
         };
 
         return [$controller, $useCaseMock];
@@ -279,7 +289,10 @@ class FoldersControllersTest extends TestCase
             ->method('searchWithoutPagination')
             ->willReturn($this->emptySearchResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -304,11 +317,14 @@ class FoldersControllersTest extends TestCase
                 return $this->emptySearchResult();
             });
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
 
         $this->assertSame('entrant', $capturedFilters['type']   ?? null);
-        $this->assertSame('europe',  $capturedFilters['zone']   ?? null);
-        $this->assertSame('Dupont',  $capturedFilters['search'] ?? null);
+        $this->assertSame('europe', $capturedFilters['zone']   ?? null);
+        $this->assertSame('Dupont', $capturedFilters['search'] ?? null);
     }
 
     // =========================================================================
@@ -334,7 +350,10 @@ class FoldersControllersTest extends TestCase
             ->willReturn(['NumEtu' => 'ETU001']);
         $useCaseMock->method('searchWithoutPagination')->willReturn($this->emptySearchResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -352,7 +371,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->expects($this->never())->method('getStudentDetails');
         $useCaseMock->method('searchWithoutPagination')->willReturn($this->emptySearchResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -376,7 +398,10 @@ class FoldersControllersTest extends TestCase
             ->with('ETU042')
             ->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -393,7 +418,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->expects($this->never())->method('toggleCompleteStatus');
         $useCaseMock->method('searchWithoutPagination')->willReturn($this->emptySearchResult());
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
@@ -410,7 +438,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeAdminController();
         $useCaseMock->method('toggleCompleteStatus')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Statut du dossier mis à jour.', $_SESSION['message'] ?? '');
     }
@@ -429,7 +460,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeAdminController();
         $useCaseMock->method('toggleCompleteStatus')->willReturn(false);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Erreur lors de la mise à jour.', $_SESSION['message'] ?? '');
     }
@@ -448,7 +482,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeAdminController();
         $useCaseMock->method('toggleCompleteStatus')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Folder status updated.', $_SESSION['message'] ?? '');
     }
@@ -502,7 +539,10 @@ class FoldersControllersTest extends TestCase
             ->willReturn(true);
         $useCaseMock->method('getStudentDetails')->willReturn(['status' => 'depot']);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -579,7 +619,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getByNumetu')->willReturn(null);
         $useCaseMock->expects($this->once())->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -655,7 +698,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getByNumetu')->willReturn(null);
         $useCaseMock->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Folder créé avec succès', $_SESSION['message'] ?? '');
     }
@@ -678,7 +724,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getByNumetu')->willReturn(null);
         $useCaseMock->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Folder created successfully', $_SESSION['message'] ?? '');
     }
@@ -702,7 +751,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(['Nom' => 'OldName']);
         $useCaseMock->expects($this->once())->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -722,7 +774,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(['Nom' => 'OldName']);
         $useCaseMock->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Dossier mis à jour', $_SESSION['message'] ?? '');
     }
@@ -744,7 +799,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(['Nom' => 'OldName']);
         $useCaseMock->method('updateDossier')->willReturn(false);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Erreur lors de la mise à jour', $_SESSION['message'] ?? '');
     }
@@ -768,7 +826,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeAdminController();
         $useCaseMock->expects($this->never())->method('importFoldersFromCSV');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertStringContainsString('Erreur', $_SESSION['message'] ?? '');
     }
@@ -795,7 +856,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeAdminController();
         $useCaseMock->expects($this->never())->method('importFoldersFromCSV');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertStringContainsString('Format non supporté', $_SESSION['message'] ?? '');
     }
@@ -883,7 +947,10 @@ class FoldersControllersTest extends TestCase
             ->with('12345')
             ->willReturn([]);
 
-        try { $controller->control(); } catch (\Throwable $e) {}
+        try {
+            $controller->control();
+        } catch (\Throwable $e) {
+        }
     }
 
     // =========================================================================
@@ -911,7 +978,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->expects($this->once())->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -955,7 +1025,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeStudentController();
         $useCaseMock->method('getStudentDetails')->willReturn(['NumEtu' => '12345']);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Vous avez déjà déposé un dossier.', $_SESSION['message'] ?? '');
     }
@@ -975,7 +1048,10 @@ class FoldersControllersTest extends TestCase
         [$controller, $useCaseMock] = $this->makeStudentController();
         $useCaseMock->method('getStudentDetails')->willReturn(['NumEtu' => '12345']);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('You have already submitted an application.', $_SESSION['message'] ?? '');
     }
@@ -995,7 +1071,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->expects($this->never())->method('creerDossier');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -1019,7 +1098,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->expects($this->never())->method('creerDossier');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -1044,7 +1126,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Votre demande a été déposée avec succès.', $_SESSION['message'] ?? '');
     }
@@ -1071,7 +1156,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->method('creerDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Application submitted successfully.', $_SESSION['message'] ?? '');
     }
@@ -1098,7 +1186,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn(null);
         $useCaseMock->method('creerDossier')->willReturn(false);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Erreur lors du dépôt de la demande.', $_SESSION['message'] ?? '');
     }
@@ -1126,7 +1217,10 @@ class FoldersControllersTest extends TestCase
         ]);
         $useCaseMock->expects($this->once())->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
     }
 
     /**
@@ -1146,7 +1240,10 @@ class FoldersControllersTest extends TestCase
         $useCaseMock->method('getStudentDetails')->willReturn([]);
         $useCaseMock->expects($this->never())->method('updateDossier');
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame("L'email personnel est requis.", $_SESSION['message'] ?? '');
     }
@@ -1172,7 +1269,10 @@ class FoldersControllersTest extends TestCase
         ]);
         $useCaseMock->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Dossier mis à jour avec succès.', $_SESSION['message'] ?? '');
     }
@@ -1198,7 +1298,10 @@ class FoldersControllersTest extends TestCase
         ]);
         $useCaseMock->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Folder updated successfully.', $_SESSION['message'] ?? '');
     }
@@ -1224,7 +1327,10 @@ class FoldersControllersTest extends TestCase
         ]);
         $useCaseMock->method('updateDossier')->willReturn(false);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertSame('Erreur lors de la mise à jour du dossier.', $_SESSION['message'] ?? '');
     }
@@ -1251,7 +1357,10 @@ class FoldersControllersTest extends TestCase
         ]);
         $useCaseMock->expects($this->once())->method('updateDossier')->willReturn(true);
 
-        try { $controller->control(); } catch (\RuntimeException $e) {}
+        try {
+            $controller->control();
+        } catch (\RuntimeException $e) {
+        }
 
         $this->assertStringContainsString('date limite dépassée', $_SESSION['message'] ?? '');
     }

@@ -76,7 +76,6 @@ class ContactControllerAdmin implements ControllerInterface
 
         // Handle POST actions
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
             // Send a response to a conversation
             if ($action === 'respond' && $conversationId) {
                 $response = trim($_POST['response'] ?? '');
@@ -85,16 +84,12 @@ class ContactControllerAdmin implements ControllerInterface
                     $_SESSION['message'] = $lang === 'fr' ? 'Réponse envoyée !' : 'Response sent!';
                     $this->redirect('index.php?page=messages-admin&action=view&id=' . $conversationId);
                 }
-            }
-
-            // Mark a conversation as read
-            elseif ($action === 'mark-read' && $conversationId) {
+            } elseif ($action === 'mark-read' && $conversationId) {
+                // Mark a conversation as read
                 $this->contactService->markConversationAsRead($conversationId, 'admin');
                 $this->redirect('index.php?page=messages-admin');
-            }
-
-            // Delete a conversation
-            elseif ($action === 'delete') {
+            } elseif ($action === 'delete') {
+                // Delete a conversation
                 $idToDelete = $_POST['id'] ?? $_GET['id'] ?? null;
                 if ($idToDelete) {
                     $this->contactService->deleteConversation((int)$idToDelete);
@@ -128,7 +123,7 @@ class ContactControllerAdmin implements ControllerInterface
                 'lang'           => $lang,
                 't'              => $t,
                 'buildUrl' => $buildUrl,
-            'userRole' => 'admin',
+                'userRole' => 'admin',
                 'action'         => $action,
                 'conversationId' => $conversationId,
             ]);
@@ -146,7 +141,7 @@ class ContactControllerAdmin implements ControllerInterface
                 'lang'          => $lang,
                 't'             => $t,
                 'buildUrl' => $buildUrl,
-            'userRole' => 'admin',
+                'userRole' => 'admin',
                 'action'        => $action,
             ]);
         }

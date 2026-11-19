@@ -78,12 +78,12 @@ $currentId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
     <div class="outlook-panes">
         <div class="outlook-list-pane" id="msgList">
-            <?php if (empty($conversations)): ?>
+            <?php if (empty($conversations)) : ?>
                 <div class="no-messages">
                     <?= $t(['fr' => 'Aucune conversation.', 'en' => 'No conversations.']) ?>
                 </div>
-            <?php else: ?>
-                <?php foreach ($conversations as $conv): ?>
+            <?php else : ?>
+                <?php foreach ($conversations as $conv) : ?>
                     <?php
                     $isUnread = $conv->hasUnreadMessagesFor('admin');
                     $isSelected = ($currentId === $conv->getId());
@@ -96,7 +96,7 @@ $currentId = isset($_GET['id']) ? (int)$_GET['id'] : null;
                        class="message-item <?= $isUnread ? 'unread' : '' ?> <?= $isSelected ? 'selected' : '' ?>"
                        style="text-decoration: none !important; outline: none !important;">
                         
-                        <?php if ($isUnread): ?>
+                        <?php if ($isUnread) : ?>
                             <div class="unread-dot"></div>
                         <?php endif; ?>
 
@@ -130,7 +130,7 @@ $currentId = isset($_GET['id']) ? (int)$_GET['id'] : null;
 $content    = ob_get_clean();
 $title      = $t(['fr' => 'Messages', 'en' => 'Messages']);
 $styles     = ['styles/messages_admin.css'];
-$scripts    = []; 
+$scripts    = [];
 $activeMenu = 'messages';
 $userRole   = 'admin';
 $noMain     = true;

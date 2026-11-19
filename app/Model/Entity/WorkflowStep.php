@@ -74,10 +74,18 @@ final class WorkflowStep
      */
     public static function fromRow(array $row): string
     {
-        if (empty($row['IsComplete']))          return self::INCOMPLET;
-        if (empty($row['valide_admin']))        return self::A_VALIDER;
-        if (empty($row['valide_coordinateur'])) return self::VALIDE_SECRETARIAT;
-        if (($row['avis_chef_departement'] ?? null) === 'accepte') return self::VALIDE_CHEF;
+        if (empty($row['IsComplete'])) {
+            return self::INCOMPLET;
+        }
+        if (empty($row['valide_admin'])) {
+            return self::A_VALIDER;
+        }
+        if (empty($row['valide_coordinateur'])) {
+            return self::VALIDE_SECRETARIAT;
+        }
+        if (($row['avis_chef_departement'] ?? null) === 'accepte') {
+            return self::VALIDE_CHEF;
+        }
         return self::VALIDE_COORDINATEUR;
     }
 
