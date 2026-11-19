@@ -58,6 +58,7 @@ Autoloader::register();
 
 use Controllers\AuthController;
 use Controllers\DashboardController;
+use Controllers\DatesController;
 use Controllers\NotFoundController;
 use Controllers\SaveStudentController;
 use Controllers\StageFormController;
@@ -119,6 +120,7 @@ $controllers = [
     StudyCoordinatorController::class,
     DepartmentHeadController::class,
     BobController::class,
+    DatesController::class,
 ];
 
 // --- 6. Routing Logic ---

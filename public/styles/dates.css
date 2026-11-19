@@ -1,0 +1,30 @@
+.datepicker-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.conteneur-dates {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+table th,
+table td {
+    border: 1px solid #e0e0e0;
+    padding: 0.5em;
+    text-align: left;
+}
+
+table th {
+    background-color: var(--accent-color);
+    color: #fff;
+}
+
+tr:nth-child(even) {
+    background: #f0f4ff;
+}
