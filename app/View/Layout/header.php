@@ -201,6 +201,10 @@ $userRole === 'admin'        ? 'home-admin'        :
             ];
 
             if ($userRole === 'admin') {
+                $menus['dates'] = ['fr' => 'Dates', 'en' => 'Messages'];
+            }
+
+            if ($userRole === 'admin') {
                 $menus['messages'] = ['fr' => 'Messages', 'en' => 'Messages'];
             }
 
